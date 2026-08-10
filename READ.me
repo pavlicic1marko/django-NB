@@ -1,1 +1,22 @@
 NB practice website
+commands for deployment on PROD:
+---install python 3.11
+sudo dnf update -y
+sudo dnf install -y git python3.11 python3.11-pip
+---pull repo
+git clone 
+---change folder
+cd
+---install venv
+python3.11 -m venv .venv
+source .venv/bin/activate
+---install depedencies
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+---create databse
+python manage.py makemigrations
+python manage.py migrate
+---create admin
+python manage.py createsuperuser
+---start
+python manage.py runserver 0.0.0.0:8080

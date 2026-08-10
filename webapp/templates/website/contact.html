@@ -1,0 +1,47 @@
+{% extends "website/base.html" %}
+
+{% block title %}Contact{% endblock %}
+
+{% block content %}
+    <main class="container py-5">
+        <section class="row g-4 align-items-stretch">
+            <div class="col-12 col-lg-4">
+                <div class="border rounded-4 p-4 h-100 bg-light">
+                    <h1 class="h2 mb-3">Schedule a meeting</h1>
+                    <p class="text-secondary mb-4">
+                        Fill out the form and our team will reach out to you within 1-2 business days.
+                    </p>
+                    <button type="button" class="btn btn-primary px-4">Talk with us</button>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-8">
+                <div class="border rounded-4 p-4 p-md-5 bg-white h-100">
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary px-4">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %}

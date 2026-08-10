@@ -1,0 +1,28 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+    <main class="container py-5">
+        <section class="row g-4 align-items-center">
+            <div class="col-12 col-lg-6">
+                <h1 class="display-5 fw-bold mb-3">Who are we</h1>
+                <p class="text-secondary mb-0">
+                    We are a passionate team focused on building practical and meaningful digital products.
+                    Our mission is to combine design, technology, and strong communication to deliver results
+                    that help businesses grow. From first ideas to final launch, we work closely with clients
+                    to create solutions that are clear, modern, and easy to use.
+                </p>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <img
+                    src="{% static 'images/image.png' %}"
+                    alt="About us"
+                    class="img-fluid rounded-4 shadow-sm w-100"
+                >
+            </div>
+        </section>
+    </main>
+{% endblock %}

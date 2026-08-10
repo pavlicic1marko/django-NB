@@ -1,0 +1,72 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+    <main class="container py-5">
+        <h1 class="display-6 fw-bold mb-4">Products</h1>
+
+        <section class="row g-4">
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">Product Alpha</h2>
+                        <p class="card-text text-secondary">A reliable solution for everyday business workflows.</p>
+                        <a href="{% static 'pdfs/product-alpha.pdf' %}" class="btn btn-outline-primary mt-auto" download>Download PDF</a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">Product Beta</h2>
+                        <p class="card-text text-secondary">Designed to speed up team collaboration and planning.</p>
+                        <a href="{% static 'pdfs/product-beta.pdf' %}" class="btn btn-outline-primary mt-auto" download>Download PDF</a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">Product Gamma</h2>
+                        <p class="card-text text-secondary">Built for scalable growth with simple management tools.</p>
+                        <a href="{% static 'pdfs/product-gamma.pdf' %}" class="btn btn-outline-primary mt-auto" download>Download PDF</a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">Product Delta</h2>
+                        <p class="card-text text-secondary">A focused toolkit for improving customer experience.</p>
+                        <a href="{% static 'pdfs/product-delta.pdf' %}" class="btn btn-outline-primary mt-auto" download>Download PDF</a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">Product Epsilon</h2>
+                        <p class="card-text text-secondary">Optimized reporting and tracking for smarter decisions.</p>
+                        <a href="{% static 'pdfs/product-epsilon.pdf' %}" class="btn btn-outline-primary mt-auto" download>Download PDF</a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <article class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">Product Zeta</h2>
+                        <p class="card-text text-secondary">Compact, flexible, and ready for modern digital teams.</p>
+                        <a href="{% static 'pdfs/product-zeta.pdf' %}" class="btn btn-outline-primary mt-auto" download>Download PDF</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+{% endblock %}
