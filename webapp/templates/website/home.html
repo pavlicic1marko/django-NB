@@ -11,68 +11,67 @@
                 #f8fafc;
         }
 
-        .subscription-card {
-            width: min(100%, 680px);
+        .hero-panel {
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(12px);
         }
 
-        .form-control:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.15);
+        .hero-panel {
+            overflow: hidden;
         }
 
-        .btn-subscribe {
-            background: #4f46e5;
-        }
-
-        .btn-subscribe:hover {
-            background: #4338ca;
+        .hero-accent {
+            width: 140px;
+            height: 140px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.22), rgba(79, 70, 229, 0));
+            position: absolute;
+            top: -30px;
+            right: -10px;
+            pointer-events: none;
         }
     </style>
 {% endblock %}
 
 {% block content %}
-    <main class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
-        <section class="subscription-card border rounded-5 shadow-lg p-4 p-md-5 text-center">
-            <span class="badge rounded-pill text-bg-primary mb-3">
-                Coming soon
-            </span>
-
-            <h1 class="display-4 fw-bold text-dark">
-                Something great is on the way.
-            </h1>
-
-            <p class="lead text-secondary mx-auto mt-3 mb-4">
-                Enter your email to receive an update when we launch.
-            </p>
-
-            <form id="subscription-form">
-                <div class="input-group input-group-lg">
-                    <input
-                        id="email"
-                        class="form-control"
-                        type="email"
-                        placeholder="you@example.com"
-                        autocomplete="email"
-                        aria-label="Email address"
-                        required
-                    >
-
-                    <button class="btn btn-subscribe text-white px-4" type="submit">
-                        Notify me
-                    </button>
+    <section class="container pt-5 pb-4 pb-lg-5">
+        <div class="row justify-content-center g-4">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <div class="hero-panel border rounded-5 shadow-sm p-4 p-md-5 position-relative">
+                    <div class="hero-accent"></div>
+                    <span class="badge rounded-pill text-bg-primary mb-3">Trusted digital partner</span>
+                    <h1 class="display-4 fw-bold text-dark mb-3">
+                        We build practical digital products that help businesses grow.
+                    </h1>
+                    <p class="lead text-secondary mb-4">
+                        From strategy to delivery, we design clean, scalable solutions that improve workflows,
+                        strengthen customer experiences, and create measurable business value.
+                    </p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{% url 'contact' %}" class="btn btn-primary btn-lg px-4">Start a project</a>
+                        <a href="{% url 'products' %}" class="btn btn-outline-primary btn-lg px-4">View products</a>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </section>
 
-                <p id="message" class="small mt-3 mb-0" aria-live="polite"></p>
-            </form>
-
-            <p class="small text-secondary mt-4 mb-0">
-                No spam. Unsubscribe at any time.
-            </p>
-        </section>
-    </main>
-
+    <section class="container pb-4 pb-lg-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <div class="border rounded-5 bg-white shadow-sm p-4 p-md-5 text-center">
+                    <h2 class="display-6 fw-bold mb-3">Who are these projects for?</h2>
+                    <p class="lead text-secondary mb-0">
+                        These projects are built for growing businesses, startup teams, and organizations that need
+                        practical digital solutions to move faster, work smarter, and create better experiences for
+                        their customers. Whether you are launching something new or improving an existing process,
+                        the goal is to deliver results that feel useful, clear, and scalable.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
     <footer class="container pb-5">
         <div class="row g-4 text-center">
             <div class="col-12 col-md-4">
@@ -98,27 +97,4 @@
         </div>
     </footer>
 
-{% endblock %}
-
-{% block extra_script %}
-    <script>
-        const form = document.querySelector("#subscription-form");
-        const emailInput = document.querySelector("#email");
-        const message = document.querySelector("#message");
-
-        form.addEventListener("submit", (event) => {
-            event.preventDefault();
-
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-
-            message.className = "small mt-3 mb-0 text-success";
-            message.textContent =
-                `Thanks! This is currently a frontend demo for ${emailInput.value}.`;
-
-            form.reset();
-        });
-    </script>
 {% endblock %}
