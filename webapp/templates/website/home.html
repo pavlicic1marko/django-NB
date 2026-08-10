@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stay informed</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        body {
+            background:
+                radial-gradient(circle at 10% 10%, #dbeafe, transparent 35%),
+                radial-gradient(circle at 90% 90%, #ede9fe, transparent 35%),
+                #f8fafc;
+        }
+
+        .subscription-card {
+            width: min(100%, 680px);
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+        }
+
+        .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.15);
+        }
+
+        .btn-subscribe {
+            background: #4f46e5;
+        }
+
+        .btn-subscribe:hover {
+            background: #4338ca;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+        <section class="subscription-card border rounded-5 shadow-lg p-4 p-md-5 text-center">
+            <span class="badge rounded-pill text-bg-primary mb-3">
+                Coming soon
+            </span>
+
+            <h1 class="display-4 fw-bold text-dark">
+                Something great is on the way.
+            </h1>
+
+            <p class="lead text-secondary mx-auto mt-3 mb-4">
+                Enter your email to receive an update when we launch.
+            </p>
+
+            <form id="subscription-form">
+                <div class="input-group input-group-lg">
+                    <input
+                        id="email"
+                        class="form-control"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        aria-label="Email address"
+                        required
+                    >
+
+                    <button class="btn btn-subscribe text-white px-4" type="submit">
+                        Notify me
+                    </button>
+                </div>
+
+                <p id="message" class="small mt-3 mb-0" aria-live="polite"></p>
+            </form>
+
+            <p class="small text-secondary mt-4 mb-0">
+                No spam. Unsubscribe at any time.
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const form = document.querySelector("#subscription-form");
+        const emailInput = document.querySelector("#email");
+        const message = document.querySelector("#message");
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            message.className = "small mt-3 mb-0 text-success";
+            message.textContent =
+                `Thanks! This is currently a frontend demo for ${emailInput.value}.`;
+
+            form.reset();
+        });
+    </script>
+</body>
+</html>
