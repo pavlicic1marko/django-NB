@@ -1,4 +1,5 @@
 {% extends "website/base.html" %}
+{% load static %}
 
 {% block title %}About Us{% endblock %}
 
@@ -17,7 +18,7 @@
 
             <div class="col-12 col-lg-6">
                 <img
-                    src="/webapp/images/image.png"
+                    src="{% static 'images/image.png' %}"
                     alt="About us"
                     class="img-fluid rounded-4 shadow-sm w-100"
                 >
