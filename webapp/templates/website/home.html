@@ -1,15 +1,8 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Stay informed</title>
+{% extends "website/base.html" %}
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+{% block title %}Stay informed{% endblock %}
 
+{% block extra_head %}
     <style>
         body {
             background:
@@ -37,21 +30,9 @@
             background: #4338ca;
         }
     </style>
-</head>
+{% endblock %}
 
-<body>
-    <nav class="navbar navbar-light bg-white border-bottom shadow-sm py-3">
-        <div class="container d-flex align-items-center">
-            <a href="{% url 'home' %}" class="btn btn-outline-primary px-4">Home</a>
-
-            <div class="d-flex ms-5 gap-2 flex-wrap">
-                <a href="{% url 'about_us' %}" class="btn btn-outline-secondary">Abot Us</a>
-                <a href="{% url 'products' %}" class="btn btn-outline-secondary">Products</a>
-                <a href="{% url 'contact' %}" class="btn btn-outline-secondary">Contact</a>
-            </div>
-        </div>
-    </nav>
-
+{% block content %}
     <main class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
         <section class="subscription-card border rounded-5 shadow-lg p-4 p-md-5 text-center">
             <span class="badge rounded-pill text-bg-primary mb-3">
@@ -92,6 +73,9 @@
         </section>
     </main>
 
+{% endblock %}
+
+{% block extra_script %}
     <script>
         const form = document.querySelector("#subscription-form");
         const emailInput = document.querySelector("#email");
@@ -112,5 +96,4 @@
             form.reset();
         });
     </script>
-</body>
-</html>
+{% endblock %}
