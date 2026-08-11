@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Message, Metting
+from .models import Message, Metting, TimeSlot
 
 
 @admin.register(Message)
@@ -12,7 +12,15 @@ class MessageAdmin(admin.ModelAdmin):
 
 @admin.register(Metting)
 class MettingAdmin(admin.ModelAdmin):
-	list_display = ("name", "email", "phone_number", "date", "timeslot", "crated_at")
+	list_display = ("name", "email", "phone_number", "date", "timeslot", "time_slot", "crated_at")
 	search_fields = ("name", "email", "phone_number")
 	list_filter = ("date", "timeslot", "crated_at")
 	ordering = ("-crated_at",)
+
+
+@admin.register(TimeSlot)
+class TimeSlotAdmin(admin.ModelAdmin):
+	list_display = ("date", "timeslot", "created_at")
+	search_fields = ("date", "timeslot")
+	list_filter = ("date", "timeslot", "created_at")
+	ordering = ("-created_at",)
