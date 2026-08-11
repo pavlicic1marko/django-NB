@@ -101,7 +101,7 @@ def contact(request):
                 phone_number=phone_number,
                 timeslot=selected_timeslot,
             )
-            messages.success(request, "Your meeting has been scheduled successfully.")
+            messages.success(request, f"Your meeting has been scheduled successfully for {selected_date} at {selected_timeslot}.")
             return redirect("contact")
 
         name = request.POST.get("name", "").strip()
