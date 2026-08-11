@@ -173,22 +173,22 @@
                     <form method="post" action="{% url 'contact' %}">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="name" class="form-label">Name</label>
+                            <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="name" name="name" value="{{ form_data.name|default:'' }}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
+                            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="email" value="{{ form_data.email|default:'' }}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="subject" class="form-label">Subject</label>
+                            <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="subject" name="subject" value="{{ form_data.subject|default:'' }}" required>
                         </div>
 
                         <div class="mb-4">
-                            <label for="message" class="form-label">Message</label>
+                            <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="message" name="message" rows="5" required>{{ form_data.message|default:'' }}</textarea>
                         </div>
 
