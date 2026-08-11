@@ -17,25 +17,32 @@
 
             <div class="col-12 col-lg-8">
                 <div class="border rounded-4 p-4 p-md-5 bg-white h-100">
-                    <form>
+                    {% if messages %}
+                        {% for item in messages %}
+                            <div class="alert alert-{{ item.tags|default:'info' }}" role="alert">{{ item }}</div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" action="{% url 'contact' %}">
+                        {% csrf_token %}
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ form_data.name|default:'' }}" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ form_data.email|default:'' }}" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="subject" class="form-label">Subject</label>
-                            <input type="text" class="form-control" id="subject" name="subject" required>
+                            <input type="text" class="form-control" id="subject" name="subject" value="{{ form_data.subject|default:'' }}" required>
                         </div>
 
                         <div class="mb-4">
                             <label for="message" class="form-label">Message</label>
-                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                            <textarea class="form-control" id="message" name="message" rows="5" required>{{ form_data.message|default:'' }}</textarea>
                         </div>
 
                         <button type="submit" class="btn btn-primary px-4">Send Message</button>
