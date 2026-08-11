@@ -129,6 +129,14 @@
             color: #ffffff;
         }
 
+        .timeslot-btn:disabled,
+        .timeslot-btn.is-booked {
+            background: #e9ecef;
+            border-color: #ced4da;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
         @media (min-width: 992px) {
             .schedule-grid {
                 grid-template-columns: 1fr 2fr;
@@ -262,6 +270,8 @@
             </form>
         </div>
     </div>
+
+    {{ booked_slots_by_date|json_script:"bookedSlotsByDate" }}
 {% endblock %}
 
 {% block extra_script %}
@@ -282,6 +292,8 @@
             const timeButtons = Array.from(document.querySelectorAll(".timeslot-btn"));
             const nameInput = document.getElementById("meeting_name");
             const emailInput = document.getElementById("meeting_email");
+            const bookedSlotsDataElement = document.getElementById("bookedSlotsByDate");
+            const bookedSlotsByDate = bookedSlotsDataElement ? JSON.parse(bookedSlotsDataElement.textContent) : {};
 
             function toIsoDateUTC(dateObj) {
                 const year = dateObj.getUTCFullYear();
@@ -366,6 +378,23 @@
                 slotInput.value = selectedSlot;
             }
 
+            function syncBookedSlotState() {
+                const selectedDateIso = dateInput.value;
+                const bookedSlots = new Set(bookedSlotsByDate[selectedDateIso] || []);
+
+                if (selectedSlot && bookedSlots.has(selectedSlot)) {
+                    selectedSlot = "";
+                }
+
+                timeButtons.forEach((button) => {
+                    const isBooked = bookedSlots.has(button.dataset.slot);
+                    button.disabled = isBooked;
+                    button.classList.toggle("is-booked", isBooked);
+                });
+
+                syncSlotVisualState();
+            }
+
             function updateSubmitState() {
                 const hasRequired = nameInput.value.trim() !== "" && emailInput.value.trim() !== "";
                 const ready = hasRequired && dateInput.value && slotInput.value;
@@ -412,6 +441,7 @@
                         }
                         selectedDate = dayDate;
                         syncHiddenDate();
+                        syncBookedSlotState();
                         renderCalendar();
                         updateSubmitState();
                     });
@@ -442,6 +472,9 @@
 
             timeButtons.forEach((button) => {
                 button.addEventListener("click", function () {
+                    if (button.disabled) {
+                        return;
+                    }
                     selectedSlot = button.dataset.slot;
                     syncSlotVisualState();
                     updateSubmitState();
@@ -471,6 +504,7 @@
             }
 
             syncHiddenDate();
+            syncBookedSlotState();
             syncSlotVisualState();
             renderCalendar();
             updateSubmitState();
