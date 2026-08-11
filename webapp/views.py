@@ -1,8 +1,12 @@
+from datetime import date as dt_date
+from datetime import timezone as dt_timezone
+
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.utils import timezone
 
-from .models import Message
+from .models import Message, Metting, TIME_SLOT_CHOICES
 
 
 def home1(request):
@@ -24,6 +28,101 @@ def products(request):
 
 def contact(request):
     if request.method == "POST":
+        if request.POST.get("form_type") == "schedule":
+            name = request.POST.get("meeting_name", "").strip()
+            email = request.POST.get("meeting_email", "").strip()
+            phone_number = request.POST.get("meeting_phone", "").strip()
+            selected_date_raw = request.POST.get("meeting_date", "").strip()
+            selected_timeslot = request.POST.get("meeting_timeslot", "").strip()
+
+            schedule_data = {
+                "name": name,
+                "email": email,
+                "phone_number": phone_number,
+                "date": selected_date_raw,
+                "timeslot": selected_timeslot,
+            }
+
+            allowed_slots = {slot[0] for slot in TIME_SLOT_CHOICES}
+            if not all([name, email, selected_date_raw, selected_timeslot]):
+                messages.error(request, "Please complete all required fields to schedule your meeting.")
+                return render(
+                    request,
+                    "website/contact.html",
+                    {
+                        "schedule_data": schedule_data,
+                        "schedule_modal_open": True,
+                    },
+                )
+
+            if selected_timeslot not in allowed_slots:
+                messages.error(request, "The selected time slot is not valid.")
+                return render(
+                    request,
+                    "website/contact.html",
+                    {
+                        "schedule_data": schedule_data,
+                        "schedule_modal_open": True,
+                    },
+                )
+
+            try:
+                selected_date = dt_date.fromisoformat(selected_date_raw)
+            except ValueError:
+                messages.error(request, "The selected date is not valid.")
+                return render(
+                    request,
+                    "website/contact.html",
+                    {
+                        "schedule_data": schedule_data,
+                        "schedule_modal_open": True,
+                    },
+                )
+
+            utc_today = timezone.now().astimezone(dt_timezone.utc).date()
+            if selected_date < utc_today:
+                messages.error(request, "You cannot select a past date.")
+                return render(
+                    request,
+                    "website/contact.html",
+                    {
+                        "schedule_data": schedule_data,
+                        "schedule_modal_open": True,
+                    },
+                )
+
+            if selected_date.weekday() >= 5:
+                messages.error(request, "Weekend dates are not available. Please choose a weekday.")
+                return render(
+                    request,
+                    "website/contact.html",
+                    {
+                        "schedule_data": schedule_data,
+                        "schedule_modal_open": True,
+                    },
+                )
+
+            if Metting.objects.filter(date=selected_date, timeslot=selected_timeslot).exists():
+                messages.error(request, "This date and time slot is already booked. Please choose another one.")
+                return render(
+                    request,
+                    "website/contact.html",
+                    {
+                        "schedule_data": schedule_data,
+                        "schedule_modal_open": True,
+                    },
+                )
+
+            Metting.objects.create(
+                date=selected_date,
+                name=name,
+                email=email,
+                phone_number=phone_number,
+                timeslot=selected_timeslot,
+            )
+            messages.success(request, "Your meeting has been scheduled successfully.")
+            return redirect("contact")
+
         name = request.POST.get("name", "").strip()
         email = request.POST.get("email", "").strip()
         subject = request.POST.get("subject", "").strip()

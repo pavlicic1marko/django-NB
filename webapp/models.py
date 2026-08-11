@@ -44,6 +44,11 @@ class Metting(models.Model):
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.PROTECT, related_name="mettings", null=True, blank=True, editable=False)
     crated_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["date", "timeslot"], name="unique_metting_date_timeslot")
+        ]
+
     def save(self, *args, **kwargs):
         self.time_slot, _ = TimeSlot.objects.get_or_create(date=self.date, timeslot=self.timeslot)
         super().save(*args, **kwargs)
