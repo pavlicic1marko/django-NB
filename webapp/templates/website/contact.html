@@ -219,12 +219,12 @@
                     </p>
 
                     <div class="mb-3">
-                        <label for="meeting_name" class="form-label">Name *</label>
+                        <label for="meeting_name" class="form-label">Name <span class="text-danger">*</span></label>
                         <input type="text" id="meeting_name" name="meeting_name" class="form-control" value="{{ schedule_data.name|default:'' }}" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="meeting_email" class="form-label">Email *</label>
+                        <label for="meeting_email" class="form-label">Email <span class="text-danger">*</span></label>
                         <input type="email" id="meeting_email" name="meeting_email" class="form-control" value="{{ schedule_data.email|default:'' }}" required>
                     </div>
 
