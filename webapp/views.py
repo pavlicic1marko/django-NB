@@ -12,11 +12,14 @@ from .models import Message, Metting, TIME_SLOT_CHOICES
 
 def _future_booked_slots_by_date():
     utc_today = timezone.now().astimezone(dt_timezone.utc).date()
+    slot_order = [slot_value for slot_value, _ in TIME_SLOT_CHOICES]
     slots = defaultdict(set)
-    for slot_date, slot_time in Metting.objects.filter(date__gte=utc_today).values_list("date", "timeslot"):
+    slots[utc_today.isoformat()].update(slot_order)
+
+    for slot_date, slot_time in Metting.objects.filter(date__gt=utc_today).values_list("date", "timeslot"):
         slots[slot_date.isoformat()].add(slot_time)
 
-    return {date_key: sorted(list(slot_values)) for date_key, slot_values in slots.items()}
+    return {date_key: [slot for slot in slot_order if slot in slot_values] for date_key, slot_values in slots.items()}
 
 
 def _render_contact(request, form_data=None, schedule_data=None, schedule_modal_open=False):

@@ -294,6 +294,7 @@
             const emailInput = document.getElementById("meeting_email");
             const bookedSlotsDataElement = document.getElementById("bookedSlotsByDate");
             const bookedSlotsByDate = bookedSlotsDataElement ? JSON.parse(bookedSlotsDataElement.textContent) : {};
+            const allTimeSlots = timeButtons.map((button) => button.dataset.slot);
 
             function toIsoDateUTC(dateObj) {
                 const year = dateObj.getUTCFullYear();
@@ -319,10 +320,18 @@
                 return dayIndex === 0 || dayIndex === 6;
             }
 
+            function getBookedSlots(dateObj) {
+                return bookedSlotsByDate[toIsoDateUTC(dateObj)] || [];
+            }
+
+            function isFullyUnavailableDate(dateObj) {
+                return getBookedSlots(dateObj).length >= allTimeSlots.length;
+            }
+
             function findFirstAllowedDate(startDate) {
                 const probe = new Date(startDate.getTime());
-                for (let i = 0; i < 14; i += 1) {
-                    if (!isWeekendUTC(probe)) {
+                for (let i = 0; i < 31; i += 1) {
+                    if (!isWeekendUTC(probe) && !isFullyUnavailableDate(probe)) {
                         return probe;
                     }
                     probe.setUTCDate(probe.getUTCDate() + 1);
@@ -332,6 +341,7 @@
 
             const utcNow = new Date();
             const utcToday = new Date(Date.UTC(utcNow.getUTCFullYear(), utcNow.getUTCMonth(), utcNow.getUTCDate()));
+            const utcTomorrow = new Date(Date.UTC(utcNow.getUTCFullYear(), utcNow.getUTCMonth(), utcNow.getUTCDate() + 1));
             const currentMonthFloor = new Date(Date.UTC(utcToday.getUTCFullYear(), utcToday.getUTCMonth(), 1));
 
             const initialDateValue = (bookerRoot.dataset.initialDate || "").trim();
@@ -339,10 +349,10 @@
 
             let selectedDate;
             const parsedInitial = parseIsoUTC(initialDateValue);
-            if (parsedInitial && parsedInitial >= utcToday && !isWeekendUTC(parsedInitial)) {
+            if (parsedInitial && parsedInitial > utcToday && !isWeekendUTC(parsedInitial) && !isFullyUnavailableDate(parsedInitial)) {
                 selectedDate = parsedInitial;
             } else {
-                selectedDate = findFirstAllowedDate(utcToday);
+                selectedDate = findFirstAllowedDate(utcTomorrow);
             }
 
             let viewYear = selectedDate.getUTCFullYear();
@@ -428,7 +438,7 @@
                     dayButton.textContent = String(day);
                     dayButton.className = "calendar-day";
 
-                    const disabled = isBeforeToday(dayDate) || isWeekendUTC(dayDate);
+                    const disabled = isBeforeToday(dayDate) || isWeekendUTC(dayDate) || isFullyUnavailableDate(dayDate);
                     dayButton.disabled = disabled;
 
                     if (toIsoDateUTC(dayDate) === toIsoDateUTC(selectedDate)) {
