@@ -1,7 +1,11 @@
+from datetime import date
+
+from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Message
+from .models import Message, News
+from .serializers import NewsSerializer
 
 
 class MessageModelTests(TestCase):
@@ -37,3 +41,39 @@ class NewsViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["article_page"].object_list), 2)
         self.assertContains(response, "Community update: June milestones")
+
+
+class NewsModelAndSerializerTests(TestCase):
+    def test_title_must_be_unique_and_created_at_is_set_automatically(self):
+        article = News.objects.create(
+            title="Weekly operations update",
+            text="The latest operational information.",
+            date=date(2026, 8, 12),
+            image="news/update.png",
+        )
+
+        self.assertIsNotNone(article.created_at)
+        with self.assertRaises(IntegrityError):
+            News.objects.create(
+                title="Weekly operations update",
+                text="Duplicate title.",
+                date=date(2026, 8, 13),
+                image="news/duplicate.png",
+            )
+
+    def test_serializer_includes_news_fields_and_keeps_created_fields_read_only(self):
+        article = News.objects.create(
+            title="Platform status update",
+            text="All services are operational.",
+            date=date(2026, 8, 12),
+            image="news/status.png",
+        )
+
+        serializer = NewsSerializer(article)
+
+        self.assertEqual(
+            set(serializer.data),
+            {"id", "title", "text", "date", "image", "created_at"},
+        )
+        self.assertTrue(serializer.fields["id"].read_only)
+        self.assertTrue(serializer.fields["created_at"].read_only)
