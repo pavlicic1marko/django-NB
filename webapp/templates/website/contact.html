@@ -2,8 +2,162 @@
 
 {% block title %}Contact{% endblock %}
 
+{% block extra_head %}
+    <style>
+        .schedule-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 26, 39, 0.64);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 1200;
+        }
+
+        .schedule-modal.is-open {
+            display: flex;
+        }
+
+        .schedule-dialog {
+            width: min(1000px, 100%);
+            max-height: 94vh;
+            overflow: auto;
+            border-radius: 1rem;
+            background: #ffffff;
+            box-shadow: 0 22px 56px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .schedule-close {
+            position: absolute;
+            top: 0.65rem;
+            right: 0.8rem;
+            border: 0;
+            background: transparent;
+            font-size: 2rem;
+            line-height: 1;
+            color: #6c757d;
+            cursor: pointer;
+        }
+
+        .schedule-close:hover {
+            color: #0d6efd;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .schedule-info {
+            background: linear-gradient(180deg, #eef5ff, #ffffff);
+            border-right: 1px solid #e8eef8;
+            padding: 1.5rem;
+        }
+
+        .schedule-booker {
+            padding: 1.5rem;
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.65rem;
+        }
+
+        .calendar-weekdays,
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.3rem;
+        }
+
+        .calendar-weekdays div {
+            font-size: 0.82rem;
+            text-align: center;
+            color: #6c757d;
+            font-weight: 600;
+            padding: 0.25rem 0;
+        }
+
+        .calendar-day {
+            border: 1px solid #dbe4f3;
+            border-radius: 0.5rem;
+            min-height: 2.35rem;
+            text-align: center;
+            background: #ffffff;
+            color: #212529;
+            transition: all 0.15s ease;
+        }
+
+        .calendar-day:hover:not(:disabled) {
+            border-color: #0d6efd;
+        }
+
+        .calendar-day.is-selected {
+            background: #0d6efd;
+            color: #ffffff;
+            border-color: #0d6efd;
+        }
+
+        .calendar-day:disabled {
+            background: #d5d9df;
+            border-color: #bcc3cc;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .timeslot-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.6rem;
+        }
+
+        .timeslot-btn {
+            border: 1px solid #b7cdfa;
+            background: #ffffff;
+            color: #0d6efd;
+            border-radius: 0.55rem;
+            padding: 0.5rem 0.25rem;
+            font-weight: 600;
+        }
+
+        .timeslot-btn.is-selected {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: #ffffff;
+        }
+
+        .timeslot-btn:disabled,
+        .timeslot-btn.is-booked {
+            background: #e9ecef;
+            border-color: #ced4da;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        @media (min-width: 992px) {
+            .schedule-grid {
+                grid-template-columns: 1fr 2fr;
+            }
+
+            .timeslot-list {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <main class="container py-5">
+        {% if messages %}
+            {% for item in messages %}
+                <div class="alert alert-{{ item.tags|default:'info' }}" role="alert">{{ item }}</div>
+            {% endfor %}
+        {% endif %}
+
         <section class="row g-4 align-items-stretch">
             <div class="col-12 col-lg-4">
                 <div class="border rounded-4 p-4 h-100 bg-light">
@@ -11,37 +165,31 @@
                     <p class="text-secondary mb-4">
                         Fill out the form and our team will reach out to you within 1-2 business days.
                     </p>
-                    <button type="button" class="btn btn-primary px-4">Talk with us</button>
+                    <button type="button" id="openScheduleModal" class="btn btn-primary px-4">Talk with us</button>
                 </div>
             </div>
 
             <div class="col-12 col-lg-8">
                 <div class="border rounded-4 p-4 p-md-5 bg-white h-100">
-                    {% if messages %}
-                        {% for item in messages %}
-                            <div class="alert alert-{{ item.tags|default:'info' }}" role="alert">{{ item }}</div>
-                        {% endfor %}
-                    {% endif %}
-
                     <form method="post" action="{% url 'contact' %}">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="name" class="form-label">Name</label>
+                            <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="name" name="name" value="{{ form_data.name|default:'' }}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
+                            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="email" value="{{ form_data.email|default:'' }}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="subject" class="form-label">Subject</label>
+                            <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="subject" name="subject" value="{{ form_data.subject|default:'' }}" required>
                         </div>
 
                         <div class="mb-4">
-                            <label for="message" class="form-label">Message</label>
+                            <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="message" name="message" rows="5" required>{{ form_data.message|default:'' }}</textarea>
                         </div>
 
@@ -51,4 +199,330 @@
             </div>
         </section>
     </main>
+
+    <div id="scheduleModal" class="schedule-modal" aria-hidden="true" data-open="{% if schedule_modal_open %}1{% else %}0{% endif %}">
+        <div class="schedule-dialog" role="dialog" aria-modal="true" aria-labelledby="scheduleTitle">
+            <button type="button" id="closeScheduleModal" class="schedule-close" aria-label="Close scheduling popup">&times;</button>
+
+            <form method="post" action="{% url 'schedule_meeting' %}" class="schedule-grid">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="schedule">
+                <input type="hidden" id="meeting_date" name="meeting_date" value="{{ schedule_data.date|default:'' }}">
+                <input type="hidden" id="meeting_timeslot" name="meeting_timeslot" value="{{ schedule_data.timeslot|default:'' }}">
+
+                <div class="schedule-info">
+                    <h2 id="scheduleTitle" class="h4 mb-3">Live Product Demonstration</h2>
+                    <p class="text-secondary mb-3">
+                        Book a guided demo in UTC. Sessions usually take 5 to 30 minutes based on your goals and questions.
+                    </p>
+                    <p class="text-secondary mb-4">
+                        In this call, potential clients can learn core workflows, integration options, and practical rollout steps for their team.
+                    </p>
+
+                    <div class="mb-3">
+                        <label for="meeting_name" class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" id="meeting_name" name="meeting_name" class="form-control" value="{{ schedule_data.name|default:'' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="meeting_email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" id="meeting_email" name="meeting_email" class="form-control" value="{{ schedule_data.email|default:'' }}" required>
+                    </div>
+
+                    <div class="mb-0">
+                        <label for="meeting_phone" class="form-label">Mobile number (optional)</label>
+                        <input type="text" id="meeting_phone" name="meeting_phone" class="form-control" value="{{ schedule_data.phone_number|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="schedule-booker" data-initial-date="{{ schedule_data.date|default:'' }}" data-initial-slot="{{ schedule_data.timeslot|default:'' }}">
+                    <p class="text-muted fw-semibold mb-2">Select the date (UTC)</p>
+                    <div class="calendar-nav">
+                        <button id="calendarPrev" type="button" class="btn btn-outline-secondary btn-sm">Previous</button>
+                        <strong id="calendarMonthLabel"></strong>
+                        <button id="calendarNext" type="button" class="btn btn-outline-secondary btn-sm">Next</button>
+                    </div>
+
+                    <div class="calendar-weekdays mb-2">
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                        <div>Sun</div>
+                    </div>
+
+                    <div id="calendarDays" class="calendar-days mb-3" aria-label="Date picker"></div>
+                    <p id="selectedDateLabel" class="small text-secondary mb-4">No date selected yet.</p>
+
+                    <p class="text-muted fw-semibold mb-2">Select a time</p>
+                    <div id="timeSlotList" class="timeslot-list mb-4">
+                        <button type="button" class="timeslot-btn" data-slot="15:00">15:00</button>
+                        <button type="button" class="timeslot-btn" data-slot="15:30">15:30</button>
+                        <button type="button" class="timeslot-btn" data-slot="16:00">16:00</button>
+                        <button type="button" class="timeslot-btn" data-slot="16:30">16:30</button>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button id="scheduleSubmit" type="submit" class="btn btn-secondary px-4" disabled>Schedule</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{ booked_slots_by_date|json_script:"bookedSlotsByDate" }}
+{% endblock %}
+
+{% block extra_script %}
+    <script>
+        (function () {
+            const modal = document.getElementById("scheduleModal");
+            const openBtn = document.getElementById("openScheduleModal");
+            const closeBtn = document.getElementById("closeScheduleModal");
+            const submitBtn = document.getElementById("scheduleSubmit");
+            const bookerRoot = document.querySelector(".schedule-booker");
+            const dateInput = document.getElementById("meeting_date");
+            const slotInput = document.getElementById("meeting_timeslot");
+            const selectedDateLabel = document.getElementById("selectedDateLabel");
+            const calendarDays = document.getElementById("calendarDays");
+            const monthLabel = document.getElementById("calendarMonthLabel");
+            const prevBtn = document.getElementById("calendarPrev");
+            const nextBtn = document.getElementById("calendarNext");
+            const timeButtons = Array.from(document.querySelectorAll(".timeslot-btn"));
+            const nameInput = document.getElementById("meeting_name");
+            const emailInput = document.getElementById("meeting_email");
+            const bookedSlotsDataElement = document.getElementById("bookedSlotsByDate");
+            const bookedSlotsByDate = bookedSlotsDataElement ? JSON.parse(bookedSlotsDataElement.textContent) : {};
+            const allTimeSlots = timeButtons.map((button) => button.dataset.slot);
+
+            function toIsoDateUTC(dateObj) {
+                const year = dateObj.getUTCFullYear();
+                const month = String(dateObj.getUTCMonth() + 1).padStart(2, "0");
+                const day = String(dateObj.getUTCDate()).padStart(2, "0");
+                return `${year}-${month}-${day}`;
+            }
+
+            function parseIsoUTC(value) {
+                const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || "");
+                if (!match) {
+                    return null;
+                }
+
+                const year = Number(match[1]);
+                const month = Number(match[2]);
+                const day = Number(match[3]);
+                return new Date(Date.UTC(year, month - 1, day));
+            }
+
+            function isWeekendUTC(dateObj) {
+                const dayIndex = dateObj.getUTCDay();
+                return dayIndex === 0 || dayIndex === 6;
+            }
+
+            function getBookedSlots(dateObj) {
+                return bookedSlotsByDate[toIsoDateUTC(dateObj)] || [];
+            }
+
+            function isFullyUnavailableDate(dateObj) {
+                return getBookedSlots(dateObj).length >= allTimeSlots.length;
+            }
+
+            function findFirstAllowedDate(startDate) {
+                const probe = new Date(startDate.getTime());
+                for (let i = 0; i < 31; i += 1) {
+                    if (!isWeekendUTC(probe) && !isFullyUnavailableDate(probe)) {
+                        return probe;
+                    }
+                    probe.setUTCDate(probe.getUTCDate() + 1);
+                }
+                return startDate;
+            }
+
+            const utcNow = new Date();
+            const utcToday = new Date(Date.UTC(utcNow.getUTCFullYear(), utcNow.getUTCMonth(), utcNow.getUTCDate()));
+            const utcTomorrow = new Date(Date.UTC(utcNow.getUTCFullYear(), utcNow.getUTCMonth(), utcNow.getUTCDate() + 1));
+            const currentMonthFloor = new Date(Date.UTC(utcToday.getUTCFullYear(), utcToday.getUTCMonth(), 1));
+
+            const initialDateValue = (bookerRoot.dataset.initialDate || "").trim();
+            const initialSlotValue = (bookerRoot.dataset.initialSlot || "").trim();
+
+            let selectedDate;
+            const parsedInitial = parseIsoUTC(initialDateValue);
+            if (parsedInitial && parsedInitial > utcToday && !isWeekendUTC(parsedInitial) && !isFullyUnavailableDate(parsedInitial)) {
+                selectedDate = parsedInitial;
+            } else {
+                selectedDate = findFirstAllowedDate(utcTomorrow);
+            }
+
+            let viewYear = selectedDate.getUTCFullYear();
+            let viewMonth = selectedDate.getUTCMonth();
+            let selectedSlot = "";
+
+            function openModal() {
+                modal.classList.add("is-open");
+                modal.setAttribute("aria-hidden", "false");
+                document.body.style.overflow = "hidden";
+            }
+
+            function closeModal() {
+                modal.classList.remove("is-open");
+                modal.setAttribute("aria-hidden", "true");
+                document.body.style.overflow = "";
+            }
+
+            function isBeforeToday(dateObj) {
+                return dateObj < utcToday;
+            }
+
+            function syncHiddenDate() {
+                const iso = toIsoDateUTC(selectedDate);
+                dateInput.value = iso;
+                selectedDateLabel.textContent = `Selected date (UTC): ${iso}`;
+            }
+
+            function syncSlotVisualState() {
+                timeButtons.forEach((button) => {
+                    button.classList.toggle("is-selected", button.dataset.slot === selectedSlot);
+                });
+                slotInput.value = selectedSlot;
+            }
+
+            function syncBookedSlotState() {
+                const selectedDateIso = dateInput.value;
+                const bookedSlots = new Set(bookedSlotsByDate[selectedDateIso] || []);
+
+                if (selectedSlot && bookedSlots.has(selectedSlot)) {
+                    selectedSlot = "";
+                }
+
+                timeButtons.forEach((button) => {
+                    const isBooked = bookedSlots.has(button.dataset.slot);
+                    button.disabled = isBooked;
+                    button.classList.toggle("is-booked", isBooked);
+                });
+
+                syncSlotVisualState();
+            }
+
+            function updateSubmitState() {
+                const hasRequired = nameInput.value.trim() !== "" && emailInput.value.trim() !== "";
+                const ready = hasRequired && dateInput.value && slotInput.value;
+                submitBtn.disabled = !ready;
+                submitBtn.classList.toggle("btn-primary", ready);
+                submitBtn.classList.toggle("btn-secondary", !ready);
+            }
+
+            function renderCalendar() {
+                const firstOfMonth = new Date(Date.UTC(viewYear, viewMonth, 1));
+                const monthName = firstOfMonth.toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+                monthLabel.textContent = monthName;
+
+                prevBtn.disabled = (viewYear < currentMonthFloor.getUTCFullYear()) || (
+                    viewYear === currentMonthFloor.getUTCFullYear() && viewMonth <= currentMonthFloor.getUTCMonth()
+                );
+
+                calendarDays.innerHTML = "";
+                const firstWeekday = (firstOfMonth.getUTCDay() + 6) % 7;
+                const daysInMonth = new Date(Date.UTC(viewYear, viewMonth + 1, 0)).getUTCDate();
+
+                for (let i = 0; i < firstWeekday; i += 1) {
+                    const emptyCell = document.createElement("div");
+                    calendarDays.appendChild(emptyCell);
+                }
+
+                for (let day = 1; day <= daysInMonth; day += 1) {
+                    const dayDate = new Date(Date.UTC(viewYear, viewMonth, day));
+                    const dayButton = document.createElement("button");
+                    dayButton.type = "button";
+                    dayButton.textContent = String(day);
+                    dayButton.className = "calendar-day";
+
+                    const disabled = isBeforeToday(dayDate) || isWeekendUTC(dayDate) || isFullyUnavailableDate(dayDate);
+                    dayButton.disabled = disabled;
+
+                    if (toIsoDateUTC(dayDate) === toIsoDateUTC(selectedDate)) {
+                        dayButton.classList.add("is-selected");
+                    }
+
+                    dayButton.addEventListener("click", function () {
+                        if (disabled) {
+                            return;
+                        }
+                        selectedDate = dayDate;
+                        syncHiddenDate();
+                        syncBookedSlotState();
+                        renderCalendar();
+                        updateSubmitState();
+                    });
+
+                    calendarDays.appendChild(dayButton);
+                }
+            }
+
+            prevBtn.addEventListener("click", function () {
+                if (viewMonth === 0) {
+                    viewMonth = 11;
+                    viewYear -= 1;
+                } else {
+                    viewMonth -= 1;
+                }
+                renderCalendar();
+            });
+
+            nextBtn.addEventListener("click", function () {
+                if (viewMonth === 11) {
+                    viewMonth = 0;
+                    viewYear += 1;
+                } else {
+                    viewMonth += 1;
+                }
+                renderCalendar();
+            });
+
+            timeButtons.forEach((button) => {
+                button.addEventListener("click", function () {
+                    if (button.disabled) {
+                        return;
+                    }
+                    selectedSlot = button.dataset.slot;
+                    syncSlotVisualState();
+                    updateSubmitState();
+                });
+            });
+
+            nameInput.addEventListener("input", updateSubmitState);
+            emailInput.addEventListener("input", updateSubmitState);
+
+            openBtn.addEventListener("click", openModal);
+            closeBtn.addEventListener("click", closeModal);
+
+            modal.addEventListener("click", function (event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape" && modal.classList.contains("is-open")) {
+                    closeModal();
+                }
+            });
+
+            if (initialSlotValue) {
+                selectedSlot = initialSlotValue;
+            }
+
+            syncHiddenDate();
+            syncBookedSlotState();
+            syncSlotVisualState();
+            renderCalendar();
+            updateSubmitState();
+
+            if (modal.dataset.open === "1") {
+                openModal();
+            }
+        }());
+    </script>
 {% endblock %}
