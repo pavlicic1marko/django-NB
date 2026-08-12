@@ -51,6 +51,9 @@ def about_us(request):
 def products(request):
     return render(request, "website/products.html")
 
+def news(request):
+    return render(request, "website/news.html")
+
 
 def contact(request):
     if request.method == "POST":
