@@ -1,1 +1,98 @@
-TEST
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}News{% endblock %}
+
+{% block extra_head %}
+<style>
+	.news-article {
+		display: grid;
+		grid-template-columns: 180px minmax(0, 1fr);
+		gap: 1.25rem;
+		align-items: center;
+	}
+
+	.news-article-image {
+		width: 180px;
+		height: 120px;
+		object-fit: cover;
+	}
+
+	.news-date {
+		color: #6c757d;
+		font-size: 0.875rem;
+	}
+
+	@media (max-width: 575.98px) {
+		.news-article {
+			grid-template-columns: 1fr;
+		}
+
+		.news-article-image {
+			width: 100%;
+			height: 190px;
+		}
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+	<div class="row g-4">
+		<section class="col-12 col-lg-8" aria-labelledby="news-heading">
+			<div class="d-flex align-items-baseline justify-content-between border-bottom pb-3 mb-4">
+				<h1 id="news-heading" class="h2 mb-0">News</h1>
+				<span class="text-secondary small">Page {{ article_page.number }} of {{ article_page.paginator.num_pages }}</span>
+			</div>
+
+			<div class="vstack gap-3">
+				{% for article in article_page %}
+					<article class="news-article border rounded-2 p-3 bg-white shadow-sm">
+						<img class="news-article-image rounded-1" src="{% static 'images/image.png' %}" alt="News update image">
+						<div>
+							<time class="news-date d-block mb-2" datetime="{{ article.date|date:'Y-m-d' }}">{{ article.date|date:"F j, Y" }}</time>
+							<h2 class="h5 mb-0">{{ article.title }}</h2>
+						</div>
+					</article>
+				{% endfor %}
+			</div>
+
+			{% if article_page.has_other_pages %}
+				<nav class="mt-4" aria-label="News pages">
+					<ul class="pagination mb-0">
+						{% if article_page.has_previous %}
+							<li class="page-item"><a class="page-link" href="?page={{ article_page.previous_page_number }}">Previous</a></li>
+						{% endif %}
+						{% for page_number in article_page.paginator.page_range %}
+							<li class="page-item {% if page_number == article_page.number %}active{% endif %}">
+								<a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
+							</li>
+						{% endfor %}
+						{% if article_page.has_next %}
+							<li class="page-item"><a class="page-link" href="?page={{ article_page.next_page_number }}">Next</a></li>
+						{% endif %}
+					</ul>
+				</nav>
+			{% endif %}
+		</section>
+
+		<aside class="col-12 col-lg-4" aria-label="Situational awareness and tools">
+			<div class="border rounded-2 p-4 bg-light">
+				<h2 class="h5 border-bottom pb-3 mb-3">Situational Awareness</h2>
+				<dl class="row mb-4 small">
+					<dt class="col-7 text-secondary fw-normal">Service status</dt>
+					<dd class="col-5 text-end text-success fw-semibold">Operational</dd>
+					<dt class="col-7 text-secondary fw-normal">Last updated</dt>
+					<dd class="col-5 text-end">Today</dd>
+				</dl>
+
+				<h2 class="h5 border-bottom pb-3 mb-3">Tools</h2>
+				<div class="d-grid gap-2">
+					<a class="btn btn-outline-primary text-start" href="{% url 'contact' %}">Contact support</a>
+					<a class="btn btn-outline-secondary text-start" href="{% url 'products' %}">Product resources</a>
+				</div>
+			</div>
+		</aside>
+	</div>
+</main>
+{% endblock %}
