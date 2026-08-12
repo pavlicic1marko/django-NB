@@ -134,7 +134,7 @@ def contact(request):
             message=message_text,
             ip_address=ip_address,
         )
-        messages.success(request, "Thanks! Your message has been sent successfully.")
+        messages.success(request, f"Thanks! Your message has been sent successfully. We will reply at {email} as soon as possible.")
         return redirect("contact")
 
     return _render_contact(request)
