@@ -1,0 +1,379 @@
+{% extends "website/base.html" %}
+
+{% block title %}Chat{% endblock %}
+
+{% block extra_head %}
+<style>
+    .chat-page.is-blurred > .chat-intro-wrap {
+        filter: blur(4px);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .chat-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(20, 26, 39, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 1200;
+    }
+
+    .chat-overlay.is-open {
+        display: flex;
+    }
+
+    .chat-window {
+        width: min(760px, 100%);
+        height: min(80vh, 720px);
+        background: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 22px 56px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .chat-window-header {
+        padding: 0.9rem 1.25rem;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+    }
+
+    .chat-history {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding: 1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .chat-message {
+        max-width: 78%;
+        padding: 0.55rem 0.9rem;
+        border-radius: 0.9rem;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+
+    .chat-message.chat-message-user {
+        align-self: flex-end;
+        background: #0d6efd;
+        color: #fff;
+        border-bottom-right-radius: 0.2rem;
+    }
+
+    .chat-message.chat-message-assistant {
+        align-self: flex-start;
+        background: #f1f3f5;
+        color: #212529;
+        border-bottom-left-radius: 0.2rem;
+    }
+
+    .chat-window-footer {
+        padding: 0.85rem 1.25rem;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .chat-window-footer .chat-followup-input {
+        flex: 1 1 220px;
+        min-width: 160px;
+    }
+
+    @media (max-width: 575.98px) {
+        .chat-window {
+            height: 92vh;
+            border-radius: 0.5rem;
+        }
+
+        .chat-message {
+            max-width: 90%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-page">
+    <main class="container py-5 chat-intro-wrap">
+        <div class="mx-auto" style="max-width: 720px;">
+            <h1 class="h2 mb-2">Chat</h1>
+            <p class="text-secondary mb-4">
+                Chat with one of our AI assistants below. Choose the assistant that best fits your question, then
+                type your message to get started.
+            </p>
+
+            <fieldset class="mb-4">
+                <legend class="h6">Choose an assistant</legend>
+                <div class="d-flex gap-4 flex-wrap">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="chatAgent" id="agentGeneral" value="general" checked>
+                        <label class="form-check-label" for="agentGeneral">General</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="chatAgent" id="agentTechnical" value="technical">
+                        <label class="form-check-label" for="agentTechnical">Technical</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="chatAgent" id="agentSales" value="sales">
+                        <label class="form-check-label" for="agentSales">Sales</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="mb-3">
+                <label for="initialQuestion" class="form-label">Ask us anything</label>
+                <textarea id="initialQuestion" class="form-control" rows="3" placeholder="Type your question..."></textarea>
+                <div id="initialQuestionFeedback" class="text-danger small mt-1" style="display: none;">
+                    Please enter a question before starting the chat.
+                </div>
+            </div>
+
+            <button type="button" id="startChatBtn" class="btn btn-primary px-4" disabled>Talk with us</button>
+        </div>
+    </main>
+
+    <div id="chatOverlay" class="chat-overlay" aria-hidden="true">
+        <div class="chat-window" role="dialog" aria-modal="true" aria-labelledby="chatWindowTitle">
+            <div class="chat-window-header">
+                <h2 id="chatWindowTitle" class="h6 mb-0"></h2>
+            </div>
+
+            <div id="chatHistory" class="chat-history"></div>
+
+            <div class="chat-window-footer">
+                <button type="button" id="endChatBtn" class="btn btn-danger fw-bold">END CHAT</button>
+                <textarea id="followupQuestion" class="form-control chat-followup-input" rows="1" placeholder="Ask another question..."></textarea>
+                <button type="button" id="askBtn" class="btn btn-primary" disabled>Ask</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    (function () {
+        var STORAGE_KEY = "chatState";
+        var AGENT_LABELS = {
+            general: "General Assistant",
+            technical: "Technical Assistant",
+            sales: "Sales Assistant"
+        };
+
+        var chatPage = document.querySelector(".chat-page");
+        var agentInputs = document.querySelectorAll("input[name='chatAgent']");
+        var initialQuestion = document.getElementById("initialQuestion");
+        var initialQuestionFeedback = document.getElementById("initialQuestionFeedback");
+        var startChatBtn = document.getElementById("startChatBtn");
+
+        var chatOverlay = document.getElementById("chatOverlay");
+        var chatWindowTitle = document.getElementById("chatWindowTitle");
+        var chatHistory = document.getElementById("chatHistory");
+        var endChatBtn = document.getElementById("endChatBtn");
+        var followupQuestion = document.getElementById("followupQuestion");
+        var askBtn = document.getElementById("askBtn");
+
+        // --- Temporary mock "backend" helpers (to be replaced with real API calls later) ---
+
+        function mockAssistantAnswer() {
+            return "IDK";
+        }
+
+        function getSelectedAgent() {
+            for (var i = 0; i < agentInputs.length; i++) {
+                if (agentInputs[i].checked) {
+                    return agentInputs[i].value;
+                }
+            }
+            return "general";
+        }
+
+        function setSelectedAgent(agent) {
+            for (var i = 0; i < agentInputs.length; i++) {
+                agentInputs[i].checked = agentInputs[i].value === agent;
+            }
+        }
+
+        // --- State persistence (localStorage placeholder for future backend Thread sync) ---
+
+        function saveState(state) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function loadState() {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) {
+                return null;
+            }
+            try {
+                return JSON.parse(raw);
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function clearState() {
+            localStorage.removeItem(STORAGE_KEY);
+        }
+
+        // --- Rendering ---
+
+        function renderMessage(role, text) {
+            var message = document.createElement("div");
+            message.className = "chat-message " + (role === "user" ? "chat-message-user" : "chat-message-assistant");
+            message.textContent = text;
+            chatHistory.appendChild(message);
+        }
+
+        function renderConversation(state) {
+            chatWindowTitle.textContent = AGENT_LABELS[state.agent] || AGENT_LABELS.general;
+            chatHistory.innerHTML = "";
+            state.messages.forEach(function (msg) {
+                renderMessage(msg.role, msg.text);
+            });
+            scrollHistoryToBottom();
+        }
+
+        function scrollHistoryToBottom() {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function openOverlay() {
+            chatOverlay.classList.add("is-open");
+            chatOverlay.setAttribute("aria-hidden", "false");
+            chatPage.classList.add("is-blurred");
+        }
+
+        function closeOverlay() {
+            chatOverlay.classList.remove("is-open");
+            chatOverlay.setAttribute("aria-hidden", "true");
+            chatPage.classList.remove("is-blurred");
+        }
+
+        // --- Core chat operations ---
+
+        function startChat() {
+            var question = initialQuestion.value.trim();
+            if (!question) {
+                initialQuestionFeedback.style.display = "block";
+                return;
+            }
+            initialQuestionFeedback.style.display = "none";
+
+            var state = {
+                active: true,
+                agent: getSelectedAgent(),
+                threadId: "local-" + Date.now(),
+                messages: [
+                    { role: "user", text: question },
+                    { role: "assistant", text: mockAssistantAnswer() }
+                ]
+            };
+
+            saveState(state);
+            renderConversation(state);
+            openOverlay();
+
+            initialQuestion.value = "";
+            updateStartButtonState();
+        }
+
+        function sendMessage() {
+            var question = followupQuestion.value.trim();
+            if (!question) {
+                return;
+            }
+
+            var state = loadState();
+            if (!state || !state.active) {
+                return;
+            }
+
+            state.messages.push({ role: "user", text: question });
+            state.messages.push({ role: "assistant", text: mockAssistantAnswer() });
+            saveState(state);
+
+            renderMessage("user", question);
+            renderMessage("assistant", mockAssistantAnswer());
+            scrollHistoryToBottom();
+
+            followupQuestion.value = "";
+            updateAskButtonState();
+        }
+
+        function loadActiveConversation() {
+            var state = loadState();
+            if (state && state.active) {
+                setSelectedAgent(state.agent);
+                renderConversation(state);
+                openOverlay();
+            }
+        }
+
+        function endChat() {
+            clearState();
+            closeOverlay();
+            setSelectedAgent("general");
+            chatHistory.innerHTML = "";
+            initialQuestion.value = "";
+            initialQuestionFeedback.style.display = "none";
+            updateStartButtonState();
+        }
+
+        // --- Button enable/disable state ---
+
+        function updateStartButtonState() {
+            startChatBtn.disabled = initialQuestion.value.trim() === "";
+        }
+
+        function updateAskButtonState() {
+            askBtn.disabled = followupQuestion.value.trim() === "";
+        }
+
+        // --- Event wiring ---
+
+        initialQuestion.addEventListener("input", function () {
+            updateStartButtonState();
+            if (initialQuestion.value.trim() !== "") {
+                initialQuestionFeedback.style.display = "none";
+            }
+        });
+
+        followupQuestion.addEventListener("input", updateAskButtonState);
+
+        startChatBtn.addEventListener("click", startChat);
+        askBtn.addEventListener("click", sendMessage);
+        endChatBtn.addEventListener("click", endChat);
+
+        initialQuestion.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                if (!startChatBtn.disabled) {
+                    startChat();
+                }
+            }
+        });
+
+        followupQuestion.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                if (!askBtn.disabled) {
+                    sendMessage();
+                }
+            }
+        });
+
+        updateStartButtonState();
+        updateAskButtonState();
+        loadActiveConversation();
+    })();
+</script>
+{% endblock %}

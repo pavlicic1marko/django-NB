@@ -55,6 +55,10 @@ def products(request):
     return render(request, "website/products.html")
 
 
+def chat(request):
+    return render(request, "website/chat.html")
+
+
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all().order_by("-created_at")
     serializer_class = NewsSerializer
