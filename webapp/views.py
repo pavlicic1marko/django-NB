@@ -7,8 +7,10 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from rest_framework import permissions, viewsets
 
-from .models import Message, Metting, TIME_SLOT_CHOICES
+from .models import Message, Metting, News, TIME_SLOT_CHOICES
+from .serializers import NewsSerializer
 
 
 def _future_booked_slots_by_date():
@@ -51,6 +53,13 @@ def about_us(request):
 
 def products(request):
     return render(request, "website/products.html")
+
+
+class NewsViewSet(viewsets.ModelViewSet):
+    queryset = News.objects.all().order_by("-created_at")
+    serializer_class = NewsSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = "id"
 
 
 def news(request):

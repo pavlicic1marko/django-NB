@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
@@ -41,6 +42,59 @@ class NewsViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["article_page"].object_list), 2)
         self.assertContains(response, "Community update: June milestones")
+
+
+class NewsApiTests(TestCase):
+    def test_news_api_supports_crud_operations(self):
+        image = SimpleUploadedFile("news.png", b"png-bytes", content_type="image/png")
+
+        create_response = self.client.post(
+            "/api/news/",
+            {
+                "title": "API launch update",
+                "text": "The new API is live.",
+                "date": "2026-08-13",
+                "image": image,
+            },
+            format="multipart",
+        )
+
+        self.assertEqual(create_response.status_code, 201)
+        created_id = create_response.json()["id"]
+
+        list_response = self.client.get("/api/news/")
+        self.assertEqual(list_response.status_code, 200)
+        self.assertEqual(list_response.json()[0]["title"], "API launch update")
+
+        detail_response = self.client.get(f"/api/news/{created_id}/")
+        self.assertEqual(detail_response.status_code, 200)
+        self.assertEqual(detail_response.json()["title"], "API launch update")
+
+        patch_response = self.client.patch(
+            f"/api/news/{created_id}/",
+            {"text": "The API has been updated."},
+            content_type="application/json",
+        )
+        self.assertEqual(patch_response.status_code, 200)
+        self.assertEqual(patch_response.json()["text"], "The API has been updated.")
+
+        put_response = self.client.put(
+            f"/api/news/{created_id}/",
+            {
+                "title": "API launch update",
+                "text": "The full update has been saved.",
+                "date": "2026-08-14",
+                "image": image,
+            },
+            format="multipart",
+        )
+        self.assertEqual(put_response.status_code, 200)
+        self.assertEqual(put_response.json()["text"], "The full update has been saved.")
+
+        delete_response = self.client.delete(f"/api/news/{created_id}/")
+        self.assertEqual(delete_response.status_code, 204)
+
+        self.assertFalse(News.objects.filter(id=created_id).exists())
 
 
 class NewsModelAndSerializerTests(TestCase):
