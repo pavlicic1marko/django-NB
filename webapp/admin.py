@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Message, Metting, TimeSlot
+from .models import Message, Metting, TimeSlot, News
 
 
 @admin.register(Message)
@@ -23,4 +23,11 @@ class TimeSlotAdmin(admin.ModelAdmin):
 	list_display = ("date", "timeslot", "created_at")
 	search_fields = ("date", "timeslot")
 	list_filter = ("date", "timeslot", "created_at")
+	ordering = ("-created_at",)
+
+@admin.register(News)
+class NewsAdmin(admin.ModelAdmin):
+	list_display = ("title", "created_at")
+	search_fields = ("title", "content")
+	list_filter = ("created_at",)
 	ordering = ("-created_at",)
