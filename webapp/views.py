@@ -3,11 +3,14 @@ from datetime import timezone as dt_timezone
 from collections import defaultdict
 
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from rest_framework import permissions, viewsets
 
-from .models import Message, Metting, TIME_SLOT_CHOICES
+from .models import Message, Metting, News, TIME_SLOT_CHOICES
+from .serializers import NewsSerializer
 
 
 def _future_booked_slots_by_date():
@@ -50,6 +53,32 @@ def about_us(request):
 
 def products(request):
     return render(request, "website/products.html")
+
+
+class NewsViewSet(viewsets.ModelViewSet):
+    queryset = News.objects.all().order_by("-created_at")
+    serializer_class = NewsSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = "id"
+
+
+def news(request):
+    articles = [
+        {"title": "Operations briefing: August service update", "date": dt_date(2026, 8, 12)},
+        {"title": "New reporting tools available to teams", "date": dt_date(2026, 8, 8)},
+        {"title": "Customer support schedule for the holiday period", "date": dt_date(2026, 8, 4)},
+        {"title": "Product release notes: workflow improvements", "date": dt_date(2026, 7, 30)},
+        {"title": "Planning guide for the next quarter", "date": dt_date(2026, 7, 25)},
+        {"title": "Service status review: July highlights", "date": dt_date(2026, 7, 21)},
+        {"title": "Security reminder for account administrators", "date": dt_date(2026, 7, 16)},
+        {"title": "Team collaboration practices that scale", "date": dt_date(2026, 7, 11)},
+        {"title": "Upcoming maintenance window announced", "date": dt_date(2026, 7, 7)},
+        {"title": "How we are improving response times", "date": dt_date(2026, 7, 2)},
+        {"title": "Community update: June milestones", "date": dt_date(2026, 6, 27)},
+        {"title": "Getting started with the latest tools", "date": dt_date(2026, 6, 23)},
+    ]
+    article_page = Paginator(articles, 10).get_page(request.GET.get("page"))
+    return render(request, "website/news.html", {"article_page": article_page})
 
 
 def contact(request):
