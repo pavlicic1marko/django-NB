@@ -1,3 +1,4 @@
+import base64
 from datetime import date
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -46,7 +47,11 @@ class NewsViewTests(TestCase):
 
 class NewsApiTests(TestCase):
     def test_news_api_supports_crud_operations(self):
-        image = SimpleUploadedFile("news.png", b"png-bytes", content_type="image/png")
+        image = SimpleUploadedFile(
+            "news.png",
+            base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAF" "c0N0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJ0UkG" "AAAAAQMEBQAAAAAABQAAEEpQwAAAABJRU5ErkJggg=="),
+            content_type="image/png",
+        )
 
         create_response = self.client.post(
             "/api/news/",
