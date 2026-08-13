@@ -1,10 +1,11 @@
-import base64
+from io import BytesIO
 from datetime import date
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
+from PIL import Image
 
 from .models import Message, News
 from .serializers import NewsSerializer
@@ -47,11 +48,9 @@ class NewsViewTests(TestCase):
 
 class NewsApiTests(TestCase):
     def test_news_api_supports_crud_operations(self):
-        image = SimpleUploadedFile(
-            "news.png",
-            base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAF" "c0N0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJ0UkG" "AAAAAQMEBQAAAAAABQAAEEpQwAAAABJRU5ErkJggg=="),
-            content_type="image/png",
-        )
+        image_buffer = BytesIO()
+        Image.new("RGB", (1, 1), color="white").save(image_buffer, format="PNG")
+        image = SimpleUploadedFile("news.png", image_buffer.getvalue(), content_type="image/png")
 
         create_response = self.client.post(
             "/api/news/",
