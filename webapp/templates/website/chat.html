@@ -40,6 +40,38 @@
         padding: 0.9rem 1.25rem;
         border-bottom: 1px solid #e9ecef;
         background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .chat-end-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        border: none;
+        border-radius: 999px;
+        background: #dc3545;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: 0.02em;
+        padding: 0.4rem 0.85rem;
+        line-height: 1;
+        flex-shrink: 0;
+        transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .chat-end-btn:hover {
+        background: #bb2d3b;
+        transform: scale(1.04);
+    }
+
+    .chat-end-btn svg {
+        width: 14px;
+        height: 14px;
     }
 
     .chat-history {
@@ -85,6 +117,38 @@
     .chat-window-footer .chat-followup-input {
         flex: 1 1 220px;
         min-width: 160px;
+        border-radius: 1.25rem;
+        resize: none;
+    }
+
+    .chat-send-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        border: none;
+        border-radius: 50%;
+        background: #0d6efd;
+        color: #fff;
+        transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .chat-send-btn:hover:not(:disabled) {
+        background: #0b5ed7;
+        transform: scale(1.06);
+    }
+
+    .chat-send-btn:disabled {
+        background: #adb5bd;
+        opacity: 0.7;
+    }
+
+    .chat-send-btn svg {
+        width: 18px;
+        height: 18px;
+        transform: translateX(1px);
     }
 
     @media (max-width: 575.98px) {
@@ -144,14 +208,23 @@
         <div class="chat-window" role="dialog" aria-modal="true" aria-labelledby="chatWindowTitle">
             <div class="chat-window-header">
                 <h2 id="chatWindowTitle" class="h6 mb-0"></h2>
+                <button type="button" id="endChatBtn" class="chat-end-btn" aria-label="End chat">
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                        <path d="M2.146 2.146a.5.5 0 0 1 .708 0L8 7.293l5.146-5.147a.5.5 0 1 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    END CHAT
+                </button>
             </div>
 
             <div id="chatHistory" class="chat-history"></div>
 
             <div class="chat-window-footer">
-                <button type="button" id="endChatBtn" class="btn btn-danger fw-bold">END CHAT</button>
                 <textarea id="followupQuestion" class="form-control chat-followup-input" rows="1" placeholder="Ask another question..."></textarea>
-                <button type="button" id="askBtn" class="btn btn-primary" disabled>Ask</button>
+                <button type="button" id="askBtn" class="chat-send-btn" disabled aria-label="Send question">
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                        <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
