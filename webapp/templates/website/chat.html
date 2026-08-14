@@ -4,6 +4,11 @@
 
 {% block extra_head %}
 <style>
+    .chat-shell {
+        width: 100%;
+        max-width: 920px;
+    }
+
     .chat-window {
         width: 100%;
         min-height: 500px;
@@ -39,21 +44,21 @@
         align-items: center;
         justify-content: center;
         gap: 0.4rem;
-        border: none;
+        border: 1px solid #dc3545;
         border-radius: 999px;
-        background: #dc3545;
-        color: #fff;
-        font-weight: 600;
-        font-size: 0.8rem;
+        background: transparent;
+        color: #dc3545;
+        font-weight: 500;
+        font-size: 0.75rem;
         letter-spacing: 0.02em;
-        padding: 0.4rem 0.85rem;
+        padding: 0.35rem 0.7rem;
         line-height: 1;
         flex-shrink: 0;
         transition: background-color 0.15s ease, transform 0.15s ease;
     }
 
     .chat-end-btn:hover {
-        background: #bb2d3b;
+        background: #fff5f5;
         transform: scale(1.04);
     }
 
@@ -77,6 +82,7 @@
         border-radius: 0.9rem;
         line-height: 1.4;
         word-wrap: break-word;
+        white-space: pre-wrap;
     }
 
     .chat-message.chat-message-user {
@@ -88,9 +94,12 @@
 
     .chat-message.chat-message-assistant {
         align-self: flex-start;
+        max-width: 90%;
+        padding: 0.85rem 1.1rem;
         background: #f1f3f5;
         color: #212529;
         border-bottom-left-radius: 0.2rem;
+        line-height: 1.6;
     }
 
     .chat-window-footer {
@@ -244,6 +253,10 @@
     }
 
     @media (max-width: 575.98px) {
+        .chat-shell {
+            max-width: none;
+        }
+
         .assistant-options {
             grid-template-columns: 1fr;
         }
@@ -263,7 +276,7 @@
 {% block content %}
 <div class="chat-page">
     <main class="container py-5 chat-intro-wrap">
-        <div class="mx-auto" style="max-width: 720px;">
+        <div class="mx-auto chat-shell">
             <h1 class="h2 mb-2">Chat</h1>
             <p class="text-secondary mb-4">
                 Chat with one of our AI assistants below. Choose the assistant that best fits your question, then
