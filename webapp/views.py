@@ -2,6 +2,7 @@ from datetime import date as dt_date
 from datetime import timezone as dt_timezone
 from collections import defaultdict
 
+import requests
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponse
@@ -14,7 +15,6 @@ from rest_framework.response import Response
 
 from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
 from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
-from .services import ask_ai
 
 
 def _future_booked_slots_by_date():
@@ -83,8 +83,45 @@ def start_conversation(request):
         q_and_a = QAndA.objects.create(
             thread=thread,
             question=question,
-            answer=ask_ai(question, thread.agent_type),
+            answer="",
         )
+
+        q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
+        messages = []
+        for existing_q_and_a in q_and_as:
+            messages.append({"role": "user", "content": existing_q_and_a.question})
+            if existing_q_and_a.answer:
+                messages.append({"role": "assistant", "content": existing_q_and_a.answer})
+
+        try:
+            response = requests.post(
+                "http://localhost:11434/api/chat",
+                json={
+                    "model": "llama3.2:1b",
+                    "messages": messages,
+                    "stream": False,
+                },
+                timeout=60,
+            )
+            response.raise_for_status()
+            answer = response.json()["message"]["content"]
+            if not isinstance(answer, str):
+                raise ValueError("Ollama returned an invalid answer.")
+        except requests.exceptions.RequestException:
+            transaction.set_rollback(True)
+            return Response(
+                {"detail": "Unable to contact Ollama."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except (KeyError, TypeError, ValueError):
+            transaction.set_rollback(True)
+            return Response(
+                {"detail": "Ollama returned an invalid response."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        q_and_a.answer = answer
+        q_and_a.save(update_fields=["answer"])
 
     return Response(
         {"thread": ThreadSerializer(thread).data, "q_and_a": QAndASerializer(q_and_a).data},
@@ -115,8 +152,44 @@ def add_question(request, thread_id):
     q_and_a = QAndA.objects.create(
         thread=thread,
         question=question,
-        answer=ask_ai(question, thread.agent_type),
+        answer="",
     )
+    q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
+    messages = []
+    for existing_q_and_a in q_and_as:
+        messages.append({"role": "user", "content": existing_q_and_a.question})
+        if existing_q_and_a.answer:
+            messages.append({"role": "assistant", "content": existing_q_and_a.answer})
+
+    try:
+        response = requests.post(
+            "http://localhost:11434/api/chat",
+            json={
+                "model": "llama3.2:1b",
+                "messages": messages,
+                "stream": False,
+            },
+            timeout=60,
+        )
+        response.raise_for_status()
+        answer = response.json()["message"]["content"]
+        if not isinstance(answer, str):
+            raise ValueError("Ollama returned an invalid answer.")
+    except requests.exceptions.RequestException:
+        q_and_a.delete()
+        return Response(
+            {"detail": "Unable to contact Ollama."},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+    except (KeyError, TypeError, ValueError):
+        q_and_a.delete()
+        return Response(
+            {"detail": "Ollama returned an invalid response."},
+            status=status.HTTP_502_BAD_GATEWAY,
+        )
+
+    q_and_a.answer = answer
+    q_and_a.save(update_fields=["answer"])
     return Response(QAndASerializer(q_and_a).data, status=status.HTTP_201_CREATED)
 
 
