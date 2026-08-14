@@ -13,20 +13,59 @@
         rel="stylesheet"
     >
 
+    <style>
+        .site-nav .navbar-brand {
+            color: #17324d;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
+        .site-nav .nav-link {
+            border: 1px solid #adb5bd;
+            border-radius: 0.375rem;
+            color: #6c757d;
+            padding: 0.45rem 0.8rem;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+
+        .site-nav .nav-link:hover {
+            background: #f0f6ff;
+            border-color: #9ec5fe;
+            color: #0d6efd;
+        }
+
+        .site-nav .nav-link.active {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: #ffffff;
+        }
+
+        @media (max-width: 575.98px) {
+            .site-nav .navbar-nav {
+                margin-top: 0.75rem;
+                width: 100%;
+            }
+
+            .site-nav .nav-link {
+                text-align: center;
+            }
+        }
+    </style>
+
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-light bg-white border-bottom shadow-sm py-3 sticky-top" style="z-index: 1300;">
-        <div class="container d-flex align-items-center">
-            <a href="{% url 'home' %}" class="btn btn-outline-primary px-4">Home</a>
+    <nav class="navbar navbar-light bg-white border-bottom shadow-sm py-3 sticky-top site-nav" style="z-index: 1300;">
+        <div class="container d-flex align-items-center justify-content-between flex-wrap">
+            <a href="{% url 'home' %}" class="navbar-brand">Digital Studio</a>
 
-            <div class="d-flex ms-5 gap-2 flex-wrap">
-                <a href="{% url 'about_us' %}" class="btn btn-outline-secondary">About Us</a>
-                <a href="{% url 'products' %}" class="btn btn-outline-secondary">Products</a>
-                <a href="{% url 'chat' %}" class="btn btn-outline-secondary">Chat</a>
-                <a href="{% url 'contact' %}" class="btn btn-outline-secondary">Contact</a>
-                <a href="{% url 'news' %}" class="btn btn-outline-secondary">News</a>
-
+            <div class="navbar-nav flex-row gap-2 flex-wrap">
+                <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Home</a>
+                <a href="{% url 'about_us' %}" class="nav-link {% if request.resolver_match.url_name == 'about_us' %}active{% endif %}" {% if request.resolver_match.url_name == 'about_us' %}aria-current="page"{% endif %}>About Us</a>
+                <a href="{% url 'products' %}" class="nav-link {% if request.resolver_match.url_name == 'products' %}active{% endif %}" {% if request.resolver_match.url_name == 'products' %}aria-current="page"{% endif %}>Products</a>
+                <a href="{% url 'chat' %}" class="nav-link {% if request.resolver_match.url_name == 'chat' %}active{% endif %}" {% if request.resolver_match.url_name == 'chat' %}aria-current="page"{% endif %}>Chat</a>
+                <a href="{% url 'contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" {% if request.resolver_match.url_name == 'contact' %}aria-current="page"{% endif %}>Contact</a>
+                <a href="{% url 'news' %}" class="nav-link {% if request.resolver_match.url_name == 'news' %}active{% endif %}" {% if request.resolver_match.url_name == 'news' %}aria-current="page"{% endif %}>News</a>
             </div>
         </div>
     </nav>
