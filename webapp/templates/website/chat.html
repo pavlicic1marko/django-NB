@@ -132,6 +132,65 @@
         min-height: 2.75rem;
     }
 
+    .assistant-options {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .assistant-option {
+        position: relative;
+        margin: 0;
+    }
+
+    .assistant-option .form-check-input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .assistant-option .form-check-label {
+        display: block;
+        height: 100%;
+        padding: 0.85rem 0.9rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.7rem;
+        background: #ffffff;
+        color: #212529;
+        cursor: pointer;
+        transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .assistant-option .form-check-label strong,
+    .assistant-option .form-check-label span {
+        display: block;
+    }
+
+    .assistant-option .form-check-label strong {
+        margin-bottom: 0.2rem;
+    }
+
+    .assistant-option .form-check-label span {
+        color: #6c757d;
+        font-size: 0.82rem;
+        line-height: 1.35;
+    }
+
+    .assistant-option .form-check-input:checked + .form-check-label {
+        border-color: #0d6efd;
+        background: #f4f8ff;
+        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.12);
+    }
+
+    .assistant-option .form-check-input:focus-visible + .form-check-label {
+        outline: 2px solid rgba(13, 110, 253, 0.45);
+        outline-offset: 2px;
+    }
+
+    .assistant-option .form-check-label:hover {
+        border-color: #0d6efd;
+    }
+
     .chat-window-footer .chat-followup-input {
         flex: 1 1 220px;
         min-width: 160px;
@@ -170,6 +229,10 @@
     }
 
     @media (max-width: 575.98px) {
+        .assistant-options {
+            grid-template-columns: 1fr;
+        }
+
         .chat-window {
             height: 92vh;
             border-radius: 0.5rem;
@@ -194,18 +257,27 @@
 
             <fieldset class="mb-4">
                 <legend class="h6">Choose an assistant</legend>
-                <div class="d-flex gap-4 flex-wrap">
-                    <div class="form-check">
+                <div class="assistant-options">
+                    <div class="form-check assistant-option">
                         <input class="form-check-input" type="radio" name="chatAgent" id="agentGeneral" value="general" checked>
-                        <label class="form-check-label" for="agentGeneral">General</label>
+                        <label class="form-check-label" for="agentGeneral">
+                            <strong>General</strong>
+                            <span>General questions and information</span>
+                        </label>
                     </div>
-                    <div class="form-check">
+                    <div class="form-check assistant-option">
                         <input class="form-check-input" type="radio" name="chatAgent" id="agentTechnical" value="technical">
-                        <label class="form-check-label" for="agentTechnical">Technical</label>
+                        <label class="form-check-label" for="agentTechnical">
+                            <strong>Technical</strong>
+                            <span>Products and technical support</span>
+                        </label>
                     </div>
-                    <div class="form-check">
+                    <div class="form-check assistant-option">
                         <input class="form-check-input" type="radio" name="chatAgent" id="agentSales" value="sales">
-                        <label class="form-check-label" for="agentSales">Sales</label>
+                        <label class="form-check-label" for="agentSales">
+                            <strong>Sales</strong>
+                            <span>Pricing and sales inquiries</span>
+                        </label>
                     </div>
                 </div>
             </fieldset>
