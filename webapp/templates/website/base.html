@@ -13,13 +13,14 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-light bg-white border-bottom shadow-sm py-3">
+    <nav class="navbar navbar-light bg-white border-bottom shadow-sm py-3 sticky-top" style="z-index: 1300;">
         <div class="container d-flex align-items-center">
             <a href="{% url 'home' %}" class="btn btn-outline-primary px-4">Home</a>
 
             <div class="d-flex ms-5 gap-2 flex-wrap">
                 <a href="{% url 'about_us' %}" class="btn btn-outline-secondary">About Us</a>
                 <a href="{% url 'products' %}" class="btn btn-outline-secondary">Products</a>
+                <a href="{% url 'chat' %}" class="btn btn-outline-secondary">Chat</a>
                 <a href="{% url 'contact' %}" class="btn btn-outline-secondary">Contact</a>
                 <a href="{% url 'news' %}" class="btn btn-outline-secondary">News</a>
 

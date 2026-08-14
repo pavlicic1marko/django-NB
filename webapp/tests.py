@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from PIL import Image
 
-from .models import Message, News
+from .models import Message, News, QAndA, Thread
 from .serializers import NewsSerializer
 
 
@@ -135,3 +135,57 @@ class NewsModelAndSerializerTests(TestCase):
         )
         self.assertTrue(serializer.fields["id"].read_only)
         self.assertTrue(serializer.fields["created_at"].read_only)
+
+
+class ChatApiTests(TestCase):
+    def test_start_conversation_creates_thread_and_first_q_and_a(self):
+        response = self.client.post(
+            "/api/chat/threads/",
+            {"agent_type": "technical", "question": "How do I connect?"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Thread.objects.count(), 1)
+        self.assertEqual(QAndA.objects.count(), 1)
+        self.assertEqual(response.json()["thread"]["agent_type"], "technical")
+        self.assertEqual(response.json()["q_and_a"]["answer"], "IDK")
+
+    def test_follow_up_keeps_same_thread_and_returns_answer(self):
+        thread = Thread.objects.create(agent_type="general")
+
+        response = self.client.post(
+            f"/api/chat/threads/{thread.pk}/questions/",
+            {"question": "What next?"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["thread"], thread.pk)
+        self.assertEqual(QAndA.objects.filter(thread=thread).count(), 1)
+        self.assertEqual(response.json()["answer"], "IDK")
+
+    def test_get_history_and_end_conversation_preserve_data(self):
+        thread = Thread.objects.create(agent_type="sales")
+        QAndA.objects.create(thread=thread, question="Question", answer="IDK")
+
+        history_response = self.client.get(f"/api/chat/threads/{thread.pk}/")
+        self.assertEqual(history_response.status_code, 200)
+        self.assertEqual(len(history_response.json()["q_and_as"]), 1)
+
+        end_response = self.client.post(f"/api/chat/threads/{thread.pk}/end/")
+        self.assertEqual(end_response.status_code, 200)
+        self.assertFalse(end_response.json()["is_active"])
+        self.assertTrue(QAndA.objects.filter(thread=thread).exists())
+
+    def test_follow_up_cannot_be_added_after_thread_ends(self):
+        thread = Thread.objects.create(agent_type="general", is_active=False)
+
+        response = self.client.post(
+            f"/api/chat/threads/{thread.pk}/questions/",
+            {"question": "Still there?"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(QAndA.objects.count(), 0)

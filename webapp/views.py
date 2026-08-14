@@ -2,15 +2,19 @@ from datetime import date as dt_date
 from datetime import timezone as dt_timezone
 from collections import defaultdict
 
+import requests
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from rest_framework import permissions, viewsets
+from django.db import transaction
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.response import Response
 
-from .models import Message, Metting, News, TIME_SLOT_CHOICES
-from .serializers import NewsSerializer
+from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
+from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
 
 
 def _future_booked_slots_by_date():
@@ -55,11 +59,149 @@ def products(request):
     return render(request, "website/products.html")
 
 
+def chat(request):
+    return render(request, "website/chat.html")
+
+
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all().order_by("-created_at")
     serializer_class = NewsSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = "id"
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def start_conversation(request):
+    serializer = StartConversationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    with transaction.atomic():
+        thread = Thread.objects.create(agent_type=serializer.validated_data["agent_type"])
+        question = serializer.validated_data["question"]
+        q_and_a = QAndA.objects.create(
+            thread=thread,
+            question=question,
+            answer="",
+        )
+
+        q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
+        messages = []
+        for existing_q_and_a in q_and_as:
+            messages.append({"role": "user", "content": existing_q_and_a.question})
+            if existing_q_and_a.answer:
+                messages.append({"role": "assistant", "content": existing_q_and_a.answer})
+
+        try:
+            response = requests.post(
+                "http://localhost:11434/api/chat",
+                json={
+                    "model": "llama3.2:1b",
+                    "messages": messages,
+                    "stream": False,
+                },
+                timeout=60,
+            )
+            response.raise_for_status()
+            answer = response.json()["message"]["content"]
+            if not isinstance(answer, str):
+                raise ValueError("Ollama returned an invalid answer.")
+        except requests.exceptions.RequestException:
+            transaction.set_rollback(True)
+            return Response(
+                {"detail": "Unable to contact Ollama."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except (KeyError, TypeError, ValueError):
+            transaction.set_rollback(True)
+            return Response(
+                {"detail": "Ollama returned an invalid response."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        q_and_a.answer = answer
+        q_and_a.save(update_fields=["answer"])
+
+    return Response(
+        {"thread": ThreadSerializer(thread).data, "q_and_a": QAndASerializer(q_and_a).data},
+        status=status.HTTP_201_CREATED,
+    )
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def get_conversation(request, thread_id):
+    thread = get_object_or_404(Thread.objects.prefetch_related("q_and_as"), pk=thread_id)
+    return Response(ThreadSerializer(thread).data)
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def add_question(request, thread_id):
+    thread = get_object_or_404(Thread, pk=thread_id)
+    serializer = QuestionSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    if not thread.is_active:
+        return Response({"detail": "This conversation has ended."}, status=status.HTTP_400_BAD_REQUEST)
+
+    question = serializer.validated_data["question"]
+    q_and_a = QAndA.objects.create(
+        thread=thread,
+        question=question,
+        answer="",
+    )
+    q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
+    messages = []
+    for existing_q_and_a in q_and_as:
+        messages.append({"role": "user", "content": existing_q_and_a.question})
+        if existing_q_and_a.answer:
+            messages.append({"role": "assistant", "content": existing_q_and_a.answer})
+
+    try:
+        response = requests.post(
+            "http://localhost:11434/api/chat",
+            json={
+                "model": "llama3.2:1b",
+                "messages": messages,
+                "stream": False,
+            },
+            timeout=60,
+        )
+        response.raise_for_status()
+        answer = response.json()["message"]["content"]
+        if not isinstance(answer, str):
+            raise ValueError("Ollama returned an invalid answer.")
+    except requests.exceptions.RequestException:
+        q_and_a.delete()
+        return Response(
+            {"detail": "Unable to contact Ollama."},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+    except (KeyError, TypeError, ValueError):
+        q_and_a.delete()
+        return Response(
+            {"detail": "Ollama returned an invalid response."},
+            status=status.HTTP_502_BAD_GATEWAY,
+        )
+
+    q_and_a.answer = answer
+    q_and_a.save(update_fields=["answer"])
+    return Response(QAndASerializer(q_and_a).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def end_conversation(request, thread_id):
+    thread = get_object_or_404(Thread, pk=thread_id)
+    if thread.is_active:
+        thread.is_active = False
+        thread.save(update_fields=["is_active", "updated_at"])
+    return Response(ThreadSerializer(thread).data)
 
 
 def news(request):

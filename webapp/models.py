@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -7,6 +8,42 @@ TIME_SLOT_CHOICES = (
     ("16:00", "16:00"),
     ("16:30", "16:30"),
 )
+
+AGENT_TYPE_CHOICES = (
+    ("general", "General"),
+    ("technical", "Technical"),
+    ("sales", "Sales"),
+)
+
+
+class Thread(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="chat_threads",
+    )
+    agent_type = models.CharField(max_length=20, choices=AGENT_TYPE_CHOICES)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Thread {self.pk} ({self.agent_type})"
+
+
+class QAndA(models.Model):
+    thread = models.ForeignKey(Thread, on_delete=models.CASCADE, related_name="q_and_as")
+    question = models.TextField()
+    answer = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("created_at", "id")
+
+    def __str__(self):
+        return f"Q&A {self.pk} for Thread {self.thread_id}"
 
 
 class Message(models.Model):

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Message, Metting, TimeSlot, News
+from .models import Message, Metting, News, QAndA, Thread, TimeSlot
 
 
 @admin.register(Message)
@@ -30,4 +30,18 @@ class NewsAdmin(admin.ModelAdmin):
 	list_display = ("title", "created_at")
 	search_fields = ("title", "content")
 	list_filter = ("created_at",)
+	ordering = ("-created_at",)
+
+
+@admin.register(Thread)
+class ThreadAdmin(admin.ModelAdmin):
+	list_display = ("id", "user", "agent_type", "is_active", "created_at", "updated_at")
+	list_filter = ("agent_type", "is_active", "created_at")
+	ordering = ("-created_at",)
+
+
+@admin.register(QAndA)
+class QAndAAdmin(admin.ModelAdmin):
+	list_display = ("id", "thread", "question", "created_at")
+	search_fields = ("question", "answer")
 	ordering = ("-created_at",)

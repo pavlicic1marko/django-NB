@@ -11,8 +11,13 @@ urlpatterns = [
     path("home/", views.home, name="home"),
     path("about-us/", views.about_us, name="about_us"),
     path("products/", views.products, name="products"),
+    path("chat/", views.chat, name="chat"),
     path("contact/", views.contact, name="contact"),
     path("schedule-meeting/", views.contact, name="schedule_meeting"),
     path("news/", views.news, name="news"),
     path("api/", include(router.urls)),
+    path("api/chat/threads/", views.start_conversation, name="start_conversation"),
+    path("api/chat/threads/<int:thread_id>/", views.get_conversation, name="get_conversation"),
+    path("api/chat/threads/<int:thread_id>/questions/", views.add_question, name="add_question"),
+    path("api/chat/threads/<int:thread_id>/end/", views.end_conversation, name="end_conversation"),
 ]
