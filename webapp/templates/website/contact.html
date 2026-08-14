@@ -60,6 +60,10 @@
             padding: 1.5rem;
         }
 
+        .schedule-cta {
+            padding: 1.5rem;
+        }
+
         .calendar-nav {
             display: flex;
             justify-content: space-between;
@@ -147,6 +151,18 @@
                 grid-template-columns: repeat(4, minmax(0, 1fr));
             }
         }
+
+        @media (max-width: 575.98px) {
+            .schedule-cta,
+            .schedule-booker {
+                padding: 1.25rem;
+            }
+
+            .schedule-cta .btn,
+            .schedule-booker .btn {
+                min-height: 2.75rem;
+            }
+        }
     </style>
 {% endblock %}
 
@@ -158,41 +174,41 @@
             {% endfor %}
         {% endif %}
 
-        <section class="row g-4 align-items-stretch">
+        <section class="row g-4 align-items-start">
             <div class="col-12 col-lg-4">
-                <div class="border rounded-4 p-4 h-100 bg-light">
+                <div class="schedule-cta border rounded-4 bg-light">
                     <h1 class="h2 mb-3">Schedule a meeting</h1>
                     <p class="text-secondary mb-4">
-                        Fill out the form and our team will reach out to you within 1-2 business days.
+                        Choose a convenient date and time to speak with our team.
                     </p>
                     <button type="button" id="openScheduleModal" class="btn btn-primary px-4">Schedule a meeting</button>
                 </div>
             </div>
 
             <div class="col-12 col-lg-8">
-                <div class="border rounded-4 p-4 p-md-5 bg-white h-100">
+                <div class="border rounded-4 p-4 p-md-5 bg-white">
                     <form method="post" action="{% url 'contact' %}">
                         {% csrf_token %}
                         <h1 class="h2 mb-3">Send us a message</h1>
                         <p>Send us a message and we'll get back to you within 1–2 business days.</p>
                         <div class="mb-3">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ form_data.name|default:'' }}" required>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ form_data.name|default:'' }}" placeholder="Your full name" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ form_data.email|default:'' }}" required>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ form_data.email|default:'' }}" placeholder="you@example.com" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="subject" name="subject" value="{{ form_data.subject|default:'' }}" required>
+                            <input type="text" class="form-control" id="subject" name="subject" value="{{ form_data.subject|default:'' }}" placeholder="What can we help you with?" required>
                         </div>
 
                         <div class="mb-4">
                             <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="message" name="message" rows="5" required>{{ form_data.message|default:'' }}</textarea>
+                            <textarea class="form-control" id="message" name="message" rows="5" placeholder="Tell us about your project or question..." required>{{ form_data.message|default:'' }}</textarea>
                         </div>
 
                         <button type="submit" class="btn btn-primary px-4">Send Message</button>
