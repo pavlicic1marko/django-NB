@@ -254,11 +254,7 @@
         var followupQuestion = document.getElementById("followupQuestion");
         var askBtn = document.getElementById("askBtn");
 
-        // --- Temporary mock "backend" helpers (to be replaced with real API calls later) ---
-
-        function mockAssistantAnswer() {
-            return "IDK";
-        }
+        var CHAT_API_URL = "/api/chat/threads/";
 
         function getSelectedAgent() {
             for (var i = 0; i < agentInputs.length; i++) {
@@ -275,7 +271,16 @@
             }
         }
 
-        // --- State persistence (localStorage placeholder for future backend Thread sync) ---
+        function requestJson(url, options) {
+            return fetch(url, options || {}).then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok) {
+                        throw new Error(data.detail || "The chat request failed.");
+                    }
+                    return data;
+                });
+            });
+        }
 
         function saveState(state) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -295,6 +300,20 @@
 
         function clearState() {
             localStorage.removeItem(STORAGE_KEY);
+        }
+
+        function stateFromThread(thread) {
+            var messages = [];
+            thread.q_and_as.forEach(function (qAndA) {
+                messages.push({ role: "user", text: qAndA.question });
+                messages.push({ role: "assistant", text: qAndA.answer });
+            });
+            return {
+                active: thread.is_active,
+                agent: thread.agent_type,
+                threadId: thread.id,
+                messages: messages
+            };
         }
 
         // --- Rendering ---
@@ -340,23 +359,30 @@
                 return;
             }
             initialQuestionFeedback.style.display = "none";
+            startChatBtn.disabled = true;
 
-            var state = {
-                active: true,
-                agent: getSelectedAgent(),
-                threadId: "local-" + Date.now(),
-                messages: [
-                    { role: "user", text: question },
-                    { role: "assistant", text: mockAssistantAnswer() }
-                ]
-            };
-
-            saveState(state);
-            renderConversation(state);
-            openOverlay();
-
-            initialQuestion.value = "";
-            updateStartButtonState();
+            requestJson(CHAT_API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    agent_type: getSelectedAgent(),
+                    question: question
+                })
+            }).then(function (data) {
+                var state = stateFromThread(data.thread);
+                state.messages = [
+                    { role: "user", text: data.q_and_a.question },
+                    { role: "assistant", text: data.q_and_a.answer }
+                ];
+                saveState(state);
+                renderConversation(state);
+                openOverlay();
+                initialQuestion.value = "";
+                updateStartButtonState();
+            }).catch(function (error) {
+                alert(error.message);
+                updateStartButtonState();
+            });
         }
 
         function sendMessage() {
@@ -366,39 +392,72 @@
             }
 
             var state = loadState();
-            if (!state || !state.active) {
+            if (!state || !state.active || !state.threadId) {
                 return;
             }
+            askBtn.disabled = true;
 
-            state.messages.push({ role: "user", text: question });
-            state.messages.push({ role: "assistant", text: mockAssistantAnswer() });
-            saveState(state);
-
-            renderMessage("user", question);
-            renderMessage("assistant", mockAssistantAnswer());
-            scrollHistoryToBottom();
-
-            followupQuestion.value = "";
-            updateAskButtonState();
+            requestJson(CHAT_API_URL + state.threadId + "/questions/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question: question })
+            }).then(function (qAndA) {
+                state.messages.push({ role: "user", text: qAndA.question });
+                state.messages.push({ role: "assistant", text: qAndA.answer });
+                saveState(state);
+                renderMessage("user", qAndA.question);
+                renderMessage("assistant", qAndA.answer);
+                scrollHistoryToBottom();
+                followupQuestion.value = "";
+                updateAskButtonState();
+            }).catch(function (error) {
+                alert(error.message);
+                updateAskButtonState();
+            });
         }
 
         function loadActiveConversation() {
             var state = loadState();
-            if (state && state.active) {
-                setSelectedAgent(state.agent);
-                renderConversation(state);
-                openOverlay();
+            if (state && state.threadId) {
+                requestJson(CHAT_API_URL + state.threadId + "/").then(function (thread) {
+                    var serverState = stateFromThread(thread);
+                    if (!serverState.active) {
+                        clearState();
+                        return;
+                    }
+                    saveState(serverState);
+                    setSelectedAgent(serverState.agent);
+                    renderConversation(serverState);
+                    openOverlay();
+                }).catch(function () {
+                    clearState();
+                });
             }
         }
 
         function endChat() {
-            clearState();
-            closeOverlay();
-            setSelectedAgent("general");
-            chatHistory.innerHTML = "";
-            initialQuestion.value = "";
-            initialQuestionFeedback.style.display = "none";
-            updateStartButtonState();
+            var state = loadState();
+            if (!state || !state.threadId) {
+                closeOverlay();
+                return;
+            }
+
+            endChatBtn.disabled = true;
+            requestJson(CHAT_API_URL + state.threadId + "/end/", {
+                method: "POST"
+            }).then(function () {
+                clearState();
+                closeOverlay();
+                setSelectedAgent("general");
+                chatHistory.innerHTML = "";
+                initialQuestion.value = "";
+                initialQuestionFeedback.style.display = "none";
+                updateStartButtonState();
+            }).catch(function (error) {
+                alert(error.message);
+            }).finally(function () {
+                endChatBtn.disabled = false;
+            });
         }
 
         // --- Button enable/disable state ---
