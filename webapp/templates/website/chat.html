@@ -108,10 +108,28 @@
     .chat-window-footer {
         padding: 0.85rem 1.25rem;
         border-top: 1px solid #e9ecef;
+        background: #f8f9fa;
         display: flex;
         gap: 0.5rem;
         align-items: flex-end;
         flex-wrap: wrap;
+    }
+
+    .chat-start-composer {
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.85rem;
+        background: #f8f9fa;
+        box-shadow: 0 0.25rem 0.75rem rgba(33, 37, 41, 0.06);
+    }
+
+    .chat-start-composer .form-control {
+        background: #ffffff;
+        border-color: #ced4da;
+    }
+
+    .chat-start-composer .btn {
+        min-height: 2.75rem;
     }
 
     .chat-window-footer .chat-followup-input {
@@ -192,15 +210,17 @@
                 </div>
             </fieldset>
 
-            <div class="mb-3">
-                <label for="initialQuestion" class="form-label">Ask us anything</label>
-                <textarea id="initialQuestion" class="form-control" rows="3" placeholder="Type your question..."></textarea>
-                <div id="initialQuestionFeedback" class="text-danger small mt-1" style="display: none;">
-                    Please enter a question before starting the chat.
+            <div class="chat-start-composer">
+                <div class="mb-3">
+                    <label for="initialQuestion" class="form-label">Ask us anything</label>
+                    <textarea id="initialQuestion" class="form-control" rows="3" placeholder="Type your question..."></textarea>
+                    <div id="initialQuestionFeedback" class="text-danger small mt-1" style="display: none;">
+                        Please enter a question before starting the chat.
+                    </div>
                 </div>
-            </div>
 
-            <button type="button" id="startChatBtn" class="btn btn-primary px-4" disabled>Talk with us</button>
+                <button type="button" id="startChatBtn" class="btn btn-primary px-4" disabled>Talk with us</button>
+            </div>
         </div>
     </main>
 
