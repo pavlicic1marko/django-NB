@@ -5,12 +5,16 @@ from collections import defaultdict
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from rest_framework import permissions, viewsets
+from django.db import transaction
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.response import Response
 
-from .models import Message, Metting, News, TIME_SLOT_CHOICES
-from .serializers import NewsSerializer
+from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
+from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
+from .services import ask_ai
 
 
 def _future_booked_slots_by_date():
@@ -64,6 +68,67 @@ class NewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = "id"
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def start_conversation(request):
+    serializer = StartConversationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    with transaction.atomic():
+        thread = Thread.objects.create(agent_type=serializer.validated_data["agent_type"])
+        question = serializer.validated_data["question"]
+        q_and_a = QAndA.objects.create(
+            thread=thread,
+            question=question,
+            answer=ask_ai(question, thread.agent_type),
+        )
+
+    return Response(
+        {"thread": ThreadSerializer(thread).data, "q_and_a": QAndASerializer(q_and_a).data},
+        status=status.HTTP_201_CREATED,
+    )
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def get_conversation(request, thread_id):
+    thread = get_object_or_404(Thread.objects.prefetch_related("q_and_as"), pk=thread_id)
+    return Response(ThreadSerializer(thread).data)
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def add_question(request, thread_id):
+    thread = get_object_or_404(Thread, pk=thread_id)
+    serializer = QuestionSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    if not thread.is_active:
+        return Response({"detail": "This conversation has ended."}, status=status.HTTP_400_BAD_REQUEST)
+
+    question = serializer.validated_data["question"]
+    q_and_a = QAndA.objects.create(
+        thread=thread,
+        question=question,
+        answer=ask_ai(question, thread.agent_type),
+    )
+    return Response(QAndASerializer(q_and_a).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def end_conversation(request, thread_id):
+    thread = get_object_or_404(Thread, pk=thread_id)
+    if thread.is_active:
+        thread.is_active = False
+        thread.save(update_fields=["is_active", "updated_at"])
+    return Response(ThreadSerializer(thread).data)
 
 
 def news(request):
