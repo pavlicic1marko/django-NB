@@ -43,16 +43,9 @@
         background: #f8fafc;
     }
 
-    .blog-sidebar-item {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        padding: 0.7rem 0;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .blog-sidebar-item:last-child {
-        border-bottom: 0;
+    .blog-sidebar-section + .blog-sidebar-section {
+        margin-top: 0;
+        padding-top: 0;
     }
 
     @media (max-width: 575.98px) {
@@ -118,26 +111,21 @@
         </section>
 
         <aside class="col-12 col-lg-4" aria-label="Studio updates and tools">
-            <div class="blog-sidebar p-4">
-                <h2 class="h5 mb-3">Studio updates</h2>
-                <div class="blog-sidebar-item small">
-                    <span class="text-secondary">Next tool preview</span>
-                    <strong class="text-primary">Coming soon</strong>
-                </div>
-                <div class="blog-sidebar-item small">
-                    <span class="text-secondary">Today’s focus</span>
-                    <strong>Product polish</strong>
-                </div>
-                <div class="blog-sidebar-item small">
-                    <span class="text-secondary">Studio status</span>
-                    <strong class="text-success">Operational</strong>
-                </div>
+            <div class="d-grid gap-4">
+                <section class="blog-sidebar blog-sidebar-section p-4" aria-labelledby="studio-updates-heading">
+                    <h2 id="studio-updates-heading" class="h5 mb-3">Studio updates</h2>
+                    <p class="text-secondary small mb-0">
+                        A new tool is coming soon. We are polishing our products and keeping the studio operational.
+                    </p>
+                </section>
 
-                <h2 class="h5 border-bottom pb-3 mb-3 mt-4">Explore</h2>
-                <div class="d-grid gap-2">
-                    <a class="btn btn-outline-primary text-start" href="{% url 'products' %}">Browse products</a>
-                    <a class="btn btn-outline-secondary text-start" href="{% url 'contact' %}">Start a conversation</a>
-                </div>
+                <section class="blog-sidebar blog-sidebar-section p-4" aria-labelledby="explore-heading">
+                    <h2 id="explore-heading" class="h5 mb-3">Explore</h2>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-outline-primary text-start" href="{% url 'products' %}">Browse products</a>
+                        <a class="btn btn-outline-secondary text-start" href="{% url 'contact' %}">Start a conversation</a>
+                    </div>
+                </section>
             </div>
         </aside>
     </div>
