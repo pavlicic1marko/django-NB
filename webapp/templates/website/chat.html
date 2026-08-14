@@ -4,36 +4,24 @@
 
 {% block extra_head %}
 <style>
-    .chat-page.is-blurred > .chat-intro-wrap {
-        filter: blur(4px);
-        pointer-events: none;
-        user-select: none;
-    }
-
-    .chat-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(20, 26, 39, 0.55);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-        z-index: 1200;
-    }
-
-    .chat-overlay.is-open {
-        display: flex;
-    }
-
     .chat-window {
-        width: min(760px, 100%);
-        height: min(80vh, 720px);
+        width: 100%;
+        min-height: 500px;
         background: #ffffff;
         border-radius: 1rem;
-        box-shadow: 0 22px 56px rgba(0, 0, 0, 0.3);
+        border: 1px solid #dee2e6;
+        box-shadow: 0 0.5rem 1.5rem rgba(33, 37, 41, 0.08);
         display: flex;
         flex-direction: column;
         overflow: hidden;
+    }
+
+    .chat-conversation {
+        display: none;
+    }
+
+    .chat-conversation.is-active {
+        display: flex;
     }
 
     .chat-window-header {
@@ -130,6 +118,33 @@
 
     .chat-start-composer .btn {
         min-height: 2.75rem;
+    }
+
+    .chat-loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chat-loading-spinner {
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.45);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: chat-spin 0.7s linear infinite;
+    }
+
+    @keyframes chat-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .assistant-options.is-disabled {
+        opacity: 0.65;
+    }
+
+    .assistant-options.is-disabled .form-check-label {
+        cursor: not-allowed;
     }
 
     .assistant-options {
@@ -234,7 +249,7 @@
         }
 
         .chat-window {
-            height: 92vh;
+            min-height: 460px;
             border-radius: 0.5rem;
         }
 
@@ -291,13 +306,16 @@
                     </div>
                 </div>
 
-                <button type="button" id="startChatBtn" class="btn btn-primary px-4" disabled>Talk with us</button>
+                <button type="button" id="startChatBtn" class="btn btn-primary px-4" disabled>
+                    <span class="chat-button-label">Talk with us</span>
+                    <span class="chat-loading" hidden>
+                        <span class="chat-loading-spinner" aria-hidden="true"></span>
+                        Processing...
+                    </span>
+                </button>
             </div>
-        </div>
-    </main>
 
-    <div id="chatOverlay" class="chat-overlay" aria-hidden="true">
-        <div class="chat-window" role="dialog" aria-modal="true" aria-labelledby="chatWindowTitle">
+            <div id="chatConversation" class="chat-window chat-conversation" aria-live="polite">
             <div class="chat-window-header">
                 <h2 id="chatWindowTitle" class="h6 mb-0"></h2>
                 <button type="button" id="endChatBtn" class="chat-end-btn" aria-label="End chat">
@@ -316,10 +334,12 @@
                     <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                         <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
                     </svg>
+                    <span class="chat-loading-spinner" hidden aria-hidden="true"></span>
                 </button>
             </div>
+            </div>
         </div>
-    </div>
+    </main>
 </div>
 {% endblock %}
 
@@ -335,16 +355,22 @@
 
         var chatPage = document.querySelector(".chat-page");
         var agentInputs = document.querySelectorAll("input[name='chatAgent']");
+        var assistantOptions = document.querySelector(".assistant-options");
         var initialQuestion = document.getElementById("initialQuestion");
         var initialQuestionFeedback = document.getElementById("initialQuestionFeedback");
         var startChatBtn = document.getElementById("startChatBtn");
+        var startButtonLabel = startChatBtn.querySelector(".chat-button-label");
+        var startLoading = startChatBtn.querySelector(".chat-loading");
 
-        var chatOverlay = document.getElementById("chatOverlay");
+        var chatStartComposer = document.querySelector(".chat-start-composer");
+        var chatConversation = document.getElementById("chatConversation");
         var chatWindowTitle = document.getElementById("chatWindowTitle");
         var chatHistory = document.getElementById("chatHistory");
         var endChatBtn = document.getElementById("endChatBtn");
         var followupQuestion = document.getElementById("followupQuestion");
         var askBtn = document.getElementById("askBtn");
+        var askButtonIcon = askBtn.querySelector("svg");
+        var askLoading = askBtn.querySelector(".chat-loading-spinner");
 
         var CHAT_API_URL = "/api/chat/threads/";
 
@@ -361,6 +387,13 @@
             for (var i = 0; i < agentInputs.length; i++) {
                 agentInputs[i].checked = agentInputs[i].value === agent;
             }
+        }
+
+        function setAssistantSelectionEnabled(enabled) {
+            for (var i = 0; i < agentInputs.length; i++) {
+                agentInputs[i].disabled = !enabled;
+            }
+            assistantOptions.classList.toggle("is-disabled", !enabled);
         }
 
         function requestJson(url, options) {
@@ -430,16 +463,30 @@
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
-        function openOverlay() {
-            chatOverlay.classList.add("is-open");
-            chatOverlay.setAttribute("aria-hidden", "false");
-            chatPage.classList.add("is-blurred");
+        function showConversation() {
+            chatStartComposer.hidden = true;
+            chatConversation.classList.add("is-active");
+            setAssistantSelectionEnabled(false);
         }
 
-        function closeOverlay() {
-            chatOverlay.classList.remove("is-open");
-            chatOverlay.setAttribute("aria-hidden", "true");
-            chatPage.classList.remove("is-blurred");
+        function showStartComposer() {
+            chatConversation.classList.remove("is-active");
+            chatStartComposer.hidden = false;
+            setAssistantSelectionEnabled(true);
+        }
+
+        function setStartLoading(isLoading) {
+            startChatBtn.disabled = isLoading;
+            startButtonLabel.hidden = isLoading;
+            startLoading.hidden = !isLoading;
+            startChatBtn.setAttribute("aria-busy", isLoading ? "true" : "false");
+        }
+
+        function setAskLoading(isLoading) {
+            askBtn.disabled = isLoading;
+            askButtonIcon.hidden = isLoading;
+            askLoading.hidden = !isLoading;
+            askBtn.setAttribute("aria-busy", isLoading ? "true" : "false");
         }
 
         // --- Core chat operations ---
@@ -451,7 +498,8 @@
                 return;
             }
             initialQuestionFeedback.style.display = "none";
-            startChatBtn.disabled = true;
+            setStartLoading(true);
+            setAssistantSelectionEnabled(false);
 
             requestJson(CHAT_API_URL, {
                 method: "POST",
@@ -468,11 +516,13 @@
                 ];
                 saveState(state);
                 renderConversation(state);
-                openOverlay();
+                showConversation();
                 initialQuestion.value = "";
-                updateStartButtonState();
+                setStartLoading(false);
             }).catch(function (error) {
                 alert(error.message);
+                setStartLoading(false);
+                setAssistantSelectionEnabled(true);
                 updateStartButtonState();
             });
         }
@@ -487,7 +537,7 @@
             if (!state || !state.active || !state.threadId) {
                 return;
             }
-            askBtn.disabled = true;
+            setAskLoading(true);
 
             requestJson(CHAT_API_URL + state.threadId + "/questions/", {
                 method: "POST",
@@ -501,9 +551,11 @@
                 renderMessage("assistant", qAndA.answer);
                 scrollHistoryToBottom();
                 followupQuestion.value = "";
+                setAskLoading(false);
                 updateAskButtonState();
             }).catch(function (error) {
                 alert(error.message);
+                setAskLoading(false);
                 updateAskButtonState();
             });
         }
@@ -520,7 +572,7 @@
                     saveState(serverState);
                     setSelectedAgent(serverState.agent);
                     renderConversation(serverState);
-                    openOverlay();
+                    showConversation();
                 }).catch(function () {
                     clearState();
                 });
@@ -530,7 +582,7 @@
         function endChat() {
             var state = loadState();
             if (!state || !state.threadId) {
-                closeOverlay();
+                showStartComposer();
                 return;
             }
 
@@ -539,7 +591,7 @@
                 method: "POST"
             }).then(function () {
                 clearState();
-                closeOverlay();
+                showStartComposer();
                 setSelectedAgent("general");
                 chatHistory.innerHTML = "";
                 initialQuestion.value = "";
@@ -555,6 +607,9 @@
         // --- Button enable/disable state ---
 
         function updateStartButtonState() {
+            if (!startLoading.hidden) {
+                return;
+            }
             startChatBtn.disabled = initialQuestion.value.trim() === "";
         }
 
