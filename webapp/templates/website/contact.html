@@ -165,7 +165,7 @@
                     <p class="text-secondary mb-4">
                         Fill out the form and our team will reach out to you within 1-2 business days.
                     </p>
-                    <button type="button" id="openScheduleModal" class="btn btn-primary px-4">Talk with us</button>
+                    <button type="button" id="openScheduleModal" class="btn btn-primary px-4">Schedule a meeting</button>
                 </div>
             </div>
 
@@ -173,6 +173,7 @@
                 <div class="border rounded-4 p-4 p-md-5 bg-white h-100">
                     <form method="post" action="{% url 'contact' %}">
                         {% csrf_token %}
+                        <h1 class="h2 mb-3">Send us an Email</h1>
                         <div class="mb-3">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="name" name="name" value="{{ form_data.name|default:'' }}" required>
