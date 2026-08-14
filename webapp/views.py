@@ -204,7 +204,7 @@ def end_conversation(request, thread_id):
     return Response(ThreadSerializer(thread).data)
 
 
-def news(request):
+def blog(request):
     articles = [
         {"title": "Operations briefing: August service update", "date": dt_date(2026, 8, 12)},
         {"title": "New reporting tools available to teams", "date": dt_date(2026, 8, 8)},
@@ -220,7 +220,7 @@ def news(request):
         {"title": "Getting started with the latest tools", "date": dt_date(2026, 6, 23)},
     ]
     article_page = Paginator(articles, 10).get_page(request.GET.get("page"))
-    return render(request, "website/news.html", {"article_page": article_page})
+    return render(request, "website/blog.html", {"article_page": article_page})
 
 
 def contact(request):
