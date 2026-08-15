@@ -84,7 +84,7 @@
                         <img class="blog-article-image rounded-1" src="{% static 'images/image.png' %}" alt="Studio article image">
                         <div>
                             <time class="blog-date d-block mb-2" datetime="{{ article.date|date:'Y-m-d' }}">{{ article.date|date:"F j, Y" }}</time>
-                            <h3 class="h5 mb-2">{{ article.title }}</h3>
+                            <h3 class="h5 mb-2"><a class="text-decoration-none" href="{% url 'news_detail' article.id %}">{{ article.title }}</a></h3>
                             <p class="text-secondary mb-0">Notes and practical perspectives from our digital studio.</p>
                         </div>
                     </article>

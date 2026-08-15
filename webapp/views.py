@@ -1,4 +1,3 @@
-from datetime import date as dt_date
 from datetime import timezone as dt_timezone
 from collections import defaultdict
 
@@ -244,22 +243,13 @@ def end_conversation(request, thread_id):
 
 
 def blog(request):
-    articles = [
-        {"title": "Operations briefing: August service update", "date": dt_date(2026, 8, 12)},
-        {"title": "New reporting tools available to teams", "date": dt_date(2026, 8, 8)},
-        {"title": "Customer support schedule for the holiday period", "date": dt_date(2026, 8, 4)},
-        {"title": "Product release notes: workflow improvements", "date": dt_date(2026, 7, 30)},
-        {"title": "Planning guide for the next quarter", "date": dt_date(2026, 7, 25)},
-        {"title": "Service status review: July highlights", "date": dt_date(2026, 7, 21)},
-        {"title": "Security reminder for account administrators", "date": dt_date(2026, 7, 16)},
-        {"title": "Team collaboration practices that scale", "date": dt_date(2026, 7, 11)},
-        {"title": "Upcoming maintenance window announced", "date": dt_date(2026, 7, 7)},
-        {"title": "How we are improving response times", "date": dt_date(2026, 7, 2)},
-        {"title": "Community update: June milestones", "date": dt_date(2026, 6, 27)},
-        {"title": "Getting started with the latest tools", "date": dt_date(2026, 6, 23)},
-    ]
-    article_page = Paginator(articles, 10).get_page(request.GET.get("page"))
+    article_page = Paginator(News.objects.order_by("-date", "-id"), 10).get_page(request.GET.get("page"))
     return render(request, "website/blog.html", {"article_page": article_page})
+
+
+def news_detail(request, news_id):
+    article = get_object_or_404(News, pk=news_id)
+    return render(request, "website/news_detail.html", {"article": article})
 
 
 def contact(request):

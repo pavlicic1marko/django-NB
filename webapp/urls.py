@@ -16,6 +16,7 @@ urlpatterns = [
     path("schedule-meeting/", views.contact, name="schedule_meeting"),
     path("blog/", views.blog, name="blog"),
     path("news/", views.blog, name="news"),
+    path("news/<int:news_id>/", views.news_detail, name="news_detail"),
     path("api/", include(router.urls)),
     path("api/chat/threads/", views.start_conversation, name="start_conversation"),
     path("api/chat/threads/<int:thread_id>/", views.get_conversation, name="get_conversation"),
