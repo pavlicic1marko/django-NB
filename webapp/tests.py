@@ -62,6 +62,9 @@ class NewsViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, article.title)
         self.assertContains(response, article.text)
+        self.assertContains(response, article.image.url)
+        self.assertEqual(len(response.context["suggested_articles"]), 2)
+        self.assertNotIn(article, response.context["suggested_articles"])
 
 
 class NewsApiTests(TestCase):
