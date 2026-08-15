@@ -120,7 +120,7 @@ def start_conversation(request):
             response = requests.post(
                 "http://localhost:11434/api/chat",
                 json={
-                    "model": "llama3.2:1b",
+                    "model": settings.OLLAMA_MODEL,
                     "messages": messages,
                     "stream": False,
                 },
@@ -133,7 +133,7 @@ def start_conversation(request):
         except requests.exceptions.RequestException:
             transaction.set_rollback(True)
             return Response(
-                {"detail": "Unable to contact Ollama."},
+                {"detail": "There was an error. Please try again later."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
         except (KeyError, TypeError, ValueError):
@@ -193,8 +193,6 @@ def add_question(request, thread_id):
         response = requests.post(
             "http://localhost:11434/api/chat",
             json={
-                "model": "llama3.2:1b",
-                "model": settings.OLLAMA_MODEL,
                 "model": settings.OLLAMA_MODEL,
                 "messages": messages,
                 "stream": False,
@@ -208,7 +206,7 @@ def add_question(request, thread_id):
     except requests.exceptions.RequestException:
         q_and_a.delete()
         return Response(
-            {"detail": "Unable to contact Ollama."},
+            {"detail": "There was an error. Please try again later."},
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
     except (KeyError, TypeError, ValueError):
