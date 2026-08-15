@@ -16,6 +16,23 @@ from rest_framework.response import Response
 from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
 from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
 
+AGENT_INSTRUCTIONS = {
+    "general": (
+        "You are a helpful general-purpose assistant. Answer clearly and accurately. "
+        "If you are unsure, say so instead of inventing information."
+    ),
+    "technical": (
+        "You are a technical support assistant for an IT studio. Help users with products, "
+        "integrations, software, and troubleshooting. Give practical step-by-step explanations "
+        "and ask for missing technical details when necessary."
+    ),
+    "sales": (
+        "You are a professional sales assistant for an IT studio. Answer questions about products, "
+        "pricing, services, and project fit. Be helpful and informative without making up prices, "
+        "guarantees, or features."
+    ),
+}
+
 
 def _future_booked_slots_by_date():
     utc_today = timezone.now().astimezone(dt_timezone.utc).date()
@@ -87,7 +104,12 @@ def start_conversation(request):
         )
 
         q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
-        messages = []
+        messages = [
+            {
+                "role": "system",
+                "content": AGENT_INSTRUCTIONS[thread.agent_type],
+            }
+        ]
         for existing_q_and_a in q_and_as:
             messages.append({"role": "user", "content": existing_q_and_a.question})
             if existing_q_and_a.answer:
@@ -155,7 +177,12 @@ def add_question(request, thread_id):
         answer="",
     )
     q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
-    messages = []
+    messages = [
+        {
+            "role": "system",
+            "content": AGENT_INSTRUCTIONS[thread.agent_type],
+        }
+    ]
     for existing_q_and_a in q_and_as:
         messages.append({"role": "user", "content": existing_q_and_a.question})
         if existing_q_and_a.answer:
