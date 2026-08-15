@@ -1,14 +1,14 @@
 NB practice website
 commands for deployment on PROD:
----install python 3.11
+---install python 3.11 or 3.12
 sudo dnf update -y
-sudo dnf install -y git python3.11 python3.11-pip
+sudo dnf install python3.12 python3.12-pip -y
 ---pull repo
-git clone 
+git clone <REPO URL>
 ---change folder
-cd
+cd django-NB
 ---install venv
-python3.11 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
 ---install depedencies
 python -m pip install --upgrade pip
@@ -30,3 +30,8 @@ python manage.py makemigrations
 python manage.py migrate
 pip freeze > requirements.txt
 --MERGE
+
+---AWS
+ssh -i "milan-aws-app-ollama.pem" ec2-user@<IP or URL>
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull llama3.2:1b
