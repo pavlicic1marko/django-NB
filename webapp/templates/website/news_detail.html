@@ -1,0 +1,14 @@
+{% extends "website/base.html" %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <article class="mx-auto" style="max-width: 760px;">
+        <p class="text-secondary mb-2">{{ article.date|date:"F j, Y" }}</p>
+        <h1 class="display-6 fw-bold mb-4">{{ article.title }}</h1>
+        <div class="fs-5 lh-lg">{{ article.text|linebreaks }}</div>
+        <a class="btn btn-outline-primary mt-4" href="{% url 'news' %}">Back to news</a>
+    </article>
+</main>
+{% endblock %}
