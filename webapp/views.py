@@ -6,6 +6,7 @@ import requests
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponse
+from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.db import transaction
@@ -193,6 +194,8 @@ def add_question(request, thread_id):
             "http://localhost:11434/api/chat",
             json={
                 "model": "llama3.2:1b",
+                "model": settings.OLLAMA_MODEL,
+                "model": settings.OLLAMA_MODEL,
                 "messages": messages,
                 "stream": False,
             },
