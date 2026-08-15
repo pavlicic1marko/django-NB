@@ -20,6 +20,12 @@
             overflow: hidden;
         }
 
+        @media (min-width: 1200px) {
+            .home-content {
+                max-width: 1240px;
+            }
+        }
+
         .hero-accent {
             width: 140px;
             height: 140px;
@@ -34,9 +40,9 @@
 {% endblock %}
 
 {% block content %}
-    <section class="container pt-5 pb-4 pb-lg-5">
+    <section class="container home-content pt-5 pb-4 pb-lg-5">
         <div class="row justify-content-center g-4">
-            <div class="col-12 col-lg-10 col-xl-8">
+            <div class="col-12 col-lg-11 col-xl-12">
                 <div class="hero-panel border rounded-5 shadow-sm p-4 p-md-5 position-relative">
                     <div class="hero-accent"></div>
                     <span class="badge rounded-pill text-bg-primary mb-3">Trusted digital partner</span>
@@ -48,7 +54,6 @@
                         strengthen customer experiences, and create measurable business value.
                     </p>
                     <div class="d-flex gap-2 flex-wrap">
-                        <a href="{% url 'contact' %}" class="btn btn-primary btn-lg px-4">Start a project</a>
                         <a href="{% url 'products' %}" class="btn btn-outline-primary btn-lg px-4">View products</a>
                     </div>
                 </div>
@@ -56,10 +61,10 @@
         </div>
     </section>
 
-    <section class="container pb-4 pb-lg-5">
+    <section class="container home-content pb-4 pb-lg-5">
         <div class="row justify-content-center">
-            <div class="col-12 col-lg-10 col-xl-8">
-                <div class="border rounded-5 bg-white shadow-sm p-4 p-md-5 text-center">
+            <div class="col-12 col-lg-11 col-xl-12">
+                <div class="p-4 p-md-5 text-center">
                     <h2 class="display-6 fw-bold mb-3">Who are these projects for?</h2>
                     <p class="lead text-secondary mb-0">
                         These projects are built for growing businesses, startup teams, and organizations that need
@@ -72,24 +77,24 @@
         </div>
     </section>
     
-    <footer class="container pb-5">
+    <footer class="container home-content pb-5">
         <div class="row g-4 text-center">
             <div class="col-12 col-md-4">
-                <div class="border rounded-4 bg-white shadow-sm py-4 h-100">
+                <div class="py-4 h-100">
                     <div class="display-6 fw-bold text-primary mb-1">120+</div>
                     <div class="text-secondary">Projects completed</div>
                 </div>
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="border rounded-4 bg-white shadow-sm py-4 h-100">
+                <div class="py-4 h-100">
                     <div class="display-6 fw-bold text-primary mb-1">80+</div>
                     <div class="text-secondary">Companies served</div>
                 </div>
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="border rounded-4 bg-white shadow-sm py-4 h-100">
+                <div class="py-4 h-100">
                     <div class="display-6 fw-bold text-primary mb-1">$11M+</div>
                     <div class="text-secondary">Net revenue generated</div>
                 </div>

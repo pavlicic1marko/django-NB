@@ -1,4 +1,3 @@
-from datetime import date as dt_date
 from datetime import timezone as dt_timezone
 from collections import defaultdict
 
@@ -6,6 +5,7 @@ import requests
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponse
+from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.db import transaction
@@ -15,6 +15,34 @@ from rest_framework.response import Response
 
 from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
 from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
+
+AGENT_INSTRUCTIONS = {
+    "general": (
+        "You are a helpful general-purpose assistant. Answer clearly and accurately. "
+        "If you are unsure, say so instead of inventing information. The website includes a home "
+        "page for an overview, an About Us page with company information, a Products page for "
+        "offerings, a Blog page for updates, and a Contact page for messages and meeting "
+        "scheduling. It also provides a Chat page where visitors can choose an assistant and ask "
+        "questions. Describe these pages at a basic level and do not invent details that are not "
+        "provided."
+    ),
+    "technical": (
+        "You are a technical support assistant for an IT studio. Help users with products, "
+        "integrations, software, and troubleshooting. Give practical step-by-step explanations "
+        "and ask for missing technical details when necessary. This application is built with "
+        "Django, using its views, models, templates, and REST APIs to provide a reliable web "
+        "experience. It is deployed on AWS and uses modern web-development practices and "
+        "technologies. Explain technical concepts clearly, and do not claim deployment details, "
+        "services, or capabilities that have not been confirmed."
+    ),
+    "sales": (
+        "You are a professional sales assistant for an IT studio. Answer questions about products, "
+        "pricing, services, and project fit. Be helpful and informative without making up prices, "
+        "guarantees, or features. The Products page provides an overview of the available "
+        "offerings. When a visitor is interested in learning more, direct them to the Contact "
+        "page, where they can send a message or schedule a meeting."
+    ),
+}
 
 
 def _future_booked_slots_by_date():
@@ -87,7 +115,12 @@ def start_conversation(request):
         )
 
         q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
-        messages = []
+        messages = [
+            {
+                "role": "system",
+                "content": AGENT_INSTRUCTIONS[thread.agent_type],
+            }
+        ]
         for existing_q_and_a in q_and_as:
             messages.append({"role": "user", "content": existing_q_and_a.question})
             if existing_q_and_a.answer:
@@ -97,7 +130,7 @@ def start_conversation(request):
             response = requests.post(
                 "http://localhost:11434/api/chat",
                 json={
-                    "model": "llama3.2:1b",
+                    "model": settings.OLLAMA_MODEL,
                     "messages": messages,
                     "stream": False,
                 },
@@ -110,7 +143,7 @@ def start_conversation(request):
         except requests.exceptions.RequestException:
             transaction.set_rollback(True)
             return Response(
-                {"detail": "Unable to contact Ollama."},
+                {"detail": "There was an error. Please try again later."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
         except (KeyError, TypeError, ValueError):
@@ -155,7 +188,12 @@ def add_question(request, thread_id):
         answer="",
     )
     q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
-    messages = []
+    messages = [
+        {
+            "role": "system",
+            "content": AGENT_INSTRUCTIONS[thread.agent_type],
+        }
+    ]
     for existing_q_and_a in q_and_as:
         messages.append({"role": "user", "content": existing_q_and_a.question})
         if existing_q_and_a.answer:
@@ -165,7 +203,7 @@ def add_question(request, thread_id):
         response = requests.post(
             "http://localhost:11434/api/chat",
             json={
-                "model": "llama3.2:1b",
+                "model": settings.OLLAMA_MODEL,
                 "messages": messages,
                 "stream": False,
             },
@@ -178,7 +216,7 @@ def add_question(request, thread_id):
     except requests.exceptions.RequestException:
         q_and_a.delete()
         return Response(
-            {"detail": "Unable to contact Ollama."},
+            {"detail": "There was an error. Please try again later."},
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
     except (KeyError, TypeError, ValueError):
@@ -204,23 +242,21 @@ def end_conversation(request, thread_id):
     return Response(ThreadSerializer(thread).data)
 
 
-def news(request):
-    articles = [
-        {"title": "Operations briefing: August service update", "date": dt_date(2026, 8, 12)},
-        {"title": "New reporting tools available to teams", "date": dt_date(2026, 8, 8)},
-        {"title": "Customer support schedule for the holiday period", "date": dt_date(2026, 8, 4)},
-        {"title": "Product release notes: workflow improvements", "date": dt_date(2026, 7, 30)},
-        {"title": "Planning guide for the next quarter", "date": dt_date(2026, 7, 25)},
-        {"title": "Service status review: July highlights", "date": dt_date(2026, 7, 21)},
-        {"title": "Security reminder for account administrators", "date": dt_date(2026, 7, 16)},
-        {"title": "Team collaboration practices that scale", "date": dt_date(2026, 7, 11)},
-        {"title": "Upcoming maintenance window announced", "date": dt_date(2026, 7, 7)},
-        {"title": "How we are improving response times", "date": dt_date(2026, 7, 2)},
-        {"title": "Community update: June milestones", "date": dt_date(2026, 6, 27)},
-        {"title": "Getting started with the latest tools", "date": dt_date(2026, 6, 23)},
-    ]
-    article_page = Paginator(articles, 10).get_page(request.GET.get("page"))
-    return render(request, "website/news.html", {"article_page": article_page})
+def blog(request):
+    article_page = Paginator(News.objects.order_by("-date", "-id"), 10).get_page(request.GET.get("page"))
+    return render(request, "website/blog.html", {"article_page": article_page})
+
+
+def news_detail(request, news_id):
+    article = get_object_or_404(News, pk=news_id)
+    suggested_articles = News.objects.none()
+    if News.objects.count() >= 2:
+        suggested_articles = News.objects.exclude(pk=article.pk).order_by("-date", "-id")[:2]
+    return render(
+        request,
+        "website/news_detail.html",
+        {"article": article, "suggested_articles": suggested_articles},
+    )
 
 
 def contact(request):

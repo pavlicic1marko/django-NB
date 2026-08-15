@@ -1,4 +1,6 @@
 .venv/
+.env
 db.sqlite3
 **.pyc
 news/**.jpg
+news/*.png

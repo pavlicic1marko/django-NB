@@ -30,20 +30,51 @@ class MessageModelTests(TestCase):
 
 
 class NewsViewTests(TestCase):
+    def setUp(self):
+        for index in range(12):
+            News.objects.create(
+                title=f"Studio update {index}",
+                text=f"News text {index}",
+                date=date(2026, 8, 12 - index),
+                image=f"news/update-{index}.png",
+            )
+
     def test_first_page_shows_ten_articles_and_pagination(self):
         response = self.client.get(reverse("news"))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["article_page"].object_list), 10)
-        self.assertContains(response, "Operations briefing: August service update")
-        self.assertNotContains(response, "Community update: June milestones")
+        self.assertContains(response, "Studio update 0")
+        self.assertNotContains(response, "Studio update 10")
 
     def test_second_page_shows_remaining_articles(self):
         response = self.client.get(reverse("news"), {"page": 2})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["article_page"].object_list), 2)
-        self.assertContains(response, "Community update: June milestones")
+        self.assertContains(response, "Studio update 10")
+
+    def test_news_detail_displays_the_selected_article_text(self):
+        article = News.objects.get(title="Studio update 0")
+
+        response = self.client.get(reverse("news_detail", args=[article.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, article.title)
+        self.assertContains(response, article.text)
+        self.assertContains(response, article.image.url)
+        self.assertEqual(len(response.context["suggested_articles"]), 2)
+        self.assertNotIn(article, response.context["suggested_articles"])
+
+    def test_news_detail_shows_a_suggestion_when_two_articles_exist(self):
+        News.objects.exclude(title__in=["Studio update 0", "Studio update 1"]).delete()
+        article = News.objects.get(title="Studio update 0")
+
+        response = self.client.get(reverse("news_detail", args=[article.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["suggested_articles"]), 1)
+        self.assertContains(response, "Studio update 1")
 
 
 class NewsApiTests(TestCase):

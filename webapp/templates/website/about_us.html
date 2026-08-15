@@ -3,20 +3,45 @@
 
 {% block title %}About Us{% endblock %}
 
+{% block extra_head %}
+    <style>
+        .about-main {
+            display: flex;
+            align-items: center;
+        }
+
+        .about-copy {
+            font-size: 1.1rem;
+            line-height: 1.75;
+        }
+
+        @media (min-width: 992px) {
+            .about-main {
+                min-height: calc(100vh - 88px);
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-    <main class="container py-5">
+    <main class="container about-main py-5">
         <section class="row g-4 align-items-center">
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-5">
                 <h1 class="display-5 fw-bold mb-3">Who are we</h1>
-                <p class="text-secondary mb-0">
+                <p class="about-copy text-secondary mb-3">
                     We are a passionate team focused on building practical and meaningful digital products.
                     Our mission is to combine design, technology, and strong communication to deliver results
                     that help businesses grow. From first ideas to final launch, we work closely with clients
                     to create solutions that are clear, modern, and easy to use.
                 </p>
+                <p class="about-copy text-secondary mb-0">
+                    We value thoughtful collaboration, honest communication, and steady progress. By listening
+                    carefully and keeping the process practical, we create digital experiences that feel distinctive
+                    while staying useful, reliable, and ready to grow with the people who use them.
+                </p>
             </div>
 
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-7">
                 <img
                     src="{% static 'images/image.png' %}"
                     alt="About us"
