@@ -250,7 +250,7 @@ def blog(request):
 def news_detail(request, news_id):
     article = get_object_or_404(News, pk=news_id)
     suggested_articles = News.objects.none()
-    if News.objects.count() > 2:
+    if News.objects.count() >= 2:
         suggested_articles = News.objects.exclude(pk=article.pk).order_by("-date", "-id")[:2]
     return render(
         request,

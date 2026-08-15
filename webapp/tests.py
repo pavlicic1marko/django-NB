@@ -66,6 +66,16 @@ class NewsViewTests(TestCase):
         self.assertEqual(len(response.context["suggested_articles"]), 2)
         self.assertNotIn(article, response.context["suggested_articles"])
 
+    def test_news_detail_shows_a_suggestion_when_two_articles_exist(self):
+        News.objects.exclude(title__in=["Studio update 0", "Studio update 1"]).delete()
+        article = News.objects.get(title="Studio update 0")
+
+        response = self.client.get(reverse("news_detail", args=[article.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["suggested_articles"]), 1)
+        self.assertContains(response, "Studio update 1")
+
 
 class NewsApiTests(TestCase):
     def test_news_api_supports_crud_operations(self):
