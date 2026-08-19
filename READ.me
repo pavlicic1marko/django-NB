@@ -35,3 +35,9 @@ pip freeze > requirements.txt
 ssh -i "milan-aws-app-ollama.pem" ec2-user@<IP or URL>
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull llama3.2:1b
+
+gunicorn config.wsgi:application --bind 127.0.0.1:8080
+sudo dnf install nginx -y
+sudo nano /etc/nginx/conf.d/django.conf
+sudo nano /etc/systemd/system/django.service
+curl 127.0.0.1:8080
