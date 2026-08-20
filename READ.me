@@ -31,7 +31,7 @@ python manage.py migrate
 pip freeze > requirements.txt
 --MERGE
 
----AWS
+---AWS LINUX
 ssh -i "milan-aws-app-ollama.pem" ec2-user@<IP or URL>
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull llama3.2:1b
@@ -41,3 +41,6 @@ sudo dnf install nginx -y
 sudo nano /etc/nginx/conf.d/django.conf
 sudo nano /etc/systemd/system/django.service
 curl 127.0.0.1:8080
+
+--LOGS
+sudo tail -f /var/log/nginx/access.log
