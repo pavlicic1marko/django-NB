@@ -42,5 +42,16 @@ sudo nano /etc/nginx/conf.d/django.conf
 sudo nano /etc/systemd/system/django.service
 curl 127.0.0.1:8080
 
+
+cd /home/ec2-user/django-NB
+git pull
+source .venv/bin/activate
+python manage.py collectstatic --noinput
+sudo cp deployments/nginx.config /etc/nginx/conf.d/django-nb.conf   # or wherever it's linked
+sudo nginx -t && sudo systemctl reload nginx
+sudo systemctl restart django   # your gunicorn service
+
 --LOGS
 sudo tail -f /var/log/nginx/access.log
+
+sudo systemctl status ollama
