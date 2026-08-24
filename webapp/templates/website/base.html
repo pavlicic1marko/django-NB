@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
     <link rel="apple-touch-icon" href="{% static 'images/favicon.svg' %}">
-    <title>{% block title %}Website{% endblock %}</title>
+    <title>{% block title %}AI Development & Integrations{% endblock %}</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
@@ -57,15 +57,15 @@
 <body>
     <nav class="navbar navbar-light bg-white border-bottom shadow-sm py-3 sticky-top site-nav" style="z-index: 1300;">
         <div class="container d-flex align-items-center justify-content-between flex-wrap">
-            <a href="{% url 'home' %}" class="navbar-brand">Digital Studio</a>
+            <a href="{% url 'home' %}" class="navbar-brand">AI Solutions Studio</a>
 
             <div class="navbar-nav flex-row gap-2 flex-wrap">
                 <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Home</a>
                 <a href="{% url 'about_us' %}" class="nav-link {% if request.resolver_match.url_name == 'about_us' %}active{% endif %}" {% if request.resolver_match.url_name == 'about_us' %}aria-current="page"{% endif %}>About Us</a>
-                <a href="{% url 'products' %}" class="nav-link {% if request.resolver_match.url_name == 'products' %}active{% endif %}" {% if request.resolver_match.url_name == 'products' %}aria-current="page"{% endif %}>Products</a>
-                <a href="{% url 'chat' %}" class="nav-link {% if request.resolver_match.url_name == 'chat' %}active{% endif %}" {% if request.resolver_match.url_name == 'chat' %}aria-current="page"{% endif %}>Chat</a>
+                <a href="{% url 'products' %}" class="nav-link {% if request.resolver_match.url_name == 'products' %}active{% endif %}" {% if request.resolver_match.url_name == 'products' %}aria-current="page"{% endif %}>AI Solutions</a>
+                <a href="{% url 'chat' %}" class="nav-link {% if request.resolver_match.url_name == 'chat' %}active{% endif %}" {% if request.resolver_match.url_name == 'chat' %}aria-current="page"{% endif %}>AI Chat</a>
                 <a href="{% url 'contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" {% if request.resolver_match.url_name == 'contact' %}aria-current="page"{% endif %}>Contact</a>
-                <a href="{% url 'blog' %}" class="nav-link {% if request.resolver_match.url_name == 'blog' %}active{% endif %}" {% if request.resolver_match.url_name == 'blog' %}aria-current="page"{% endif %}>Blog</a>
+                <a href="{% url 'blog' %}" class="nav-link {% if request.resolver_match.url_name == 'blog' %}active{% endif %}" {% if request.resolver_match.url_name == 'blog' %}aria-current="page"{% endif %}>AI Insights</a>
             </div>
         </div>
     </nav>

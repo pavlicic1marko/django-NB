@@ -1,5 +1,5 @@
 {% extends "website/base.html" %}
-{% block title %}Blog{% endblock %}
+{% block title %}AI Insights | AI Solutions Studio{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -62,17 +62,17 @@
 {% block content %}
 <main class="container blog-layout py-5">
     <header class="blog-intro mb-5">
-        <p class="text-primary fw-semibold mb-2">FROM THE STUDIO</p>
-        <h1 class="display-6 fw-bold mb-3">Ideas, updates, and practical digital work.</h1>
+        <p class="text-primary fw-semibold mb-2">FROM THE AI TEAM</p>
+        <h1 class="display-6 fw-bold mb-3">AI insights, integration patterns, and implementation playbooks.</h1>
         <p class="lead text-secondary mb-0">
-            A look at what we are building, learning, and improving for the teams we work with.
+            A look at what we are building, testing, and improving for teams shipping real AI products.
         </p>
     </header>
 
     <div class="row g-5">
         <section class="col-12 col-lg-8" aria-labelledby="blog-heading">
             <div class="d-flex align-items-baseline justify-content-between border-bottom pb-3 mb-2">
-                <h2 id="blog-heading" class="h3 mb-0">Latest from the studio</h2>
+                <h2 id="blog-heading" class="h3 mb-0">Latest AI articles</h2>
                 <span class="text-secondary small">Page {{ article_page.number }} of {{ article_page.paginator.num_pages }}</span>
             </div>
 
@@ -83,7 +83,7 @@
                         <div>
                             <time class="blog-date d-block mb-2" datetime="{{ article.date|date:'Y-m-d' }}">{{ article.date|date:"F j, Y" }}</time>
                             <h3 class="h5 mb-2"><a class="text-decoration-none" href="{% url 'news_detail' article.id %}">{{ article.title }}</a></h3>
-                            <p class="text-secondary mb-0">Notes and practical perspectives from our digital studio.</p>
+                            <p class="text-secondary mb-0">Practical notes from AI development and integration delivery.</p>
                         </div>
                     </article>
                 {% endfor %}
@@ -108,20 +108,20 @@
             {% endif %}
         </section>
 
-        <aside class="col-12 col-lg-4" aria-label="Studio updates and tools">
+        <aside class="col-12 col-lg-4" aria-label="AI updates and resources">
             <div class="d-grid gap-4">
                 <section class="blog-sidebar blog-sidebar-section p-4" aria-labelledby="studio-updates-heading">
-                    <h2 id="studio-updates-heading" class="h5 mb-3">Studio updates</h2>
+                    <h2 id="studio-updates-heading" class="h5 mb-3">AI studio updates</h2>
                     <p class="text-secondary small mb-0">
-                        A new tool is coming soon. We are polishing our products and keeping the studio operational.
+                        New integration templates and implementation accelerators are on the way.
                     </p>
                 </section>
 
                 <section class="blog-sidebar blog-sidebar-section p-4" aria-labelledby="explore-heading">
-                    <h2 id="explore-heading" class="h5 mb-3">Explore</h2>
+                    <h2 id="explore-heading" class="h5 mb-3">Explore services</h2>
                     <div class="d-grid gap-2">
-                        <a class="btn btn-outline-primary text-start" href="{% url 'products' %}">Browse products</a>
-                        <a class="btn btn-outline-secondary text-start" href="{% url 'contact' %}">Start a conversation</a>
+                        <a class="btn btn-outline-primary text-start" href="{% url 'products' %}">Browse AI solutions</a>
+                        <a class="btn btn-outline-secondary text-start" href="{% url 'contact' %}">Book AI consultation</a>
                     </div>
                 </section>
             </div>

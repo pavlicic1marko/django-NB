@@ -1,6 +1,6 @@
 {% extends "website/base.html" %}
 
-{% block title %}Contact{% endblock %}
+{% block title %}Contact AI Team | AI Solutions Studio{% endblock %}
 
 {% block extra_head %}
     <style>
@@ -235,11 +235,11 @@
         <section class="row g-4 align-items-start">
             <div class="col-12 col-lg-4">
                 <div class="schedule-cta border rounded-4 bg-light">
-                    <h1 class="h2 mb-3">Schedule a meeting</h1>
+                    <h1 class="h2 mb-3">Schedule an AI consultation</h1>
                     <p class="text-secondary mb-4">
-                        Choose a convenient date and time to speak with our team.
+                        Choose a convenient date and time to discuss your AI roadmap and integration goals.
                     </p>
-                    <button type="button" id="openScheduleModal" class="btn btn-primary px-4">Schedule a meeting</button>
+                    <button type="button" id="openScheduleModal" class="btn btn-primary px-4">Schedule consultation</button>
                 </div>
             </div>
 
@@ -247,8 +247,8 @@
                 <div class="border rounded-4 p-4 p-md-5 bg-white">
                     <form method="post" action="{% url 'contact' %}">
                         {% csrf_token %}
-                        <h1 class="h2 mb-3">Send us a message</h1>
-                        <p>Send us a message and we'll get back to you within 1–2 business days.</p>
+                        <h1 class="h2 mb-3">Send your AI project brief</h1>
+                        <p>Tell us what you want to build and we will reply within 1-2 business days.</p>
                         <div class="mb-3">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="name" name="name" value="{{ form_data.name|default:'' }}" placeholder="Your full name" required>
@@ -261,15 +261,15 @@
 
                         <div class="mb-3">
                             <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="subject" name="subject" value="{{ form_data.subject|default:'' }}" placeholder="What can we help you with?" required>
+                            <input type="text" class="form-control" id="subject" name="subject" value="{{ form_data.subject|default:'' }}" placeholder="What AI outcome are you targeting?" required>
                         </div>
 
                         <div class="mb-4">
                             <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="message" name="message" rows="5" placeholder="Tell us about your project or question..." required>{{ form_data.message|default:'' }}</textarea>
+                            <textarea class="form-control" id="message" name="message" rows="5" placeholder="Share your current stack, use case, and desired AI capabilities..." required>{{ form_data.message|default:'' }}</textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-primary px-4">Send Message</button>
+                        <button type="submit" class="btn btn-primary px-4">Send brief</button>
                     </form>
                 </div>
             </div>
@@ -287,12 +287,12 @@
                 <input type="hidden" id="meeting_timeslot" name="meeting_timeslot" value="{{ schedule_data.timeslot|default:'' }}">
 
                 <div class="schedule-info">
-                    <h2 id="scheduleTitle" class="h4 mb-3">Live Product Demonstration</h2>
+                    <h2 id="scheduleTitle" class="h4 mb-3">AI Integration Discovery Call</h2>
                     <p class="text-secondary mb-3">
-                        Book a guided demo in UTC. Sessions usually take 5 to 30 minutes based on your goals and questions.
+                        Book a guided call in UTC. Sessions usually take 30 minutes, depending on your goals and system complexity.
                     </p>
                     <p class="text-secondary mb-4">
-                        In this call, potential clients can learn core workflows, integration options, and practical rollout steps for their team.
+                        In this session, we review your use case, integration constraints, and the fastest path to a production AI rollout.
                     </p>
 
                     <div class="mb-3">
@@ -306,13 +306,13 @@
                     </div>
 
                     <div class="mb-0">
-                        <label for="meeting_phone" class="form-label">Mobile number (optional)</label>
+                        <label for="meeting_phone" class="form-label">Phone number (optional)</label>
                         <input type="text" id="meeting_phone" name="meeting_phone" class="form-control" value="{{ schedule_data.phone_number|default:'' }}">
                     </div>
                 </div>
 
                 <div class="schedule-booker" data-initial-date="{{ schedule_data.date|default:'' }}" data-initial-slot="{{ schedule_data.timeslot|default:'' }}">
-                    <p class="text-muted fw-semibold mb-2">Select the date (UTC)</p>
+                    <p class="text-muted fw-semibold mb-2">Select consultation date (UTC)</p>
                     <div class="calendar-nav">
                         <button id="calendarPrev" type="button" class="btn btn-outline-secondary btn-sm">Previous</button>
                         <strong id="calendarMonthLabel"></strong>
@@ -330,9 +330,9 @@
                     </div>
 
                     <div id="calendarDays" class="calendar-days mb-3" aria-label="Date picker"></div>
-                    <p id="selectedDateLabel" class="small text-secondary mb-4">No date selected yet.</p>
+                    <p id="selectedDateLabel" class="small text-secondary mb-4">No consultation date selected yet.</p>
 
-                    <p class="text-muted fw-semibold mb-2">Select a time</p>
+                    <p class="text-muted fw-semibold mb-2">Select consultation time</p>
                     <div id="timeSlotList" class="timeslot-list mb-4">
                         <button type="button" class="timeslot-btn" data-slot="15:00">15:00</button>
                         <button type="button" class="timeslot-btn" data-slot="15:30">15:30</button>
@@ -341,7 +341,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end">
-                        <button id="scheduleSubmit" type="submit" class="btn btn-secondary px-4" disabled>Schedule</button>
+                        <button id="scheduleSubmit" type="submit" class="btn btn-secondary px-4" disabled>Confirm call</button>
                     </div>
                 </div>
             </form>
@@ -455,7 +455,7 @@
             function syncHiddenDate() {
                 const iso = toIsoDateUTC(selectedDate);
                 dateInput.value = iso;
-                selectedDateLabel.textContent = `Selected date (UTC): ${iso}`;
+                selectedDateLabel.textContent = `Selected consultation date (UTC): ${iso}`;
             }
 
             function syncSlotVisualState() {
