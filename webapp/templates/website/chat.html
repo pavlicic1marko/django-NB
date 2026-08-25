@@ -1,6 +1,6 @@
 {% extends "website/base.html" %}
 
-{% block title %}Chat{% endblock %}
+{% block title %}AI Chat | AI Solutions Studio{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -277,34 +277,34 @@
 <div class="chat-page">
     <main class="container py-5 chat-intro-wrap">
         <div class="mx-auto chat-shell">
-            <h1 class="h2 mb-2">Chat</h1>
+            <h1 class="h2 mb-2">AI Chat</h1>
             <p class="text-secondary mb-4">
-                Chat with one of our AI assistants below. Choose the assistant that best fits your question, then
-                type your message to get started.
+                Connect with a specialized assistant for AI strategy, integrations, or implementation planning.
+                Choose the assistant that matches your goal, then type your question to get started.
             </p>
 
             <fieldset class="mb-4">
-                <legend class="h6">Choose an assistant</legend>
+                <legend class="h6">Choose an AI assistant</legend>
                 <div class="assistant-options">
                     <div class="form-check assistant-option">
                         <input class="form-check-input" type="radio" name="chatAgent" id="agentGeneral" value="general" checked>
                         <label class="form-check-label" for="agentGeneral">
-                            <strong>General</strong>
-                            <span>General questions and information</span>
+                            <strong>AI Strategy</strong>
+                            <span>Use-case discovery and roadmap guidance</span>
                         </label>
                     </div>
                     <div class="form-check assistant-option">
                         <input class="form-check-input" type="radio" name="chatAgent" id="agentTechnical" value="technical">
                         <label class="form-check-label" for="agentTechnical">
-                            <strong>Technical</strong>
-                            <span>Products and technical support</span>
+                            <strong>Integrations</strong>
+                            <span>Architecture, APIs, and platform integration</span>
                         </label>
                     </div>
                     <div class="form-check assistant-option">
                         <input class="form-check-input" type="radio" name="chatAgent" id="agentSales" value="sales">
                         <label class="form-check-label" for="agentSales">
-                            <strong>Sales</strong>
-                            <span>Pricing and sales inquiries</span>
+                            <strong>Delivery</strong>
+                            <span>Scope, timelines, and implementation planning</span>
                         </label>
                     </div>
                 </div>
@@ -312,15 +312,15 @@
 
             <div class="chat-start-composer">
                 <div class="mb-3">
-                    <label for="initialQuestion" class="form-label">Ask us anything</label>
-                    <textarea id="initialQuestion" class="form-control" rows="3" placeholder="Type your question..."></textarea>
+                    <label for="initialQuestion" class="form-label">Ask about your AI goals</label>
+                    <textarea id="initialQuestion" class="form-control" rows="3" placeholder="Describe your AI project or integration challenge..."></textarea>
                     <div id="initialQuestionFeedback" class="text-danger small mt-1" style="display: none;">
-                        Please enter a question before starting the chat.
+                        Please enter a question before starting the AI chat.
                     </div>
                 </div>
 
                 <button type="button" id="startChatBtn" class="btn btn-primary px-4" disabled>
-                    <span class="chat-button-label">Talk with us</span>
+                    <span class="chat-button-label">Start AI consultation</span>
                     <span class="chat-loading" hidden>
                         <span class="chat-loading-spinner" aria-hidden="true"></span>
                         Processing...
@@ -342,7 +342,7 @@
             <div id="chatHistory" class="chat-history"></div>
 
             <div class="chat-window-footer">
-                <textarea id="followupQuestion" class="form-control chat-followup-input" rows="1" placeholder="Ask another question..."></textarea>
+                <textarea id="followupQuestion" class="form-control chat-followup-input" rows="1" placeholder="Ask a follow-up about architecture, models, or rollout..."></textarea>
                 <button type="button" id="askBtn" class="chat-send-btn" disabled aria-label="Send question">
                     <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                         <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
@@ -361,9 +361,9 @@
     (function () {
         var STORAGE_KEY = "chatState";
         var AGENT_LABELS = {
-            general: "General Assistant",
-            technical: "Technical Assistant",
-            sales: "Sales Assistant"
+            general: "AI Strategy Assistant",
+            technical: "AI Integration Assistant",
+            sales: "AI Delivery Assistant"
         };
 
         var chatPage = document.querySelector(".chat-page");

@@ -27,7 +27,7 @@
     <div class="row g-5">
         {% if suggested_articles %}
             <aside class="col-12 col-lg-3 order-lg-2" aria-labelledby="suggested-news-heading">
-                <h2 id="suggested-news-heading" class="h5 mb-3">Suggested story</h2>
+                <h2 id="suggested-news-heading" class="h5 mb-3">Related AI insight</h2>
                 {% for suggested_article in suggested_articles %}
                     <article class="suggested-news-item py-3">
                         <a class="d-flex gap-3 text-decoration-none" href="{% url 'news_detail' suggested_article.id %}">
@@ -47,7 +47,7 @@
             <p class="text-secondary mb-2">{{ article.date|date:"F j, Y" }}</p>
             <h1 class="display-6 fw-bold mb-4">{{ article.title }}</h1>
             <div class="fs-5 lh-lg">{{ article.text|linebreaks }}</div>
-            <a class="btn btn-outline-primary mt-4" href="{% url 'news' %}">Back to blog</a>
+            <a class="btn btn-outline-primary mt-4" href="{% url 'news' %}">Back to AI insights</a>
         </article>
     </div>
 </main>
