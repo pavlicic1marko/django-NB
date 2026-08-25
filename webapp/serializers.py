@@ -28,8 +28,12 @@ class ThreadSerializer(serializers.ModelSerializer):
 
 class StartConversationSerializer(serializers.Serializer):
     agent_type = serializers.ChoiceField(choices=AGENT_TYPE_CHOICES)
+    # TODO(security): Add a maximum length and total history limit before sending
+    # anonymous input to the LLM or storing it in the database.
     question = serializers.CharField(allow_blank=False, trim_whitespace=True)
 
 
 class QuestionSerializer(serializers.Serializer):
+    # TODO(security): Add a maximum length before forwarding this public input
+    # to Ollama and storing it in the database.
     question = serializers.CharField(allow_blank=False, trim_whitespace=True)

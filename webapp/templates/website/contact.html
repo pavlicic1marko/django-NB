@@ -245,6 +245,7 @@
 
             <div class="col-12 col-lg-8">
                 <div class="border rounded-4 p-4 p-md-5 bg-white">
+                    <!-- TODO(security): Add server-side rate limiting or CAPTCHA; CSRF alone does not stop spam. -->
                     <form method="post" action="{% url 'contact' %}">
                         {% csrf_token %}
                         <h1 class="h2 mb-3">Send your AI project brief</h1>
@@ -280,6 +281,7 @@
         <div class="schedule-dialog" role="dialog" aria-modal="true" aria-labelledby="scheduleTitle">
             <button type="button" id="closeScheduleModal" class="schedule-close" aria-label="Close scheduling popup">&times;</button>
 
+            <!-- TODO(security): Add server-side rate limiting or CAPTCHA to prevent fake bookings. -->
             <form method="post" action="{% url 'schedule_meeting' %}" class="schedule-grid">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="schedule">

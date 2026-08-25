@@ -95,6 +95,8 @@ def chat(request):
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all().order_by("-created_at")
     serializer_class = NewsSerializer
+    # TODO(security): Use ReadOnlyModelViewSet for public access and require an
+    # authenticated staff user for create, update, and delete operations.
     permission_classes = [permissions.AllowAny]
     lookup_field = "id"
 
@@ -103,6 +105,8 @@ class NewsViewSet(viewsets.ModelViewSet):
 @authentication_classes([])
 @permission_classes([permissions.AllowAny])
 def start_conversation(request):
+    # TODO(security): Rate-limit anonymous callers and bind each thread to a
+    # session or authenticated user to prevent abuse and cross-user disclosure.
     serializer = StartConversationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
@@ -167,6 +171,8 @@ def start_conversation(request):
 @authentication_classes([])
 @permission_classes([permissions.AllowAny])
 def get_conversation(request, thread_id):
+    # TODO(security): Do not look up conversations by public sequential ID alone;
+    # verify ownership before returning the thread and its private history.
     thread = get_object_or_404(Thread.objects.prefetch_related("q_and_as"), pk=thread_id)
     return Response(ThreadSerializer(thread).data)
 
@@ -175,6 +181,8 @@ def get_conversation(request, thread_id):
 @authentication_classes([])
 @permission_classes([permissions.AllowAny])
 def add_question(request, thread_id):
+    # TODO(security): Enforce thread ownership, cap question/history size, and
+    # rate-limit requests before invoking the local LLM service.
     thread = get_object_or_404(Thread, pk=thread_id)
     serializer = QuestionSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -236,6 +244,8 @@ def add_question(request, thread_id):
 @authentication_classes([])
 @permission_classes([permissions.AllowAny])
 def end_conversation(request, thread_id):
+    # TODO(security): Require the thread owner or an authenticated staff user
+    # before allowing an anonymous caller to end a conversation.
     thread = get_object_or_404(Thread, pk=thread_id)
     if thread.is_active:
         thread.is_active = False
@@ -262,6 +272,8 @@ def news_detail(request, news_id):
 
 def contact(request):
     if request.method == "POST":
+        # TODO(security): Add server-side length/email validation and rate limiting
+        # or CAPTCHA to prevent spam, fake bookings, and database exhaustion.
         if request.POST.get("form_type") == "schedule":
             name = request.POST.get("meeting_name", "").strip()
             email = request.POST.get("meeting_email", "").strip()
