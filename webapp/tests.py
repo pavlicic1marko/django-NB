@@ -45,14 +45,14 @@ class ContactRateLimitTests(TestCase):
             "message": "Please help with an AI project.",
         }
 
-        for _ in range(5):
+        for _ in range(3):
             response = self.client.post(reverse("contact"), payload)
             self.assertEqual(response.status_code, 302)
 
         response = self.client.post(reverse("contact"), payload)
 
         self.assertEqual(response.status_code, 429)
-        self.assertEqual(Message.objects.count(), 5)
+        self.assertEqual(Message.objects.count(), 3)
 
     def test_booking_rate_limit_is_enforced_server_side(self):
         payload = {

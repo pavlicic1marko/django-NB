@@ -313,7 +313,7 @@ def contact(request):
             }
 
             if _rate_limit_exceeded(request, "schedule"):
-                messages.error(request, "Too many booking attempts. Please try again later.")
+                messages.warning(request, "Too many booking attempts. Please try again later.")
                 return _render_contact(
                     request,
                     schedule_data=schedule_data,
@@ -365,7 +365,7 @@ def contact(request):
         message_text = request.POST.get("message", "").strip()
 
         if _rate_limit_exceeded(request, "message"):
-            messages.error(request, "Too many messages have been sent. Please try again later.")
+            messages.warning(request, "Too many messages have been sent. Please try again later.")
             return _render_contact(
                 request,
                 form_data={
