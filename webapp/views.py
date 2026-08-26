@@ -4,6 +4,7 @@ from collections import defaultdict
 
 import requests
 from django.contrib import messages
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.conf import settings
@@ -45,6 +46,29 @@ AGENT_INSTRUCTIONS = {
     ),
 }
 
+CONTACT_RATE_LIMITS = {
+    "message": (3, 60 * 60),
+    "schedule": (2, 60 * 60),
+}
+
+
+def _client_ip(request):
+    forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    return forwarded_for.split(",")[0].strip() if forwarded_for else request.META.get("REMOTE_ADDR", "unknown")
+
+
+def _rate_limit_exceeded(request, action):
+    limit, window = CONTACT_RATE_LIMITS[action]
+    cache_key = f"contact-rate:{action}:{_client_ip(request)}"
+    if cache.add(cache_key, 1, timeout=window):
+        return False
+    try:
+        attempts = cache.incr(cache_key)
+    except ValueError:
+        cache.set(cache_key, 1, timeout=window)
+        return False
+    return attempts > limit
+
 
 def _future_booked_slots_by_date():
     utc_today = timezone.now().astimezone(dt_timezone.utc).date()
@@ -58,7 +82,7 @@ def _future_booked_slots_by_date():
     return {date_key: [slot for slot in slot_order if slot in slot_values] for date_key, slot_values in slots.items()}
 
 
-def _render_contact(request, form_data=None, schedule_data=None, schedule_modal_open=False):
+def _render_contact(request, form_data=None, schedule_data=None, schedule_modal_open=False, status=200):
     return render(
         request,
         "website/contact.html",
@@ -68,6 +92,7 @@ def _render_contact(request, form_data=None, schedule_data=None, schedule_modal_
             "schedule_modal_open": schedule_modal_open,
             "booked_slots_by_date": _future_booked_slots_by_date(),
         },
+        status=status,
     )
 
 
@@ -272,8 +297,6 @@ def news_detail(request, news_id):
 
 def contact(request):
     if request.method == "POST":
-        # TODO(security): Add server-side length/email validation and rate limiting
-        # or CAPTCHA to prevent spam, fake bookings, and database exhaustion.
         if request.POST.get("form_type") == "schedule":
             name = request.POST.get("meeting_name", "").strip()
             email = request.POST.get("meeting_email", "").strip()
@@ -288,6 +311,15 @@ def contact(request):
                 "date": selected_date_raw,
                 "timeslot": selected_timeslot,
             }
+
+            if _rate_limit_exceeded(request, "schedule"):
+                messages.error(request, "Too many booking attempts. Please try again later.")
+                return _render_contact(
+                    request,
+                    schedule_data=schedule_data,
+                    schedule_modal_open=True,
+                    status=429,
+                )
 
             allowed_slots = {slot[0] for slot in TIME_SLOT_CHOICES}
             if not all([name, email, selected_date_raw, selected_timeslot]):
@@ -332,6 +364,19 @@ def contact(request):
         subject = request.POST.get("subject", "").strip()
         message_text = request.POST.get("message", "").strip()
 
+        if _rate_limit_exceeded(request, "message"):
+            messages.error(request, "Too many messages have been sent. Please try again later.")
+            return _render_contact(
+                request,
+                form_data={
+                    "name": name,
+                    "email": email,
+                    "subject": subject,
+                    "message": message_text,
+                },
+                status=429,
+            )
+
         if not all([name, email, subject, message_text]):
             messages.error(request, "Please complete all fields before sending your message.")
             return _render_contact(
@@ -344,15 +389,12 @@ def contact(request):
                 },
             )
 
-        forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-        ip_address = forwarded_for.split(",")[0].strip() if forwarded_for else request.META.get("REMOTE_ADDR")
-
         Message.objects.create(
             name=name,
             email=email,
             subject=subject,
             message=message_text,
-            ip_address=ip_address,
+            ip_address=_client_ip(request),
         )
         messages.success(request, f"Thanks! Your message has been sent successfully. We will reply at {email} as soon as possible.")
         return redirect("contact")

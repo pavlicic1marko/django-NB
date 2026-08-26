@@ -2,6 +2,7 @@ from io import BytesIO
 from datetime import date
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.cache import cache
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
@@ -27,6 +28,48 @@ class MessageModelTests(TestCase):
         self.assertEqual(message.message, "This is a test message")
         self.assertEqual(message.ip_address, "203.0.113.10")
         self.assertIsNotNone(message.created_at)
+
+
+class ContactRateLimitTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    def test_project_brief_rate_limit_is_enforced_server_side(self):
+        payload = {
+            "name": "Alice",
+            "email": "alice@example.com",
+            "subject": "Project brief",
+            "message": "Please help with an AI project.",
+        }
+
+        for _ in range(5):
+            response = self.client.post(reverse("contact"), payload)
+            self.assertEqual(response.status_code, 302)
+
+        response = self.client.post(reverse("contact"), payload)
+
+        self.assertEqual(response.status_code, 429)
+        self.assertEqual(Message.objects.count(), 5)
+
+    def test_booking_rate_limit_is_enforced_server_side(self):
+        payload = {
+            "form_type": "schedule",
+            "meeting_name": "Alice",
+            "meeting_email": "alice@example.com",
+            "meeting_date": "2026-08-27",
+            "meeting_timeslot": "15:00",
+        }
+
+        for index in range(2):
+            response = self.client.post(reverse("schedule_meeting"), payload)
+            self.assertEqual(response.status_code, 302 if index == 0 else 200)
+
+        response = self.client.post(reverse("schedule_meeting"), payload)
+
+        self.assertEqual(response.status_code, 429)
 
 
 class NewsViewTests(TestCase):
