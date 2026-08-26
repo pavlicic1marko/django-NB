@@ -30,10 +30,8 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-)pnlg99byo+1gr*s$74ioc2bw%l&#maf=!(^8m(40mq-a*f0tf'
 
-# TODO(security): Read DEBUG from the environment and set it to False in production
-# so error pages cannot disclose stack traces, paths, settings, or queries.
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").strip().lower() in {"1", "true", "yes", "on"}
 
 # TODO(security): Replace the wildcard with the real domain names before deployment
 # so arbitrary Host headers are rejected.
