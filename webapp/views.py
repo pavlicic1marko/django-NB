@@ -4,6 +4,7 @@ from collections import defaultdict
 
 import requests
 from django.contrib import messages
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.conf import settings
@@ -45,6 +46,29 @@ AGENT_INSTRUCTIONS = {
     ),
 }
 
+CONTACT_RATE_LIMITS = {
+    "message": (3, 60 * 60),
+    "schedule": (2, 60 * 60),
+}
+
+
+def _client_ip(request):
+    forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    return forwarded_for.split(",")[0].strip() if forwarded_for else request.META.get("REMOTE_ADDR", "unknown")
+
+
+def _rate_limit_exceeded(request, action):
+    limit, window = CONTACT_RATE_LIMITS[action]
+    cache_key = f"contact-rate:{action}:{_client_ip(request)}"
+    if cache.add(cache_key, 1, timeout=window):
+        return False
+    try:
+        attempts = cache.incr(cache_key)
+    except ValueError:
+        cache.set(cache_key, 1, timeout=window)
+        return False
+    return attempts > limit
+
 
 def _future_booked_slots_by_date():
     utc_today = timezone.now().astimezone(dt_timezone.utc).date()
@@ -58,7 +82,7 @@ def _future_booked_slots_by_date():
     return {date_key: [slot for slot in slot_order if slot in slot_values] for date_key, slot_values in slots.items()}
 
 
-def _render_contact(request, form_data=None, schedule_data=None, schedule_modal_open=False):
+def _render_contact(request, form_data=None, schedule_data=None, schedule_modal_open=False, status=200):
     return render(
         request,
         "website/contact.html",
@@ -68,6 +92,7 @@ def _render_contact(request, form_data=None, schedule_data=None, schedule_modal_
             "schedule_modal_open": schedule_modal_open,
             "booked_slots_by_date": _future_booked_slots_by_date(),
         },
+        status=status,
     )
 
 
@@ -95,6 +120,8 @@ def chat(request):
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all().order_by("-created_at")
     serializer_class = NewsSerializer
+    # TODO(security): Use ReadOnlyModelViewSet for public access and require an
+    # authenticated staff user for create, update, and delete operations.
     permission_classes = [permissions.AllowAny]
     lookup_field = "id"
 
@@ -103,6 +130,8 @@ class NewsViewSet(viewsets.ModelViewSet):
 @authentication_classes([])
 @permission_classes([permissions.AllowAny])
 def start_conversation(request):
+    # TODO(security): Rate-limit anonymous callers and bind each thread to a
+    # session or authenticated user to prevent abuse and cross-user disclosure.
     serializer = StartConversationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
@@ -167,6 +196,8 @@ def start_conversation(request):
 @authentication_classes([])
 @permission_classes([permissions.AllowAny])
 def get_conversation(request, thread_id):
+    # TODO(security): Do not look up conversations by public sequential ID alone;
+    # verify ownership before returning the thread and its private history.
     thread = get_object_or_404(Thread.objects.prefetch_related("q_and_as"), pk=thread_id)
     return Response(ThreadSerializer(thread).data)
 
@@ -175,6 +206,8 @@ def get_conversation(request, thread_id):
 @authentication_classes([])
 @permission_classes([permissions.AllowAny])
 def add_question(request, thread_id):
+    # TODO(security): Enforce thread ownership, cap question/history size, and
+    # rate-limit requests before invoking the local LLM service.
     thread = get_object_or_404(Thread, pk=thread_id)
     serializer = QuestionSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -236,6 +269,8 @@ def add_question(request, thread_id):
 @authentication_classes([])
 @permission_classes([permissions.AllowAny])
 def end_conversation(request, thread_id):
+    # TODO(security): Require the thread owner or an authenticated staff user
+    # before allowing an anonymous caller to end a conversation.
     thread = get_object_or_404(Thread, pk=thread_id)
     if thread.is_active:
         thread.is_active = False
@@ -276,6 +311,15 @@ def contact(request):
                 "date": selected_date_raw,
                 "timeslot": selected_timeslot,
             }
+
+            if _rate_limit_exceeded(request, "schedule"):
+                messages.warning(request, "Too many booking attempts. Please try again later.")
+                return _render_contact(
+                    request,
+                    schedule_data=schedule_data,
+                    schedule_modal_open=True,
+                    status=429,
+                )
 
             allowed_slots = {slot[0] for slot in TIME_SLOT_CHOICES}
             if not all([name, email, selected_date_raw, selected_timeslot]):
@@ -320,6 +364,19 @@ def contact(request):
         subject = request.POST.get("subject", "").strip()
         message_text = request.POST.get("message", "").strip()
 
+        if _rate_limit_exceeded(request, "message"):
+            messages.warning(request, "Too many messages have been sent. Please try again later.")
+            return _render_contact(
+                request,
+                form_data={
+                    "name": name,
+                    "email": email,
+                    "subject": subject,
+                    "message": message_text,
+                },
+                status=429,
+            )
+
         if not all([name, email, subject, message_text]):
             messages.error(request, "Please complete all fields before sending your message.")
             return _render_contact(
@@ -332,15 +389,12 @@ def contact(request):
                 },
             )
 
-        forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-        ip_address = forwarded_for.split(",")[0].strip() if forwarded_for else request.META.get("REMOTE_ADDR")
-
         Message.objects.create(
             name=name,
             email=email,
             subject=subject,
             message=message_text,
-            ip_address=ip_address,
+            ip_address=_client_ip(request),
         )
         messages.success(request, f"Thanks! Your message has been sent successfully. We will reply at {email} as soon as possible.")
         return redirect("contact")

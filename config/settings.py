@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,11 +27,15 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)pnlg99byo+1gr*s$74ioc2bw%l&#maf=!(^8m(40mq-a*f0tf'
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ImproperlyConfigured("SECRET_KEY must be set in the environment.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").strip().lower() in {"1", "true", "yes", "on"}
 
+# TODO(security): Replace the wildcard with the real domain names before deployment
+# so arbitrary Host headers are rejected.
 ALLOWED_HOSTS = ["*"]
 
 
@@ -126,4 +131,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
+# TODO(security): Store uploads under a dedicated media/ directory, not BASE_DIR;
+# the Nginx /media/ alias must never expose source code, settings, or db.sqlite3.
 MEDIA_ROOT = BASE_DIR
+
+# TODO(security): Configure HTTPS redirect, HSTS, and secure session/CSRF cookies
+# after TLS is enabled in the reverse proxy.

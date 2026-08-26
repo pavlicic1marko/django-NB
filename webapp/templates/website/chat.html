@@ -313,6 +313,7 @@
             <div class="chat-start-composer">
                 <div class="mb-3">
                     <label for="initialQuestion" class="form-label">Ask about your AI goals</label>
+                    <!-- TODO(security): Add a client hint, but enforce the real input limit in the API serializer. -->
                     <textarea id="initialQuestion" class="form-control" rows="3" placeholder="Describe your AI project or integration challenge..."></textarea>
                     <div id="initialQuestionFeedback" class="text-danger small mt-1" style="display: none;">
                         Please enter a question before starting the AI chat.
@@ -342,6 +343,7 @@
             <div id="chatHistory" class="chat-history"></div>
 
             <div class="chat-window-footer">
+                <!-- TODO(security): Add a client hint, but enforce the real input limit in the API serializer. -->
                 <textarea id="followupQuestion" class="form-control chat-followup-input" rows="1" placeholder="Ask a follow-up about architecture, models, or rollout..."></textarea>
                 <button type="button" id="askBtn" class="chat-send-btn" disabled aria-label="Send question">
                     <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">

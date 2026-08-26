@@ -17,6 +17,8 @@ AGENT_TYPE_CHOICES = (
 
 
 class Thread(models.Model):
+    # TODO(security): Add a session/ownership identifier for anonymous threads so
+    # numeric IDs cannot be used to read or modify another visitor's conversation.
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
