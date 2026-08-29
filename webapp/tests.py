@@ -118,6 +118,28 @@ class ContactFailureLoggingTests(TestCase):
         self.assertTrue(any("Meeting scheduling failed" in entry for entry in captured_logs.output))
 
 
+class LocaleRoutingTests(TestCase):
+    def test_public_pages_use_locale_prefixes_and_render_the_selected_language(self):
+        response = self.client.get("/de/contact/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<html lang="de">', html=False)
+        self.assertContains(response, "Kontakt")
+        self.assertContains(response, 'hreflang="en"')
+        self.assertContains(response, 'hreflang="de"')
+
+    def test_language_switcher_preserves_the_current_localized_page(self):
+        response = self.client.get("/language/de/?next=/en/contact/")
+
+        self.assertRedirects(response, "/de/contact/", fetch_redirect_response=False)
+        self.assertEqual(response.cookies["django_language"].value, "de")
+
+    def test_api_urls_remain_unprefixed(self):
+        response = self.client.get("/api/news/")
+
+        self.assertEqual(response.status_code, 200)
+
+
 class NewsViewTests(TestCase):
     def setUp(self):
         for index in range(12):

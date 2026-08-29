@@ -10,6 +10,9 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import get_language
+from django.urls import translate_url
 from django.db import transaction
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -48,6 +51,26 @@ AGENT_INSTRUCTIONS = {
     ),
 }
 
+GERMAN_AGENT_INSTRUCTIONS = {
+    "general": (
+        "Du bist ein hilfreicher allgemeiner Assistent. Antworte klar und korrekt auf Deutsch. "
+        "Wenn du dir unsicher bist, sage das, statt Informationen zu erfinden. Die Website bietet "
+        "eine Startseite, eine Uber-uns-Seite, eine Produktseite, einen Blog, eine Kontaktseite und "
+        "einen Chat. Beschreibe diese Seiten nur auf Grundlage der vorhandenen Informationen."
+    ),
+    "technical": (
+        "Du bist ein technischer Support-Assistent fur ein IT-Studio. Hilf bei Produkten, "
+        "Integrationen, Software und Fehlerbehebung mit praktischen Schritt-fur-Schritt-Erklarungen. "
+        "Diese Anwendung basiert auf Django und wird auf AWS bereitgestellt. Erfinde keine nicht "
+        "bestatigten Bereitstellungsdetails, Dienste oder Funktionen."
+    ),
+    "sales": (
+        "Du bist ein professioneller Vertriebsassistent fur ein IT-Studio. Beantworte Fragen zu "
+        "Produkten, Preisen, Dienstleistungen und Projektpassung auf Deutsch. Erfinde keine Preise, "
+        "Garantien oder Funktionen. Verweise Interessierte fur weitere Informationen auf die Kontaktseite."
+    ),
+}
+
 CONTACT_RATE_LIMITS = {
     "message": (3, 60 * 60),
     "schedule": (2, 60 * 60),
@@ -57,6 +80,24 @@ CONTACT_RATE_LIMITS = {
 def _client_ip(request):
     forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     return forwarded_for.split(",")[0].strip() if forwarded_for else request.META.get("REMOTE_ADDR", "unknown")
+
+
+def _agent_instruction(agent_type):
+    instructions = GERMAN_AGENT_INSTRUCTIONS if get_language() == "de" else AGENT_INSTRUCTIONS
+    return instructions[agent_type]
+
+
+def switch_language(request, language):
+    if language not in dict(settings.LANGUAGES):
+        return redirect("home")
+
+    next_url = request.GET.get("next", "")
+    if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}, request.is_secure()):
+        next_url = "/"
+
+    response = redirect(translate_url(next_url, language))
+    response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+    return response
 
 
 def _rate_limit_exceeded(request, action):
@@ -146,7 +187,7 @@ def start_conversation(request):
         messages = [
             {
                 "role": "system",
-                "content": AGENT_INSTRUCTIONS[thread.agent_type],
+                "content": _agent_instruction(thread.agent_type),
             }
         ]
         for existing_q_and_a in q_and_as:
@@ -233,7 +274,7 @@ def add_question(request, thread_id):
     messages = [
         {
             "role": "system",
-            "content": AGENT_INSTRUCTIONS[thread.agent_type],
+            "content": _agent_instruction(thread.agent_type),
         }
     ]
     for existing_q_and_a in q_and_as:

@@ -1,10 +1,6 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 
 from . import views
-
-router = DefaultRouter()
-router.register(r"news", views.NewsViewSet, basename="news")
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -16,9 +12,4 @@ urlpatterns = [
     path("blog/", views.blog, name="blog"),
     path("news/", views.blog, name="news"),
     path("news/<int:news_id>/", views.news_detail, name="news_detail"),
-    path("api/", include(router.urls)),
-    path("api/chat/threads/", views.start_conversation, name="start_conversation"),
-    path("api/chat/threads/<int:thread_id>/", views.get_conversation, name="get_conversation"),
-    path("api/chat/threads/<int:thread_id>/questions/", views.add_question, name="add_question"),
-    path("api/chat/threads/<int:thread_id>/end/", views.end_conversation, name="end_conversation"),
 ]
