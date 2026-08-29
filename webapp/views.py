@@ -7,7 +7,6 @@ import requests
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.paginator import Paginator
-from django.http import HttpResponse
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -97,11 +96,6 @@ def _render_contact(request, form_data=None, schedule_data=None, schedule_modal_
         },
         status=status,
     )
-
-
-def home1(request):
-    return HttpResponse("Hello from my first Django app!")
-
 
 
 def home(request):

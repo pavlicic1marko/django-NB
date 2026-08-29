@@ -7,7 +7,6 @@ router = DefaultRouter()
 router.register(r"news", views.NewsViewSet, basename="news")
 
 urlpatterns = [
-    path("home1/", views.home1, name="home1"),
     path("", views.home, name="home"),
     path("about-us/", views.about_us, name="about_us"),
     path("products/", views.products, name="products"),
