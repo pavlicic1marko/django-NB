@@ -1,15 +1,16 @@
 from django.urls import path
+from django.utils.translation import gettext_lazy as _
 
 from . import views
 
 urlpatterns = [
     path("", views.home, name="home"),
-    path("about-us/", views.about_us, name="about_us"),
-    path("products/", views.products, name="products"),
-    path("chat/", views.chat, name="chat"),
-    path("contact/", views.contact, name="contact"),
-    path("schedule-meeting/", views.contact, name="schedule_meeting"),
-    path("blog/", views.blog, name="blog"),
-    path("news/", views.blog, name="news"),
-    path("news/<int:news_id>/", views.news_detail, name="news_detail"),
+    path(_("about-us/"), views.about_us, name="about_us"),
+    path(_("products/"), views.products, name="products"),
+    path(_("chat/"), views.chat, name="chat"),
+    path(_("contact/"), views.contact, name="contact"),
+    path(_("schedule-meeting/"), views.contact, name="schedule_meeting"),
+    path(_("blog/"), views.blog, name="blog"),
+    path(_("news/"), views.blog, name="news"),
+    path(_("news/<int:news_id>/"), views.news_detail, name="news_detail"),
 ]

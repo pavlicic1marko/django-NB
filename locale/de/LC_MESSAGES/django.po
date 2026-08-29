@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-29 22:27+0200\n"
+"POT-Creation-Date: 2026-08-29 22:47+0200\n"
 "Language: de\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -40,41 +40,41 @@ msgstr ""
 "skalieren."
 
 #: .\webapp\templates\website\base.html:10
-#: .\webapp\templates\website\base.html:145
+#: .\webapp\templates\website\base.html:151
 msgid "AI Solutions Studio"
 msgstr "AI Solutions Studio"
 
-#: .\webapp\templates\website\base.html:148
+#: .\webapp\templates\website\base.html:154
 msgid "Home"
 msgstr "Startseite"
 
-#: .\webapp\templates\website\base.html:149
+#: .\webapp\templates\website\base.html:155
 msgid "About Us"
 msgstr "Über uns"
 
-#: .\webapp\templates\website\base.html:150
+#: .\webapp\templates\website\base.html:156
 #: .\webapp\templates\website\products.html:8
 msgid "AI Solutions"
 msgstr "KI-Lösungen"
 
-#: .\webapp\templates\website\base.html:151
+#: .\webapp\templates\website\base.html:157
 #: .\webapp\templates\website\chat.html:281
 msgid "AI Chat"
 msgstr "KI-Chat"
 
-#: .\webapp\templates\website\base.html:152
+#: .\webapp\templates\website\base.html:158
 msgid "Contact"
 msgstr "Kontakt"
 
-#: .\webapp\templates\website\base.html:153
+#: .\webapp\templates\website\base.html:159
 msgid "AI Insights"
 msgstr "KI-Einblicke"
 
-#: .\webapp\templates\website\base.html:155
+#: .\webapp\templates\website\base.html:161
 msgid "Language"
 msgstr "Sprache"
 
-#: .\webapp\templates\website\base.html:157
+#: .\webapp\templates\website\base.html:163
 msgid "Current language"
 msgstr "Aktuelle Sprache"
 
@@ -490,6 +490,38 @@ msgid ""
 msgstr ""
 "Governance, Evaluation und Rollout-Unterstützung für sichere, konforme KI-"
 "Einführung."
+
+#: .\webapp\urls.py:8
+msgid "about-us/"
+msgstr "ueber-uns/"
+
+#: .\webapp\urls.py:9
+msgid "products/"
+msgstr "ki-loesungen/"
+
+#: .\webapp\urls.py:10
+msgid "chat/"
+msgstr "ki-chat/"
+
+#: .\webapp\urls.py:11
+msgid "contact/"
+msgstr "kontakt/"
+
+#: .\webapp\urls.py:12
+msgid "schedule-meeting/"
+msgstr "beratung-vereinbaren/"
+
+#: .\webapp\urls.py:13
+msgid "blog/"
+msgstr "ki-einblicke/"
+
+#: .\webapp\urls.py:14
+msgid "news/"
+msgstr "neuigkeiten/"
+
+#: .\webapp\urls.py:15
+msgid "news/<int:news_id>/"
+msgstr "neuigkeiten/<int:news_id>/"
 
 #~ msgid "Page %s of %s"
 #~ msgstr "Seite %s von %s"
