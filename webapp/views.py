@@ -1,6 +1,7 @@
 from datetime import date as dt_date
 from datetime import timezone as dt_timezone
 from collections import defaultdict
+import logging
 
 import requests
 from django.contrib import messages
@@ -17,6 +18,8 @@ from rest_framework.response import Response
 
 from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
 from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
+
+logger = logging.getLogger('webapp')
 
 AGENT_INSTRUCTIONS = {
     "general": (
@@ -137,6 +140,7 @@ def start_conversation(request):
 
     with transaction.atomic():
         thread = Thread.objects.create(agent_type=serializer.validated_data["agent_type"])
+        logger.info("New chatbot conversation started: thread_id=%s agent_type=%s", thread.id, thread.agent_type)
         question = serializer.validated_data["question"]
         q_and_a = QAndA.objects.create(
             thread=thread,
@@ -171,12 +175,22 @@ def start_conversation(request):
             if not isinstance(answer, str):
                 raise ValueError("Ollama returned an invalid answer.")
         except requests.exceptions.RequestException:
+            logger.exception(
+                "Chat request failed: thread_id=%s agent_type=%s",
+                thread.id,
+                thread.agent_type,
+            )
             transaction.set_rollback(True)
             return Response(
                 {"detail": "There was an error. Please try again later."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
         except (KeyError, TypeError, ValueError):
+            logger.exception(
+                "Chat response was invalid: thread_id=%s agent_type=%s",
+                thread.id,
+                thread.agent_type,
+            )
             transaction.set_rollback(True)
             return Response(
                 {"detail": "Ollama returned an invalid response."},
@@ -248,12 +262,22 @@ def add_question(request, thread_id):
         if not isinstance(answer, str):
             raise ValueError("Ollama returned an invalid answer.")
     except requests.exceptions.RequestException:
+        logger.exception(
+            "Chat request failed: thread_id=%s agent_type=%s",
+            thread.id,
+            thread.agent_type,
+        )
         q_and_a.delete()
         return Response(
             {"detail": "There was an error. Please try again later."},
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
     except (KeyError, TypeError, ValueError):
+        logger.exception(
+            "Chat response was invalid: thread_id=%s agent_type=%s",
+            thread.id,
+            thread.agent_type,
+        )
         q_and_a.delete()
         return Response(
             {"detail": "Ollama returned an invalid response."},
