@@ -1,0 +1,29 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "AI Solutions Studio"
+msgstr "AI Solutions Studio"
+
+msgid "Home"
+msgstr "Startseite"
+
+msgid "About Us"
+msgstr "Uber uns"
+
+msgid "AI Solutions"
+msgstr "KI-Losungen"
+
+msgid "AI Chat"
+msgstr "KI-Chat"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "AI Insights"
+msgstr "KI-Einblicke"
+
+msgid "Language"
+msgstr "Sprache"
