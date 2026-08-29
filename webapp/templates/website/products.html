@@ -1,20 +1,20 @@
 {% extends "website/base.html" %}
-{% load static %}
+{% load i18n static %}
 
-{% block title %}AI Solutions | AI Solutions Studio{% endblock %}
+{% block title %}{% translate "AI Solutions | AI Solutions Studio" %}{% endblock %}
 
 {% block content %}
     <main class="container py-5">
-        <h1 class="display-6 fw-bold mb-2">AI Solutions</h1>
-        <p class="text-secondary mb-4">Explore implementation-ready AI services designed for automation, insight, and scale.</p>
+        <h1 class="display-6 fw-bold mb-2">{% translate "AI Solutions" %}</h1>
+        <p class="text-secondary mb-4">{% translate "Explore implementation-ready AI services designed for automation, insight, and scale." %}</p>
 
         <section class="row g-4">
             <div class="col-12 col-md-6 col-lg-4">
                 <article class="card h-100 shadow-sm">
                     <div class="card-body d-flex flex-column">
-                        <h2 class="h5 card-title">AI Copilot Development</h2>
-                        <p class="card-text text-secondary">Custom copilots trained on your domain to support teams and customers in real time.</p>
-                            <a href="{% static 'pdf/ai-copilot-development-brief.pdf' %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>View solution brief</a>
+                        <h2 class="h5 card-title">{% translate "AI Copilot Development" %}</h2>
+                        <p class="card-text text-secondary">{% translate "Custom copilots trained on your domain to support teams and customers in real time." %}</p>
+                            <a href="{% static 'pdf/' %}{% if LANGUAGE_CODE == 'de' %}ki-copilot-entwicklung-ueberblick.pdf{% else %}ai-copilot-development-brief.pdf{% endif %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>{% translate "View solution brief" %}</a>
                     </div>
                 </article>
             </div>
@@ -22,9 +22,9 @@
             <div class="col-12 col-md-6 col-lg-4">
                 <article class="card h-100 shadow-sm">
                     <div class="card-body d-flex flex-column">
-                        <h2 class="h5 card-title">LLM Workflow Automation</h2>
-                        <p class="card-text text-secondary">Automate repetitive processes with agentic flows connected to your internal tools.</p>
-                            <a href="{% static 'pdf/llm-workflow-automation-brief.pdf' %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>View solution brief</a>
+                        <h2 class="h5 card-title">{% translate "LLM Workflow Automation" %}</h2>
+                        <p class="card-text text-secondary">{% translate "Automate repetitive processes with agentic flows connected to your internal tools." %}</p>
+                            <a href="{% static 'pdf/' %}{% if LANGUAGE_CODE == 'de' %}llm-workflow-automatisierung-ueberblick.pdf{% else %}llm-workflow-automation-brief.pdf{% endif %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>{% translate "View solution brief" %}</a>
                     </div>
                 </article>
             </div>
@@ -32,9 +32,9 @@
             <div class="col-12 col-md-6 col-lg-4">
                 <article class="card h-100 shadow-sm">
                     <div class="card-body d-flex flex-column">
-                        <h2 class="h5 card-title">AI Integration Engineering</h2>
-                        <p class="card-text text-secondary">Secure integration of AI services with your APIs, databases, and SaaS platforms.</p>
-                            <a href="{% static 'pdf/ai-integration-engineering-brief.pdf' %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>View solution brief</a>
+                        <h2 class="h5 card-title">{% translate "AI Integration Engineering" %}</h2>
+                        <p class="card-text text-secondary">{% translate "Secure integration of AI services with your APIs, databases, and SaaS platforms." %}</p>
+                            <a href="{% static 'pdf/' %}{% if LANGUAGE_CODE == 'de' %}ki-integrations-engineering-ueberblick.pdf{% else %}ai-integration-engineering-brief.pdf{% endif %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>{% translate "View solution brief" %}</a>
                     </div>
                 </article>
             </div>
@@ -42,9 +42,9 @@
             <div class="col-12 col-md-6 col-lg-4">
                 <article class="card h-100 shadow-sm">
                     <div class="card-body d-flex flex-column">
-                        <h2 class="h5 card-title">AI Search & Knowledge Base</h2>
-                        <p class="card-text text-secondary">Semantic search and retrieval systems that surface the right answers instantly.</p>
-                            <a href="{% static 'pdf/ai-search-knowledge-base-brief.pdf' %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>View solution brief</a>
+                        <h2 class="h5 card-title">{% translate "AI Search & Knowledge Base" %}</h2>
+                        <p class="card-text text-secondary">{% translate "Semantic search and retrieval systems that surface the right answers instantly." %}</p>
+                            <a href="{% static 'pdf/' %}{% if LANGUAGE_CODE == 'de' %}ki-suche-wissensbasis-ueberblick.pdf{% else %}ai-search-knowledge-base-brief.pdf{% endif %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>{% translate "View solution brief" %}</a>
                     </div>
                 </article>
             </div>
@@ -52,9 +52,9 @@
             <div class="col-12 col-md-6 col-lg-4">
                 <article class="card h-100 shadow-sm">
                     <div class="card-body d-flex flex-column">
-                        <h2 class="h5 card-title">AI Analytics & Forecasting</h2>
-                        <p class="card-text text-secondary">Decision intelligence pipelines for forecasting, anomaly detection, and planning.</p>
-                            <a href="{% static 'pdf/ai-analytics-forecasting-brief.pdf' %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>View solution brief</a>
+                        <h2 class="h5 card-title">{% translate "AI Analytics & Forecasting" %}</h2>
+                        <p class="card-text text-secondary">{% translate "Decision intelligence pipelines for forecasting, anomaly detection, and planning." %}</p>
+                            <a href="{% static 'pdf/' %}{% if LANGUAGE_CODE == 'de' %}ki-analytik-prognosen-ueberblick.pdf{% else %}ai-analytics-forecasting-brief.pdf{% endif %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>{% translate "View solution brief" %}</a>
                     </div>
                 </article>
             </div>
@@ -62,9 +62,9 @@
             <div class="col-12 col-md-6 col-lg-4">
                 <article class="card h-100 shadow-sm">
                     <div class="card-body d-flex flex-column">
-                        <h2 class="h5 card-title">Responsible AI Enablement</h2>
-                        <p class="card-text text-secondary">Governance, evaluation, and rollout support for safe, compliant AI adoption.</p>
-                            <a href="{% static 'pdf/responsible-ai-enablement-brief.pdf' %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>View solution brief</a>
+                        <h2 class="h5 card-title">{% translate "Responsible AI Enablement" %}</h2>
+                        <p class="card-text text-secondary">{% translate "Governance, evaluation, and rollout support for safe, compliant AI adoption." %}</p>
+                            <a href="{% static 'pdf/' %}{% if LANGUAGE_CODE == 'de' %}verantwortungsvolle-ki-einfuehrung-ueberblick.pdf{% else %}responsible-ai-enablement-brief.pdf{% endif %}" class="btn btn-outline-primary btn-sm align-self-start mt-auto" download>{% translate "View solution brief" %}</a>
                     </div>
                 </article>
             </div>

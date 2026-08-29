@@ -1,15 +1,18 @@
 from datetime import date as dt_date
 from datetime import timezone as dt_timezone
 from collections import defaultdict
+import logging
 
 import requests
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.paginator import Paginator
-from django.http import HttpResponse
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import get_language, gettext as _
+from django.urls import translate_url
 from django.db import transaction
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -17,6 +20,8 @@ from rest_framework.response import Response
 
 from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
 from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
+
+logger = logging.getLogger('webapp')
 
 AGENT_INSTRUCTIONS = {
     "general": (
@@ -46,6 +51,26 @@ AGENT_INSTRUCTIONS = {
     ),
 }
 
+GERMAN_AGENT_INSTRUCTIONS = {
+    "general": (
+        "Du bist ein hilfreicher allgemeiner Assistent. Antworte klar und korrekt auf Deutsch. "
+        "Wenn du dir unsicher bist, sage das, statt Informationen zu erfinden. Die Website bietet "
+        "eine Startseite, eine Uber-uns-Seite, eine Produktseite, einen Blog, eine Kontaktseite und "
+        "einen Chat. Beschreibe diese Seiten nur auf Grundlage der vorhandenen Informationen."
+    ),
+    "technical": (
+        "Du bist ein technischer Support-Assistent fur ein IT-Studio. Hilf bei Produkten, "
+        "Integrationen, Software und Fehlerbehebung mit praktischen Schritt-fur-Schritt-Erklarungen. "
+        "Diese Anwendung basiert auf Django und wird auf AWS bereitgestellt. Erfinde keine nicht "
+        "bestatigten Bereitstellungsdetails, Dienste oder Funktionen."
+    ),
+    "sales": (
+        "Du bist ein professioneller Vertriebsassistent fur ein IT-Studio. Beantworte Fragen zu "
+        "Produkten, Preisen, Dienstleistungen und Projektpassung auf Deutsch. Erfinde keine Preise, "
+        "Garantien oder Funktionen. Verweise Interessierte fur weitere Informationen auf die Kontaktseite."
+    ),
+}
+
 CONTACT_RATE_LIMITS = {
     "message": (3, 60 * 60),
     "schedule": (2, 60 * 60),
@@ -55,6 +80,24 @@ CONTACT_RATE_LIMITS = {
 def _client_ip(request):
     forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     return forwarded_for.split(",")[0].strip() if forwarded_for else request.META.get("REMOTE_ADDR", "unknown")
+
+
+def _agent_instruction(agent_type):
+    instructions = GERMAN_AGENT_INSTRUCTIONS if get_language() == "de" else AGENT_INSTRUCTIONS
+    return instructions[agent_type]
+
+
+def switch_language(request, language):
+    if language not in dict(settings.LANGUAGES):
+        return redirect("home")
+
+    next_url = request.GET.get("next", "")
+    if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}, request.is_secure()):
+        next_url = "/"
+
+    response = redirect(translate_url(next_url, language))
+    response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+    return response
 
 
 def _rate_limit_exceeded(request, action):
@@ -96,11 +139,6 @@ def _render_contact(request, form_data=None, schedule_data=None, schedule_modal_
     )
 
 
-def home1(request):
-    return HttpResponse("Hello from my first Django app!")
-
-
-
 def home(request):
     return render(request, "website/home.html")
 
@@ -137,6 +175,7 @@ def start_conversation(request):
 
     with transaction.atomic():
         thread = Thread.objects.create(agent_type=serializer.validated_data["agent_type"])
+        logger.info("New chatbot conversation started: thread_id=%s agent_type=%s", thread.id, thread.agent_type)
         question = serializer.validated_data["question"]
         q_and_a = QAndA.objects.create(
             thread=thread,
@@ -148,7 +187,7 @@ def start_conversation(request):
         messages = [
             {
                 "role": "system",
-                "content": AGENT_INSTRUCTIONS[thread.agent_type],
+                "content": _agent_instruction(thread.agent_type),
             }
         ]
         for existing_q_and_a in q_and_as:
@@ -171,15 +210,25 @@ def start_conversation(request):
             if not isinstance(answer, str):
                 raise ValueError("Ollama returned an invalid answer.")
         except requests.exceptions.RequestException:
+            logger.exception(
+                "Chat request failed: thread_id=%s agent_type=%s",
+                thread.id,
+                thread.agent_type,
+            )
             transaction.set_rollback(True)
             return Response(
-                {"detail": "There was an error. Please try again later."},
+                {"detail": _("There was an error. Please try again later.")},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
         except (KeyError, TypeError, ValueError):
+            logger.exception(
+                "Chat response was invalid: thread_id=%s agent_type=%s",
+                thread.id,
+                thread.agent_type,
+            )
             transaction.set_rollback(True)
             return Response(
-                {"detail": "Ollama returned an invalid response."},
+                {"detail": _("Ollama returned an invalid response.")},
                 status=status.HTTP_502_BAD_GATEWAY,
             )
 
@@ -213,7 +262,7 @@ def add_question(request, thread_id):
     serializer.is_valid(raise_exception=True)
 
     if not thread.is_active:
-        return Response({"detail": "This conversation has ended."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": _("This conversation has ended.")}, status=status.HTTP_400_BAD_REQUEST)
 
     question = serializer.validated_data["question"]
     q_and_a = QAndA.objects.create(
@@ -225,7 +274,7 @@ def add_question(request, thread_id):
     messages = [
         {
             "role": "system",
-            "content": AGENT_INSTRUCTIONS[thread.agent_type],
+            "content": _agent_instruction(thread.agent_type),
         }
     ]
     for existing_q_and_a in q_and_as:
@@ -248,15 +297,25 @@ def add_question(request, thread_id):
         if not isinstance(answer, str):
             raise ValueError("Ollama returned an invalid answer.")
     except requests.exceptions.RequestException:
+        logger.exception(
+            "Chat request failed: thread_id=%s agent_type=%s",
+            thread.id,
+            thread.agent_type,
+        )
         q_and_a.delete()
         return Response(
-            {"detail": "There was an error. Please try again later."},
+            {"detail": _("There was an error. Please try again later.")},
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
     except (KeyError, TypeError, ValueError):
+        logger.exception(
+            "Chat response was invalid: thread_id=%s agent_type=%s",
+            thread.id,
+            thread.agent_type,
+        )
         q_and_a.delete()
         return Response(
-            {"detail": "Ollama returned an invalid response."},
+            {"detail": _("Ollama returned an invalid response.")},
             status=status.HTTP_502_BAD_GATEWAY,
         )
 
@@ -313,7 +372,7 @@ def contact(request):
             }
 
             if _rate_limit_exceeded(request, "schedule"):
-                messages.warning(request, "Too many booking attempts. Please try again later.")
+                messages.warning(request, _("Too many booking attempts. Please try again later."))
                 return _render_contact(
                     request,
                     schedule_data=schedule_data,
@@ -323,40 +382,49 @@ def contact(request):
 
             allowed_slots = {slot[0] for slot in TIME_SLOT_CHOICES}
             if not all([name, email, selected_date_raw, selected_timeslot]):
-                messages.error(request, "Please complete all required fields to schedule your meeting.")
+                messages.error(request, _("Please complete all required fields to schedule your meeting."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             if selected_timeslot not in allowed_slots:
-                messages.error(request, "The selected time slot is not valid.")
+                messages.error(request, _("The selected time slot is not valid."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             try:
                 selected_date = dt_date.fromisoformat(selected_date_raw)
             except ValueError:
-                messages.error(request, "The selected date is not valid.")
+                messages.error(request, _("The selected date is not valid."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             utc_today = timezone.now().astimezone(dt_timezone.utc).date()
             if selected_date < utc_today:
-                messages.error(request, "You cannot select a past date.")
+                messages.error(request, _("You cannot select a past date."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             if selected_date.weekday() >= 5:
-                messages.error(request, "Weekend dates are not available. Please choose a weekday.")
+                messages.error(request, _("Weekend dates are not available. Please choose a weekday."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             if Metting.objects.filter(date=selected_date, timeslot=selected_timeslot).exists():
-                messages.error(request, "This date and time slot is already booked. Please choose another one.")
+                messages.error(request, _("This date and time slot is already booked. Please choose another one."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
-            Metting.objects.create(
-                date=selected_date,
-                name=name,
-                email=email,
-                phone_number=phone_number,
-                timeslot=selected_timeslot,
+            try:
+                Metting.objects.create(
+                    date=selected_date,
+                    name=name,
+                    email=email,
+                    phone_number=phone_number,
+                    timeslot=selected_timeslot,
+                )
+            except Exception:
+                logger.exception("Meeting scheduling failed")
+                messages.error(request, _("We could not schedule your meeting. Please try again later."))
+                return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True, status=500)
+            messages.success(
+                request,
+                _("Your meeting has been scheduled successfully for %(date)s at %(time)s.")
+                % {"date": selected_date, "time": selected_timeslot},
             )
-            messages.success(request, f"Your meeting has been scheduled successfully for {selected_date} at {selected_timeslot}.")
             return redirect("contact")
 
         name = request.POST.get("name", "").strip()
@@ -365,7 +433,7 @@ def contact(request):
         message_text = request.POST.get("message", "").strip()
 
         if _rate_limit_exceeded(request, "message"):
-            messages.warning(request, "Too many messages have been sent. Please try again later.")
+            messages.warning(request, _("Too many messages have been sent. Please try again later."))
             return _render_contact(
                 request,
                 form_data={
@@ -378,7 +446,7 @@ def contact(request):
             )
 
         if not all([name, email, subject, message_text]):
-            messages.error(request, "Please complete all fields before sending your message.")
+            messages.error(request, _("Please complete all fields before sending your message."))
             return _render_contact(
                 request,
                 form_data={
@@ -389,14 +457,32 @@ def contact(request):
                 },
             )
 
-        Message.objects.create(
-            name=name,
-            email=email,
-            subject=subject,
-            message=message_text,
-            ip_address=_client_ip(request),
+        try:
+            Message.objects.create(
+                name=name,
+                email=email,
+                subject=subject,
+                message=message_text,
+                ip_address=_client_ip(request),
+            )
+        except Exception:
+            logger.exception("Contact message could not be saved")
+            messages.error(request, _("We could not send your message. Please try again later."))
+            return _render_contact(
+                request,
+                form_data={
+                    "name": name,
+                    "email": email,
+                    "subject": subject,
+                    "message": message_text,
+                },
+                status=500,
+            )
+        messages.success(
+            request,
+            _("Thanks! Your message has been sent successfully. We will reply at %(email)s as soon as possible.")
+            % {"email": email},
         )
-        messages.success(request, f"Thanks! Your message has been sent successfully. We will reply at {email} as soon as possible.")
         return redirect("contact")
 
     return _render_contact(request)

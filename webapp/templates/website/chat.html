@@ -1,6 +1,7 @@
 {% extends "website/base.html" %}
+{% load i18n %}
 
-{% block title %}AI Chat | AI Solutions Studio{% endblock %}
+{% block title %}{% translate "AI Chat | AI Solutions Studio" %}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -277,34 +278,33 @@
 <div class="chat-page">
     <main class="container py-5 chat-intro-wrap">
         <div class="mx-auto chat-shell">
-            <h1 class="h2 mb-2">AI Chat</h1>
+            <h1 class="h2 mb-2">{% translate "AI Chat" %}</h1>
             <p class="text-secondary mb-4">
-                Connect with a specialized assistant for AI strategy, integrations, or implementation planning.
-                Choose the assistant that matches your goal, then type your question to get started.
+                {% translate "Connect with a specialized assistant for AI strategy, integrations, or implementation planning. Choose the assistant that matches your goal, then type your question to get started." %}
             </p>
 
             <fieldset class="mb-4">
-                <legend class="h6">Choose an AI assistant</legend>
+                <legend class="h6">{% translate "Choose an AI assistant" %}</legend>
                 <div class="assistant-options">
                     <div class="form-check assistant-option">
                         <input class="form-check-input" type="radio" name="chatAgent" id="agentGeneral" value="general" checked>
                         <label class="form-check-label" for="agentGeneral">
-                            <strong>AI Strategy</strong>
-                            <span>Use-case discovery and roadmap guidance</span>
+                            <strong>{% translate "AI Strategy" %}</strong>
+                            <span>{% translate "Use-case discovery and roadmap guidance" %}</span>
                         </label>
                     </div>
                     <div class="form-check assistant-option">
                         <input class="form-check-input" type="radio" name="chatAgent" id="agentTechnical" value="technical">
                         <label class="form-check-label" for="agentTechnical">
-                            <strong>Integrations</strong>
-                            <span>Architecture, APIs, and platform integration</span>
+                            <strong>{% translate "Integrations" %}</strong>
+                            <span>{% translate "Architecture, APIs, and platform integration" %}</span>
                         </label>
                     </div>
                     <div class="form-check assistant-option">
                         <input class="form-check-input" type="radio" name="chatAgent" id="agentSales" value="sales">
                         <label class="form-check-label" for="agentSales">
-                            <strong>Delivery</strong>
-                            <span>Scope, timelines, and implementation planning</span>
+                            <strong>{% translate "Delivery" %}</strong>
+                            <span>{% translate "Scope, timelines, and implementation planning" %}</span>
                         </label>
                     </div>
                 </div>
@@ -312,19 +312,19 @@
 
             <div class="chat-start-composer">
                 <div class="mb-3">
-                    <label for="initialQuestion" class="form-label">Ask about your AI goals</label>
+                    <label for="initialQuestion" class="form-label">{% translate "Ask about your AI goals" %}</label>
                     <!-- TODO(security): Add a client hint, but enforce the real input limit in the API serializer. -->
-                    <textarea id="initialQuestion" class="form-control" rows="3" placeholder="Describe your AI project or integration challenge..."></textarea>
+                    <textarea id="initialQuestion" class="form-control" rows="3" placeholder="{% translate 'Describe your AI project or integration challenge...' %}"></textarea>
                     <div id="initialQuestionFeedback" class="text-danger small mt-1" style="display: none;">
-                        Please enter a question before starting the AI chat.
+                        {% translate "Please enter a question before starting the AI chat." %}
                     </div>
                 </div>
 
                 <button type="button" id="startChatBtn" class="btn btn-primary px-4" disabled>
-                    <span class="chat-button-label">Start AI consultation</span>
+                    <span class="chat-button-label">{% translate "Start AI consultation" %}</span>
                     <span class="chat-loading" hidden>
                         <span class="chat-loading-spinner" aria-hidden="true"></span>
-                        Processing...
+                        {% translate "Processing..." %}
                     </span>
                 </button>
             </div>
@@ -332,11 +332,11 @@
             <div id="chatConversation" class="chat-window chat-conversation" aria-live="polite">
             <div class="chat-window-header">
                 <h2 id="chatWindowTitle" class="h6 mb-0"></h2>
-                <button type="button" id="endChatBtn" class="chat-end-btn" aria-label="End chat">
+                <button type="button" id="endChatBtn" class="chat-end-btn" aria-label="{% translate 'End chat' %}">
                     <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                         <path d="M2.146 2.146a.5.5 0 0 1 .708 0L8 7.293l5.146-5.147a.5.5 0 1 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854a.5.5 0 0 1 0-.708z"/>
                     </svg>
-                    END CHAT
+                    {% translate "END CHAT" %}
                 </button>
             </div>
 
@@ -344,7 +344,7 @@
 
             <div class="chat-window-footer">
                 <!-- TODO(security): Add a client hint, but enforce the real input limit in the API serializer. -->
-                <textarea id="followupQuestion" class="form-control chat-followup-input" rows="1" placeholder="Ask a follow-up about architecture, models, or rollout..."></textarea>
+                <textarea id="followupQuestion" class="form-control chat-followup-input" rows="1" placeholder="{% translate 'Ask a follow-up about architecture, models, or rollout...' %}"></textarea>
                 <button type="button" id="askBtn" class="chat-send-btn" disabled aria-label="Send question">
                     <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                         <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>

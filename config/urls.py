@@ -16,10 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf import settings
+from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.urls import include, path
 
+from webapp import views
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", include("webapp.api_urls")),
+    path("language/<str:language>/", views.switch_language, name="switch_language"),
+] + i18n_patterns(
     path("", include("webapp.urls")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

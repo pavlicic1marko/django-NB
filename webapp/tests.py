@@ -3,12 +3,13 @@ from datetime import date
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
-from django.db import IntegrityError
+from django.db import DatabaseError, IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from PIL import Image
+from unittest.mock import patch
 
-from .models import Message, News, QAndA, Thread
+from .models import Message, Metting, News, QAndA, Thread
 from .serializers import NewsSerializer
 
 
@@ -59,7 +60,7 @@ class ContactRateLimitTests(TestCase):
             "form_type": "schedule",
             "meeting_name": "Alice",
             "meeting_email": "alice@example.com",
-            "meeting_date": "2026-08-27",
+            "meeting_date": "2026-09-01",
             "meeting_timeslot": "15:00",
         }
 
@@ -70,6 +71,73 @@ class ContactRateLimitTests(TestCase):
         response = self.client.post(reverse("schedule_meeting"), payload)
 
         self.assertEqual(response.status_code, 429)
+
+
+class ContactFailureLoggingTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch("webapp.views.Message.objects.create", side_effect=DatabaseError("database unavailable"))
+    def test_message_save_failure_is_logged_and_shown_to_visitor(self, create_message):
+        with self.assertLogs("webapp", level="ERROR") as captured_logs:
+            response = self.client.post(
+                reverse("contact"),
+                {
+                    "name": "Alice",
+                    "email": "alice@example.com",
+                    "subject": "Project brief",
+                    "message": "Please help with an AI project.",
+                },
+            )
+
+        self.assertEqual(response.status_code, 500)
+        self.assertContains(response, "We could not send your message.", status_code=500)
+        self.assertEqual(Message.objects.count(), 0)
+        self.assertTrue(any("Contact message could not be saved" in entry for entry in captured_logs.output))
+
+    @patch("webapp.views.Metting.objects.create", side_effect=DatabaseError("database unavailable"))
+    def test_meeting_schedule_failure_is_logged_and_shown_to_visitor(self, create_meeting):
+        with self.assertLogs("webapp", level="ERROR") as captured_logs:
+            response = self.client.post(
+                reverse("schedule_meeting"),
+                {
+                    "form_type": "schedule",
+                    "meeting_name": "Alice",
+                    "meeting_email": "alice@example.com",
+                    "meeting_date": "2026-09-01",
+                    "meeting_timeslot": "15:00",
+                },
+            )
+
+        self.assertEqual(response.status_code, 500)
+        self.assertContains(response, "We could not schedule your meeting.", status_code=500)
+        self.assertEqual(Metting.objects.count(), 0)
+        self.assertTrue(any("Meeting scheduling failed" in entry for entry in captured_logs.output))
+
+
+class LocaleRoutingTests(TestCase):
+    def test_public_pages_use_locale_prefixes_and_render_the_selected_language(self):
+        response = self.client.get("/de/contact/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<html lang="de">', html=False)
+        self.assertContains(response, "Kontakt")
+        self.assertContains(response, 'hreflang="en"')
+        self.assertContains(response, 'hreflang="de"')
+
+    def test_language_switcher_preserves_the_current_localized_page(self):
+        response = self.client.get("/language/de/?next=/en/contact/")
+
+        self.assertRedirects(response, "/de/contact/", fetch_redirect_response=False)
+        self.assertEqual(response.cookies["django_language"].value, "de")
+
+    def test_api_urls_remain_unprefixed(self):
+        response = self.client.get("/api/news/")
+
+        self.assertEqual(response.status_code, 200)
 
 
 class NewsViewTests(TestCase):
