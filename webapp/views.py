@@ -367,13 +367,18 @@ def contact(request):
                 messages.error(request, "This date and time slot is already booked. Please choose another one.")
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
-            Metting.objects.create(
-                date=selected_date,
-                name=name,
-                email=email,
-                phone_number=phone_number,
-                timeslot=selected_timeslot,
-            )
+            try:
+                Metting.objects.create(
+                    date=selected_date,
+                    name=name,
+                    email=email,
+                    phone_number=phone_number,
+                    timeslot=selected_timeslot,
+                )
+            except Exception:
+                logger.exception("Meeting scheduling failed")
+                messages.error(request, "We could not schedule your meeting. Please try again later.")
+                return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True, status=500)
             messages.success(request, f"Your meeting has been scheduled successfully for {selected_date} at {selected_timeslot}.")
             return redirect("contact")
 
@@ -407,13 +412,27 @@ def contact(request):
                 },
             )
 
-        Message.objects.create(
-            name=name,
-            email=email,
-            subject=subject,
-            message=message_text,
-            ip_address=_client_ip(request),
-        )
+        try:
+            Message.objects.create(
+                name=name,
+                email=email,
+                subject=subject,
+                message=message_text,
+                ip_address=_client_ip(request),
+            )
+        except Exception:
+            logger.exception("Contact message could not be saved")
+            messages.error(request, "We could not send your message. Please try again later.")
+            return _render_contact(
+                request,
+                form_data={
+                    "name": name,
+                    "email": email,
+                    "subject": subject,
+                    "message": message_text,
+                },
+                status=500,
+            )
         messages.success(request, f"Thanks! Your message has been sent successfully. We will reply at {email} as soon as possible.")
         return redirect("contact")
 
