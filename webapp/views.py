@@ -11,7 +11,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext as _
 from django.urls import translate_url
 from django.db import transaction
 from rest_framework import permissions, status, viewsets
@@ -217,7 +217,7 @@ def start_conversation(request):
             )
             transaction.set_rollback(True)
             return Response(
-                {"detail": "There was an error. Please try again later."},
+                {"detail": _("There was an error. Please try again later.")},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
         except (KeyError, TypeError, ValueError):
@@ -228,7 +228,7 @@ def start_conversation(request):
             )
             transaction.set_rollback(True)
             return Response(
-                {"detail": "Ollama returned an invalid response."},
+                {"detail": _("Ollama returned an invalid response.")},
                 status=status.HTTP_502_BAD_GATEWAY,
             )
 
@@ -262,7 +262,7 @@ def add_question(request, thread_id):
     serializer.is_valid(raise_exception=True)
 
     if not thread.is_active:
-        return Response({"detail": "This conversation has ended."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": _("This conversation has ended.")}, status=status.HTTP_400_BAD_REQUEST)
 
     question = serializer.validated_data["question"]
     q_and_a = QAndA.objects.create(
@@ -304,7 +304,7 @@ def add_question(request, thread_id):
         )
         q_and_a.delete()
         return Response(
-            {"detail": "There was an error. Please try again later."},
+            {"detail": _("There was an error. Please try again later.")},
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
     except (KeyError, TypeError, ValueError):
@@ -315,7 +315,7 @@ def add_question(request, thread_id):
         )
         q_and_a.delete()
         return Response(
-            {"detail": "Ollama returned an invalid response."},
+            {"detail": _("Ollama returned an invalid response.")},
             status=status.HTTP_502_BAD_GATEWAY,
         )
 
@@ -372,7 +372,7 @@ def contact(request):
             }
 
             if _rate_limit_exceeded(request, "schedule"):
-                messages.warning(request, "Too many booking attempts. Please try again later.")
+                messages.warning(request, _("Too many booking attempts. Please try again later."))
                 return _render_contact(
                     request,
                     schedule_data=schedule_data,
@@ -382,30 +382,30 @@ def contact(request):
 
             allowed_slots = {slot[0] for slot in TIME_SLOT_CHOICES}
             if not all([name, email, selected_date_raw, selected_timeslot]):
-                messages.error(request, "Please complete all required fields to schedule your meeting.")
+                messages.error(request, _("Please complete all required fields to schedule your meeting."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             if selected_timeslot not in allowed_slots:
-                messages.error(request, "The selected time slot is not valid.")
+                messages.error(request, _("The selected time slot is not valid."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             try:
                 selected_date = dt_date.fromisoformat(selected_date_raw)
             except ValueError:
-                messages.error(request, "The selected date is not valid.")
+                messages.error(request, _("The selected date is not valid."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             utc_today = timezone.now().astimezone(dt_timezone.utc).date()
             if selected_date < utc_today:
-                messages.error(request, "You cannot select a past date.")
+                messages.error(request, _("You cannot select a past date."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             if selected_date.weekday() >= 5:
-                messages.error(request, "Weekend dates are not available. Please choose a weekday.")
+                messages.error(request, _("Weekend dates are not available. Please choose a weekday."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             if Metting.objects.filter(date=selected_date, timeslot=selected_timeslot).exists():
-                messages.error(request, "This date and time slot is already booked. Please choose another one.")
+                messages.error(request, _("This date and time slot is already booked. Please choose another one."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True)
 
             try:
@@ -418,9 +418,13 @@ def contact(request):
                 )
             except Exception:
                 logger.exception("Meeting scheduling failed")
-                messages.error(request, "We could not schedule your meeting. Please try again later.")
+                messages.error(request, _("We could not schedule your meeting. Please try again later."))
                 return _render_contact(request, schedule_data=schedule_data, schedule_modal_open=True, status=500)
-            messages.success(request, f"Your meeting has been scheduled successfully for {selected_date} at {selected_timeslot}.")
+            messages.success(
+                request,
+                _("Your meeting has been scheduled successfully for %(date)s at %(time)s.")
+                % {"date": selected_date, "time": selected_timeslot},
+            )
             return redirect("contact")
 
         name = request.POST.get("name", "").strip()
@@ -429,7 +433,7 @@ def contact(request):
         message_text = request.POST.get("message", "").strip()
 
         if _rate_limit_exceeded(request, "message"):
-            messages.warning(request, "Too many messages have been sent. Please try again later.")
+            messages.warning(request, _("Too many messages have been sent. Please try again later."))
             return _render_contact(
                 request,
                 form_data={
@@ -442,7 +446,7 @@ def contact(request):
             )
 
         if not all([name, email, subject, message_text]):
-            messages.error(request, "Please complete all fields before sending your message.")
+            messages.error(request, _("Please complete all fields before sending your message."))
             return _render_contact(
                 request,
                 form_data={
@@ -463,7 +467,7 @@ def contact(request):
             )
         except Exception:
             logger.exception("Contact message could not be saved")
-            messages.error(request, "We could not send your message. Please try again later.")
+            messages.error(request, _("We could not send your message. Please try again later."))
             return _render_contact(
                 request,
                 form_data={
@@ -474,7 +478,11 @@ def contact(request):
                 },
                 status=500,
             )
-        messages.success(request, f"Thanks! Your message has been sent successfully. We will reply at {email} as soon as possible.")
+        messages.success(
+            request,
+            _("Thanks! Your message has been sent successfully. We will reply at %(email)s as soon as possible.")
+            % {"email": email},
+        )
         return redirect("contact")
 
     return _render_contact(request)
