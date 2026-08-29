@@ -1,29 +1,507 @@
 msgid ""
 msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-29 22:27+0200\n"
 "Language: de\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: .\webapp\templates\website\about_us.html:4
+msgid "About Us | AI Solutions Studio"
+msgstr "Über uns | AI Solutions Studio"
+
+#: .\webapp\templates\website\about_us.html:30
+msgid "Who We Are"
+msgstr "Wer wir sind"
+
+#: .\webapp\templates\website\about_us.html:32
+msgid ""
+"We are an AI development studio focused on building production-ready "
+"solutions for real business use cases. Our team combines machine learning, "
+"software engineering, and product strategy to design systems that teams can "
+"trust in daily operations."
+msgstr ""
+"Wir sind ein AI-Entwicklungsstudio, das produktionsreife Lösungen für reale "
+"Geschäftsanforderungen entwickelt. Unser Team verbindet maschinelles Lernen, "
+"Software-Engineering und Produktstrategie, um Systeme zu bauen, denen Teams "
+"im Alltag vertrauen."
+
+#: .\webapp\templates\website\about_us.html:35
+msgid ""
+"From copilots and internal knowledge assistants to workflow automation and "
+"API integrations, we help organizations adopt AI with clarity, governance, "
+"and long-term maintainability. We work collaboratively, communicate clearly, "
+"and ship systems that scale with your goals."
+msgstr ""
+"Von Copilots und internen Wissensassistenten bis hin zu Workflow-Automation "
+"und API-Integrationen helfen wir Organisationen dabei, KI mit Klarheit, "
+"Governance und langfristiger Wartbarkeit zu nutzen. Wir arbeiten "
+"kollaborativ, kommunizieren klar und liefern Systeme, die mit Ihren Zielen "
+"skalieren."
+
+#: .\webapp\templates\website\base.html:10
+#: .\webapp\templates\website\base.html:145
 msgid "AI Solutions Studio"
 msgstr "AI Solutions Studio"
 
+#: .\webapp\templates\website\base.html:148
 msgid "Home"
 msgstr "Startseite"
 
+#: .\webapp\templates\website\base.html:149
 msgid "About Us"
-msgstr "Uber uns"
+msgstr "Über uns"
 
+#: .\webapp\templates\website\base.html:150
+#: .\webapp\templates\website\products.html:8
 msgid "AI Solutions"
-msgstr "KI-Losungen"
+msgstr "KI-Lösungen"
 
+#: .\webapp\templates\website\base.html:151
+#: .\webapp\templates\website\chat.html:281
 msgid "AI Chat"
 msgstr "KI-Chat"
 
+#: .\webapp\templates\website\base.html:152
 msgid "Contact"
 msgstr "Kontakt"
 
+#: .\webapp\templates\website\base.html:153
 msgid "AI Insights"
 msgstr "KI-Einblicke"
 
+#: .\webapp\templates\website\base.html:155
 msgid "Language"
 msgstr "Sprache"
+
+#: .\webapp\templates\website\base.html:157
+msgid "Current language"
+msgstr "Aktuelle Sprache"
+
+#: .\webapp\templates\website\blog.html:3
+msgid "AI Insights | AI Solutions Studio"
+msgstr "KI-Einblicke | AI Solutions Studio"
+
+#: .\webapp\templates\website\blog.html:66
+msgid "FROM THE AI TEAM"
+msgstr "VOM KI-TEAM"
+
+#: .\webapp\templates\website\blog.html:67
+msgid "AI insights, integration patterns, and implementation playbooks."
+msgstr "KI-Einblicke, Integrationsmuster und Implementierungs-Playbooks."
+
+#: .\webapp\templates\website\blog.html:69
+msgid ""
+"A look at what we are building, testing, and improving for teams shipping "
+"real AI products."
+msgstr ""
+"Ein Blick darauf, was wir für Teams entwickeln, testen und verbessern, die "
+"echte KI-Produkte einführen."
+
+#: .\webapp\templates\website\blog.html:76
+msgid "Latest AI articles"
+msgstr "Neueste KI-Artikel"
+
+#: .\webapp\templates\website\blog.html:77
+#, python-format
+msgid "Page %(page_number)s of %(total_pages)s"
+msgstr ""
+
+#: .\webapp\templates\website\blog.html:87
+msgid "Practical notes from AI development and integration delivery."
+msgstr "Praktische Notizen aus der KI-Entwicklung und Integrationsumsetzung."
+
+#: .\webapp\templates\website\blog.html:97
+#: .\webapp\templates\website\contact.html:318
+msgid "Previous"
+msgstr "Zurück"
+
+#: .\webapp\templates\website\blog.html:105
+#: .\webapp\templates\website\contact.html:320
+msgid "Next"
+msgstr "Weiter"
+
+#: .\webapp\templates\website\blog.html:115
+msgid "AI studio updates"
+msgstr "KI-Studio-Updates"
+
+#: .\webapp\templates\website\blog.html:117
+msgid ""
+"New integration templates and implementation accelerators are on the way."
+msgstr ""
+"Neue Integrationsvorlagen und Implementierungsbeschleuniger sind auf dem Weg."
+
+#: .\webapp\templates\website\blog.html:122
+msgid "Explore services"
+msgstr "Services entdecken"
+
+#: .\webapp\templates\website\blog.html:124
+msgid "Browse AI solutions"
+msgstr "KI-Lösungen durchsuchen"
+
+#: .\webapp\templates\website\blog.html:125
+msgid "Book AI consultation"
+msgstr "KI-Beratung buchen"
+
+#: .\webapp\templates\website\chat.html:4
+msgid "AI Chat | AI Solutions Studio"
+msgstr "KI-Chat | AI Solutions Studio"
+
+#: .\webapp\templates\website\chat.html:283
+msgid ""
+"Connect with a specialized assistant for AI strategy, integrations, or "
+"implementation planning. Choose the assistant that matches your goal, then "
+"type your question to get started."
+msgstr ""
+"Verbinden Sie sich mit einem spezialisierten Assistenten für KI-Strategie, "
+"Integrationen oder Implementierungsplanung. Wählen Sie den Assistenten aus, "
+"der zu Ihrem Ziel passt, und geben Sie dann Ihre Frage ein."
+
+#: .\webapp\templates\website\chat.html:287
+msgid "Choose an AI assistant"
+msgstr "KI-Assistent auswählen"
+
+#: .\webapp\templates\website\chat.html:292
+msgid "AI Strategy"
+msgstr "KI-Strategie"
+
+#: .\webapp\templates\website\chat.html:293
+msgid "Use-case discovery and roadmap guidance"
+msgstr "Anwendungsfall-Erkennung und Roadmap-Begleitung"
+
+#: .\webapp\templates\website\chat.html:299
+msgid "Integrations"
+msgstr "Integrationen"
+
+#: .\webapp\templates\website\chat.html:300
+msgid "Architecture, APIs, and platform integration"
+msgstr "Architektur, APIs und Plattformintegration"
+
+#: .\webapp\templates\website\chat.html:306
+msgid "Delivery"
+msgstr "Umsetzung"
+
+#: .\webapp\templates\website\chat.html:307
+msgid "Scope, timelines, and implementation planning"
+msgstr "Umfang, Zeitpläne und Implementierungsplanung"
+
+#: .\webapp\templates\website\chat.html:315
+msgid "Ask about your AI goals"
+msgstr "Fragen Sie nach Ihren KI-Zielen"
+
+#: .\webapp\templates\website\chat.html:317
+msgid "Describe your AI project or integration challenge..."
+msgstr ""
+"Beschreiben Sie Ihr KI-Projekt oder Ihre Integrationsherausforderung..."
+
+#: .\webapp\templates\website\chat.html:319
+msgid "Please enter a question before starting the AI chat."
+msgstr "Bitte geben Sie eine Frage ein, bevor Sie den KI-Chat starten."
+
+#: .\webapp\templates\website\chat.html:324
+msgid "Start AI consultation"
+msgstr "KI-Beratung starten"
+
+#: .\webapp\templates\website\chat.html:327
+msgid "Processing..."
+msgstr "Verarbeitung..."
+
+#: .\webapp\templates\website\chat.html:335
+msgid "End chat"
+msgstr "Chat beenden"
+
+#: .\webapp\templates\website\chat.html:339
+msgid "END CHAT"
+msgstr "CHAT BEENDEN"
+
+#: .\webapp\templates\website\chat.html:347
+msgid "Ask a follow-up about architecture, models, or rollout..."
+msgstr "Stellen Sie eine Rückfrage zu Architektur, Modellen oder Rollout..."
+
+#: .\webapp\templates\website\contact.html:4
+msgid "Contact AI Team | AI Solutions Studio"
+msgstr "KI-Team kontaktieren | AI Solutions Studio"
+
+#: .\webapp\templates\website\contact.html:239
+msgid "Schedule an AI consultation"
+msgstr "KI-Beratung planen"
+
+#: .\webapp\templates\website\contact.html:241
+msgid ""
+"Choose a convenient date and time to discuss your AI roadmap and integration "
+"goals."
+msgstr ""
+"Wählen Sie einen passenden Termin aus, um Ihre KI-Roadmap und "
+"Integrationsziele zu besprechen."
+
+#: .\webapp\templates\website\contact.html:243
+msgid "Schedule consultation"
+msgstr "Beratung planen"
+
+#: .\webapp\templates\website\contact.html:251
+msgid "Send your AI project brief"
+msgstr "Senden Sie Ihren KI-Projektbrief"
+
+#: .\webapp\templates\website\contact.html:252
+msgid ""
+"Tell us what you want to build and we will reply within 1-2 business days."
+msgstr ""
+"Erzählen Sie uns, was Sie bauen möchten, und wir antworten innerhalb von 1-2 "
+"Werktagen."
+
+#: .\webapp\templates\website\contact.html:254
+#: .\webapp\templates\website\contact.html:300
+msgid "Name"
+msgstr "Name"
+
+#: .\webapp\templates\website\contact.html:255
+msgid "Your full name"
+msgstr "Ihr vollständiger Name"
+
+#: .\webapp\templates\website\contact.html:259
+#: .\webapp\templates\website\contact.html:305
+msgid "Email"
+msgstr "E-Mail"
+
+#: .\webapp\templates\website\contact.html:260
+msgid "you@example.com"
+msgstr "ihre@email.de"
+
+#: .\webapp\templates\website\contact.html:264
+msgid "Subject"
+msgstr "Betreff"
+
+#: .\webapp\templates\website\contact.html:265
+msgid "What AI outcome are you targeting?"
+msgstr "Welches KI-Ziel verfolgen Sie?"
+
+#: .\webapp\templates\website\contact.html:269
+msgid "Message"
+msgstr "Nachricht"
+
+#: .\webapp\templates\website\contact.html:270
+msgid "Share your current stack, use case, and desired AI capabilities..."
+msgstr ""
+"Teilen Sie Ihren aktuellen Stack, Anwendungsfall und gewünschten KI-"
+"Funktionen..."
+
+#: .\webapp\templates\website\contact.html:273
+msgid "Send brief"
+msgstr "Brief senden"
+
+#: .\webapp\templates\website\contact.html:282
+msgid "Close scheduling popup"
+msgstr "Terminfenster schließen"
+
+#: .\webapp\templates\website\contact.html:291
+msgid "AI Integration Discovery Call"
+msgstr "KI-Integrations-Discovery-Call"
+
+#: .\webapp\templates\website\contact.html:293
+msgid ""
+"Book a guided call in UTC. Sessions usually take 30 minutes, depending on "
+"your goals and system complexity."
+msgstr ""
+"Buchen Sie einen geführten Call in UTC. Sitzungen dauern in der Regel 30 "
+"Minuten, je nach Ziel und Systemkomplexität."
+
+#: .\webapp\templates\website\contact.html:296
+msgid ""
+"In this session, we review your use case, integration constraints, and the "
+"fastest path to a production AI rollout."
+msgstr ""
+"In dieser Sitzung prüfen wir Ihren Anwendungsfall, "
+"Integrationsbeschränkungen und den schnellsten Weg zu einem produktiven KI-"
+"Launch."
+
+#: .\webapp\templates\website\contact.html:310
+msgid "Phone number (optional)"
+msgstr "Telefonnummer (optional)"
+
+#: .\webapp\templates\website\contact.html:316
+msgid "Select consultation date (UTC)"
+msgstr "Beratungstermin auswählen (UTC)"
+
+#: .\webapp\templates\website\contact.html:334
+msgid "No consultation date selected yet."
+msgstr "Noch kein Beratungstermin ausgewählt."
+
+#: .\webapp\templates\website\contact.html:336
+msgid "Select consultation time"
+msgstr "Beratungszeit auswählen"
+
+#: .\webapp\templates\website\contact.html:345
+msgid "Confirm call"
+msgstr "Anruf bestätigen"
+
+#: .\webapp\templates\website\home.html:4
+msgid "AI Development & Integration Studio"
+msgstr "KI-Entwicklungs- und Integrationsstudio"
+
+#: .\webapp\templates\website\home.html:49
+msgid "AI Engineering Partner"
+msgstr "KI-Engineering-Partner"
+
+#: .\webapp\templates\website\home.html:51
+msgid "We build AI products and integrations that move your business faster."
+msgstr ""
+"Wir entwickeln KI-Produkte und Integrationen, die Ihr Unternehmen schneller "
+"voranbringen."
+
+#: .\webapp\templates\website\home.html:54
+msgid ""
+"From model strategy to production launch, we deliver practical AI systems "
+"that automate operations, improve decision quality, and create measurable "
+"ROI."
+msgstr ""
+"Von der Modellstrategie bis zum Produktivstart liefern wir praxisnahe KI-"
+"Systeme, die Abläufe automatisieren, die Entscheidungsqualität verbessern "
+"und messbaren ROI schaffen."
+
+#: .\webapp\templates\website\home.html:57
+msgid "Explore AI solutions"
+msgstr "KI-Lösungen entdecken"
+
+#: .\webapp\templates\website\home.html:68
+msgid "Who are these AI solutions for?"
+msgstr "Für wen sind diese KI-Lösungen gedacht?"
+
+#: .\webapp\templates\website\home.html:70
+msgid ""
+"We work with startups, product teams, and enterprises that need custom AI "
+"development, assistant deployment, and secure integrations across their "
+"existing stack. Whether you are piloting your first use case or scaling an "
+"AI roadmap, we focus on reliable systems that deliver clear operational "
+"impact."
+msgstr ""
+"Wir arbeiten mit Start-ups, Produktteams und Unternehmen zusammen, die "
+"individuelle KI-Entwicklung, Assistenten-Einsatz und sichere Integrationen "
+"in ihre bestehende Technik benötigen. Egal, ob Sie den ersten Anwendungsfall "
+"pilotieren oder Ihre KI-Roadmap skalieren: Wir setzen auf robuste Systeme "
+"mit klarer operativer Wirkung."
+
+#: .\webapp\templates\website\home.html:82
+msgid "AI projects delivered"
+msgstr "Umgesetzte KI-Projekte"
+
+#: .\webapp\templates\website\home.html:89
+msgid "Teams enabled with AI"
+msgstr "Teams mit KI gestärkt"
+
+#: .\webapp\templates\website\home.html:96
+msgid "Client value created"
+msgstr "Geschaffener Kundennutzen"
+
+#: .\webapp\templates\website\news_detail.html:31
+msgid "Related AI insight"
+msgstr "Verwandter KI-Artikel"
+
+#: .\webapp\templates\website\news_detail.html:51
+msgid "Back to AI insights"
+msgstr "Zurück zu KI-Einblicken"
+
+#: .\webapp\templates\website\products.html:4
+msgid "AI Solutions | AI Solutions Studio"
+msgstr "KI-Lösungen | AI Solutions Studio"
+
+#: .\webapp\templates\website\products.html:9
+msgid ""
+"Explore implementation-ready AI services designed for automation, insight, "
+"and scale."
+msgstr ""
+"Entdecken Sie einsatzbereite KI-Services für Automatisierung, Insights und "
+"Skalierung."
+
+#: .\webapp\templates\website\products.html:15
+msgid "AI Copilot Development"
+msgstr "KI-Copilot-Entwicklung"
+
+#: .\webapp\templates\website\products.html:16
+msgid ""
+"Custom copilots trained on your domain to support teams and customers in "
+"real time."
+msgstr ""
+"Individuelle Copilots, auf Ihre Domäne trainiert, um Teams und Kunden in "
+"Echtzeit zu unterstützen."
+
+#: .\webapp\templates\website\products.html:17
+#: .\webapp\templates\website\products.html:27
+#: .\webapp\templates\website\products.html:37
+#: .\webapp\templates\website\products.html:47
+#: .\webapp\templates\website\products.html:57
+#: .\webapp\templates\website\products.html:67
+msgid "View solution brief"
+msgstr "Lösungsprofil ansehen"
+
+#: .\webapp\templates\website\products.html:25
+msgid "LLM Workflow Automation"
+msgstr "LLM-Workflow-Automatisierung"
+
+#: .\webapp\templates\website\products.html:26
+msgid ""
+"Automate repetitive processes with agentic flows connected to your internal "
+"tools."
+msgstr ""
+"Automatisieren Sie wiederkehrende Prozesse mit agentischen Workflows, die an "
+"Ihre internen Tools angeschlossen sind."
+
+#: .\webapp\templates\website\products.html:35
+msgid "AI Integration Engineering"
+msgstr "KI-Integrations-Engineering"
+
+#: .\webapp\templates\website\products.html:36
+msgid ""
+"Secure integration of AI services with your APIs, databases, and SaaS "
+"platforms."
+msgstr ""
+"Sichere Integration von KI-Services mit Ihren APIs, Datenbanken und SaaS-"
+"Plattformen."
+
+#: .\webapp\templates\website\products.html:45
+msgid "AI Search & Knowledge Base"
+msgstr "KI-Suche & Wissensbasis"
+
+#: .\webapp\templates\website\products.html:46
+msgid ""
+"Semantic search and retrieval systems that surface the right answers "
+"instantly."
+msgstr ""
+"Semantische Such- und Abrufsysteme, die sofort die richtigen Antworten "
+"liefern."
+
+#: .\webapp\templates\website\products.html:55
+msgid "AI Analytics & Forecasting"
+msgstr "KI-Analytik & Forecasting"
+
+#: .\webapp\templates\website\products.html:56
+msgid ""
+"Decision intelligence pipelines for forecasting, anomaly detection, and "
+"planning."
+msgstr ""
+"Decision-Intelligence-Pipelines für Prognosen, Anomalieerkennung und Planung."
+
+#: .\webapp\templates\website\products.html:65
+msgid "Responsible AI Enablement"
+msgstr "Responsible-AI-Enablement"
+
+#: .\webapp\templates\website\products.html:66
+msgid ""
+"Governance, evaluation, and rollout support for safe, compliant AI adoption."
+msgstr ""
+"Governance, Evaluation und Rollout-Unterstützung für sichere, konforme KI-"
+"Einführung."
+
+#~ msgid "Page %s of %s"
+#~ msgstr "Seite %s von %s"
+
+#~ msgid "British flag"
+#~ msgstr "Britische Flagge"
+
+#~ msgid "German flag"
+#~ msgstr "Deutsche Flagge"
+
+#~ msgid "English"
+#~ msgstr "Englisch"
+
+#~ msgid "Deutsch"
+#~ msgstr "Deutsch"

@@ -1,5 +1,6 @@
 {% extends "website/base.html" %}
-{% block title %}AI Insights | AI Solutions Studio{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "AI Insights | AI Solutions Studio" %}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -62,18 +63,18 @@
 {% block content %}
 <main class="container blog-layout py-5">
     <header class="blog-intro mb-5">
-        <p class="text-primary fw-semibold mb-2">FROM THE AI TEAM</p>
-        <h1 class="display-6 fw-bold mb-3">AI insights, integration patterns, and implementation playbooks.</h1>
+        <p class="text-primary fw-semibold mb-2">{% translate "FROM THE AI TEAM" %}</p>
+        <h1 class="display-6 fw-bold mb-3">{% translate "AI insights, integration patterns, and implementation playbooks." %}</h1>
         <p class="lead text-secondary mb-0">
-            A look at what we are building, testing, and improving for teams shipping real AI products.
+            {% translate "A look at what we are building, testing, and improving for teams shipping real AI products." %}
         </p>
     </header>
 
     <div class="row g-5">
         <section class="col-12 col-lg-8" aria-labelledby="blog-heading">
             <div class="d-flex align-items-baseline justify-content-between border-bottom pb-3 mb-2">
-                <h2 id="blog-heading" class="h3 mb-0">Latest AI articles</h2>
-                <span class="text-secondary small">Page {{ article_page.number }} of {{ article_page.paginator.num_pages }}</span>
+                <h2 id="blog-heading" class="h3 mb-0">{% translate "Latest AI articles" %}</h2>
+                <span class="text-secondary small">{% blocktranslate with page_number=article_page.number total_pages=article_page.paginator.num_pages %}Page {{ page_number }} of {{ total_pages }}{% endblocktranslate %}</span>
             </div>
 
             <div>
@@ -83,7 +84,7 @@
                         <div>
                             <time class="blog-date d-block mb-2" datetime="{{ article.date|date:'Y-m-d' }}">{{ article.date|date:"F j, Y" }}</time>
                             <h3 class="h5 mb-2"><a class="text-decoration-none" href="{% url 'news_detail' article.id %}">{{ article.title }}</a></h3>
-                            <p class="text-secondary mb-0">Practical notes from AI development and integration delivery.</p>
+                            <p class="text-secondary mb-0">{% translate "Practical notes from AI development and integration delivery." %}</p>
                         </div>
                     </article>
                 {% endfor %}
@@ -93,7 +94,7 @@
                 <nav class="mt-4" aria-label="Blog pages">
                     <ul class="pagination mb-0">
                         {% if article_page.has_previous %}
-                            <li class="page-item"><a class="page-link" href="?page={{ article_page.previous_page_number }}">Previous</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ article_page.previous_page_number }}">{% translate "Previous" %}</a></li>
                         {% endif %}
                         {% for page_number in article_page.paginator.page_range %}
                             <li class="page-item {% if page_number == article_page.number %}active{% endif %}">
@@ -101,7 +102,7 @@
                             </li>
                         {% endfor %}
                         {% if article_page.has_next %}
-                            <li class="page-item"><a class="page-link" href="?page={{ article_page.next_page_number }}">Next</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ article_page.next_page_number }}">{% translate "Next" %}</a></li>
                         {% endif %}
                     </ul>
                 </nav>
@@ -111,17 +112,17 @@
         <aside class="col-12 col-lg-4" aria-label="AI updates and resources">
             <div class="d-grid gap-4">
                 <section class="blog-sidebar blog-sidebar-section p-4" aria-labelledby="studio-updates-heading">
-                    <h2 id="studio-updates-heading" class="h5 mb-3">AI studio updates</h2>
+                    <h2 id="studio-updates-heading" class="h5 mb-3">{% translate "AI studio updates" %}</h2>
                     <p class="text-secondary small mb-0">
-                        New integration templates and implementation accelerators are on the way.
+                        {% translate "New integration templates and implementation accelerators are on the way." %}
                     </p>
                 </section>
 
                 <section class="blog-sidebar blog-sidebar-section p-4" aria-labelledby="explore-heading">
-                    <h2 id="explore-heading" class="h5 mb-3">Explore services</h2>
+                    <h2 id="explore-heading" class="h5 mb-3">{% translate "Explore services" %}</h2>
                     <div class="d-grid gap-2">
-                        <a class="btn btn-outline-primary text-start" href="{% url 'products' %}">Browse AI solutions</a>
-                        <a class="btn btn-outline-secondary text-start" href="{% url 'contact' %}">Book AI consultation</a>
+                        <a class="btn btn-outline-primary text-start" href="{% url 'products' %}">{% translate "Browse AI solutions" %}</a>
+                        <a class="btn btn-outline-secondary text-start" href="{% url 'contact' %}">{% translate "Book AI consultation" %}</a>
                     </div>
                 </section>
             </div>
