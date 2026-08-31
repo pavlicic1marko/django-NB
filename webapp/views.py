@@ -343,9 +343,9 @@ def blog(request):
     return render(request, "website/blog.html", {"article_page": article_page})
 
 
-def news_detail(request, news_id):
+def news_detail(request, slug):
     articles = News.objects.filter(language=get_language())
-    article = get_object_or_404(articles, pk=news_id)
+    article = get_object_or_404(articles, slug=slug)
     suggested_articles = News.objects.none()
     if articles.count() >= 2:
         suggested_articles = articles.exclude(pk=article.pk).order_by("-date", "-id")[:2]

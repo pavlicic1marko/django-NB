@@ -31,7 +31,7 @@
                 <h2 id="suggested-news-heading" class="h5 mb-3">{% translate "Related AI insight" %}</h2>
                 {% for suggested_article in suggested_articles %}
                     <article class="suggested-news-item py-3">
-                        <a class="d-flex gap-3 text-decoration-none" href="{% url 'news_detail' suggested_article.id %}">
+                        <a class="d-flex gap-3 text-decoration-none" href="{% url 'news_detail' suggested_article.slug %}">
                             <img class="suggested-news-image rounded-1" src="{{ suggested_article.image.url }}" alt="alt-description">
                             <div>
                                 <p class="small text-secondary mb-1">{{ suggested_article.date|date:"M j, Y" }}</p>

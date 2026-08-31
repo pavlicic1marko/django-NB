@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.text import slugify
 
 
 TIME_SLOT_CHOICES = (
@@ -67,6 +68,7 @@ class News(models.Model):
         default="en",
     )
     title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, editable=False)
     text = models.TextField()
     date = models.DateField()
     # TODO: Add an alt_text field when image metadata is managed in the database.
@@ -77,8 +79,21 @@ class News(models.Model):
         verbose_name = "News article"
         verbose_name_plural = "News"
         constraints = [
-            models.UniqueConstraint(fields=["language", "title"], name="unique_news_language_title")
+            models.UniqueConstraint(fields=["language", "title"], name="unique_news_language_title"),
+            models.UniqueConstraint(fields=["language", "slug"], name="unique_news_language_slug"),
         ]
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and not self.slug:
+            base_slug = slugify(self.title)[:200] or "news"
+            slug = base_slug
+            suffix = 2
+            while News.objects.filter(language=self.language, slug=slug).exists():
+                suffix_text = f"-{suffix}"
+                slug = f"{base_slug[:220 - len(suffix_text)]}{suffix_text}"
+                suffix += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

@@ -209,7 +209,7 @@ class NewsViewTests(TestCase):
     def test_news_detail_displays_the_selected_article_text(self):
         article = News.objects.get(title="Studio update 0")
 
-        response = self.client.get(reverse("news_detail", args=[article.pk]))
+        response = self.client.get(reverse("news_detail", args=[article.slug]))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, article.title)
@@ -222,7 +222,7 @@ class NewsViewTests(TestCase):
         News.objects.exclude(title__in=["Studio update 0", "Studio update 1"]).delete()
         article = News.objects.get(title="Studio update 0")
 
-        response = self.client.get(reverse("news_detail", args=[article.pk]))
+        response = self.client.get(reverse("news_detail", args=[article.slug]))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["suggested_articles"]), 1)
@@ -285,6 +285,16 @@ class NewsApiTests(TestCase):
 
 
 class NewsModelAndSerializerTests(TestCase):
+    def test_slug_is_generated_when_a_news_article_is_created(self):
+        article = News.objects.create(
+            title="AI workflow launch",
+            text="The latest operational information.",
+            date=date(2026, 8, 12),
+            image="news/update.png",
+        )
+
+        self.assertEqual(article.slug, "ai-workflow-launch")
+
     def test_title_must_be_unique_within_a_language_and_created_at_is_set_automatically(self):
         article = News.objects.create(
             title="Weekly operations update",
@@ -322,7 +332,7 @@ class NewsModelAndSerializerTests(TestCase):
 
         self.assertEqual(
             set(serializer.data),
-            {"id", "language", "title", "text", "date", "image", "created_at"},
+            {"id", "language", "title", "slug", "text", "date", "image", "created_at"},
         )
         self.assertTrue(serializer.fields["id"].read_only)
         self.assertTrue(serializer.fields["created_at"].read_only)
