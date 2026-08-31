@@ -1,10 +1,12 @@
 from io import BytesIO
 from datetime import date
+from tempfile import TemporaryDirectory
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
 from django.db import DatabaseError, IntegrityError
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import translation
 from PIL import Image
@@ -285,6 +287,27 @@ class NewsApiTests(TestCase):
 
 
 class NewsModelAndSerializerTests(TestCase):
+    def test_deleting_an_article_deletes_its_uploaded_image(self):
+        image_buffer = BytesIO()
+        Image.new("RGB", (1, 1), color="white").save(image_buffer, format="PNG")
+        uploaded_image = SimpleUploadedFile(
+            "delete-me.png", image_buffer.getvalue(), content_type="image/png"
+        )
+
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            article = News.objects.create(
+                title="Delete image test",
+                text="This article's image should be deleted.",
+                date=date(2026, 8, 12),
+                image=uploaded_image,
+            )
+            image_name = article.image.name
+
+            self.assertTrue(article.image.storage.exists(image_name))
+            article.delete()
+
+            self.assertFalse(article.image.storage.exists(image_name))
+
     def test_slug_is_generated_when_a_news_article_is_created(self):
         article = News.objects.create(
             title="AI workflow launch",
