@@ -14,6 +14,15 @@
     <link rel="alternate" hreflang="de" href="{{ language_urls.de }}">
     <link rel="alternate" hreflang="x-default" href="{{ language_urls.en }}">
 
+    <!-- Replace G-XXXXXXXXXX with the GA4 Measurement ID from Google Analytics. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag("js", new Date());
+        gtag("config", "G-XXXXXXXXXX");
+    </script>
+
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet"
