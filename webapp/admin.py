@@ -27,9 +27,9 @@ class TimeSlotAdmin(admin.ModelAdmin):
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-	list_display = ("title", "created_at")
+	list_display = ("title", "language", "created_at")
 	search_fields = ("title", "content")
-	list_filter = ("created_at",)
+	list_filter = ("language", "created_at")
 	ordering = ("-created_at",)
 
 

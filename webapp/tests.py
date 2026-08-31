@@ -6,6 +6,7 @@ from django.core.cache import cache
 from django.db import DatabaseError, IntegrityError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import translation
 from PIL import Image
 from unittest.mock import patch
 
@@ -189,6 +190,22 @@ class NewsViewTests(TestCase):
         self.assertEqual(len(response.context["article_page"].object_list), 2)
         self.assertContains(response, "Studio update 10")
 
+    def test_german_blog_shows_only_german_articles(self):
+        News.objects.create(
+            language="de",
+            title="Deutsches Studio-Update",
+            text="Deutsche Neuigkeiten.",
+            date=date(2026, 8, 13),
+            image="news/update-de.png",
+        )
+
+        with translation.override("de"):
+            response = self.client.get(reverse("news"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Deutsches Studio-Update")
+        self.assertNotContains(response, "Studio update 0")
+
     def test_news_detail_displays_the_selected_article_text(self):
         article = News.objects.get(title="Studio update 0")
 
@@ -268,7 +285,7 @@ class NewsApiTests(TestCase):
 
 
 class NewsModelAndSerializerTests(TestCase):
-    def test_title_must_be_unique_and_created_at_is_set_automatically(self):
+    def test_title_must_be_unique_within_a_language_and_created_at_is_set_automatically(self):
         article = News.objects.create(
             title="Weekly operations update",
             text="The latest operational information.",
@@ -277,6 +294,14 @@ class NewsModelAndSerializerTests(TestCase):
         )
 
         self.assertIsNotNone(article.created_at)
+        german_article = News.objects.create(
+            language="de",
+            title="Weekly operations update",
+            text="Die neuesten Betriebsinformationen.",
+            date=date(2026, 8, 13),
+            image="news/update-de.png",
+        )
+        self.assertEqual(german_article.language, "de")
         with self.assertRaises(IntegrityError):
             News.objects.create(
                 title="Weekly operations update",
@@ -297,7 +322,7 @@ class NewsModelAndSerializerTests(TestCase):
 
         self.assertEqual(
             set(serializer.data),
-            {"id", "title", "text", "date", "image", "created_at"},
+            {"id", "language", "title", "text", "date", "image", "created_at"},
         )
         self.assertTrue(serializer.fields["id"].read_only)
         self.assertTrue(serializer.fields["created_at"].read_only)

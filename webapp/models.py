@@ -61,8 +61,12 @@ class Message(models.Model):
 
 
 class News(models.Model):
-
-    title = models.CharField(max_length=200, unique=True)
+    language = models.CharField(
+        max_length=2,
+        choices=(("en", "English"), ("de", "Deutsch")),
+        default="en",
+    )
+    title = models.CharField(max_length=200)
     text = models.TextField()
     date = models.DateField()
     # TODO: Add an alt_text field when image metadata is managed in the database.
@@ -72,6 +76,9 @@ class News(models.Model):
     class Meta:
         verbose_name = "News article"
         verbose_name_plural = "News"
+        constraints = [
+            models.UniqueConstraint(fields=["language", "title"], name="unique_news_language_title")
+        ]
 
     def __str__(self):
         return self.title
