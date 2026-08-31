@@ -31,8 +31,8 @@
                 <h2 id="suggested-news-heading" class="h5 mb-3">{% translate "Related AI insight" %}</h2>
                 {% for suggested_article in suggested_articles %}
                     <article class="suggested-news-item py-3">
-                        <a class="d-flex gap-3 text-decoration-none" href="{% url 'news_detail' suggested_article.id %}">
-                            <img class="suggested-news-image rounded-1" src="{{ suggested_article.image.url }}" alt="">
+                        <a class="d-flex gap-3 text-decoration-none" href="{% url 'news_detail' suggested_article.slug %}">
+                            <img class="suggested-news-image rounded-1" src="{{ suggested_article.image.url }}" alt="{{ suggested_article.alt_text }}">
                             <div>
                                 <p class="small text-secondary mb-1">{{ suggested_article.date|date:"M j, Y" }}</p>
                                 <h3 class="h6 text-body mb-0">{{ suggested_article.title }}</h3>
@@ -44,7 +44,7 @@
         {% endif %}
 
         <article class="col-12 {% if suggested_articles %}col-lg-9{% else %}col-lg-8 mx-auto{% endif %} order-lg-1">
-            <img class="news-detail-image rounded-1 mb-4" src="{{ article.image.url }}" alt="{{ article.title }}">
+            <img class="news-detail-image rounded-1 mb-4" src="{{ article.image.url }}" alt="{{ article.alt_text }}">
             <p class="text-secondary mb-2">{{ article.date|date:"F j, Y" }}</p>
             <h1 class="display-6 fw-bold mb-4">{{ article.title }}</h1>
             <div class="fs-5 lh-lg">{{ article.text|linebreaks }}</div>

@@ -12,5 +12,5 @@ urlpatterns = [
     path(_("schedule-meeting/"), views.contact, name="schedule_meeting"),
     path(_("blog/"), views.blog, name="blog"),
     path(_("news/"), views.blog, name="news"),
-    path(_("news/<int:news_id>/"), views.news_detail, name="news_detail"),
+    path(_("news/<slug:slug>/"), views.news_detail, name="news_detail"),
 ]

@@ -6,8 +6,8 @@ from .models import AGENT_TYPE_CHOICES, News, QAndA, Thread
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
-        fields = ("id", "title", "text", "date", "image", "created_at")
-        read_only_fields = ("id", "created_at")
+        fields = ("id", "language", "title", "slug", "text", "date", "image", "alt_text", "created_at")
+        read_only_fields = ("id", "slug", "created_at")
 
 
 class QAndASerializer(serializers.ModelSerializer):

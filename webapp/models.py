@@ -1,5 +1,8 @@
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.utils.text import slugify
 
 
 TIME_SLOT_CHOICES = (
@@ -61,14 +64,47 @@ class Message(models.Model):
 
 
 class News(models.Model):
-    title = models.CharField(max_length=200, unique=True)
+    language = models.CharField(
+        max_length=2,
+        choices=(("en", "English"), ("de", "Deutsch")),
+        default="en",
+    )
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, editable=False)
     text = models.TextField()
     date = models.DateField()
     image = models.ImageField(upload_to="news/")
+    alt_text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "News article"
+        verbose_name_plural = "News"
+        constraints = [
+            models.UniqueConstraint(fields=["language", "title"], name="unique_news_language_title"),
+            models.UniqueConstraint(fields=["language", "slug"], name="unique_news_language_slug"),
+        ]
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and not self.slug:
+            base_slug = slugify(self.title)[:200] or "news"
+            slug = base_slug
+            suffix = 2
+            while News.objects.filter(language=self.language, slug=slug).exists():
+                suffix_text = f"-{suffix}"
+                slug = f"{base_slug[:220 - len(suffix_text)]}{suffix_text}"
+                suffix += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
+
+
+@receiver(post_delete, sender=News)
+def delete_news_image(sender, instance, **kwargs):
+    if instance.image:
+        instance.image.delete(save=False)
 
 
 class TimeSlot(models.Model):

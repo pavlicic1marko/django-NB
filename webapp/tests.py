@@ -1,11 +1,15 @@
 from io import BytesIO
 from datetime import date
+from tempfile import TemporaryDirectory
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
 from django.db import DatabaseError, IntegrityError
 from django.test import TestCase
+from django.test.client import MULTIPART_CONTENT
+from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils import translation
 from PIL import Image
 from unittest.mock import patch
 
@@ -119,6 +123,30 @@ class ContactFailureLoggingTests(TestCase):
 
 
 class LocaleRoutingTests(TestCase):
+    def test_meta_description_is_rendered_only_on_the_home_page(self):
+        home_response = self.client.get(reverse("home"))
+        about_response = self.client.get(reverse("about_us"))
+
+        self.assertContains(
+            home_response,
+            '<meta name="description" content="AI development, workflow automation, and software integrations built for practical business use.">',
+            html=False,
+        )
+        self.assertNotContains(about_response, '<meta name="description"', html=False)
+
+    def test_responses_are_excluded_from_search_indexing(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response["X-Robots-Tag"], "noindex, nofollow, noarchive")
+        self.assertContains(response, '<meta name="robots" content="noindex, nofollow, noarchive">', html=False)
+
+    def test_robots_file_disallows_every_path(self):
+        response = self.client.get("/robots.txt")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/plain")
+        self.assertContains(response, "User-agent: *\nDisallow: /\n", html=False)
+
     def test_public_pages_use_locale_prefixes_and_render_the_selected_language(self):
         response = self.client.get("/de/contact/")
 
@@ -148,6 +176,7 @@ class NewsViewTests(TestCase):
                 text=f"News text {index}",
                 date=date(2026, 8, 12 - index),
                 image=f"news/update-{index}.png",
+                alt_text=f"Studio update {index} image",
             )
 
     def test_first_page_shows_ten_articles_and_pagination(self):
@@ -165,10 +194,27 @@ class NewsViewTests(TestCase):
         self.assertEqual(len(response.context["article_page"].object_list), 2)
         self.assertContains(response, "Studio update 10")
 
+    def test_german_blog_shows_only_german_articles(self):
+        News.objects.create(
+            language="de",
+            title="Deutsches Studio-Update",
+            text="Deutsche Neuigkeiten.",
+            date=date(2026, 8, 13),
+            image="news/update-de.png",
+            alt_text="Bild zum deutschen Studio-Update",
+        )
+
+        with translation.override("de"):
+            response = self.client.get(reverse("news"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Deutsches Studio-Update")
+        self.assertNotContains(response, "Studio update 0")
+
     def test_news_detail_displays_the_selected_article_text(self):
         article = News.objects.get(title="Studio update 0")
 
-        response = self.client.get(reverse("news_detail", args=[article.pk]))
+        response = self.client.get(reverse("news_detail", args=[article.slug]))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, article.title)
@@ -181,7 +227,7 @@ class NewsViewTests(TestCase):
         News.objects.exclude(title__in=["Studio update 0", "Studio update 1"]).delete()
         article = News.objects.get(title="Studio update 0")
 
-        response = self.client.get(reverse("news_detail", args=[article.pk]))
+        response = self.client.get(reverse("news_detail", args=[article.slug]))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["suggested_articles"]), 1)
@@ -201,6 +247,7 @@ class NewsApiTests(TestCase):
                 "text": "The new API is live.",
                 "date": "2026-08-13",
                 "image": image,
+                "alt_text": "A white one-pixel image",
             },
             format="multipart",
         )
@@ -224,15 +271,20 @@ class NewsApiTests(TestCase):
         self.assertEqual(patch_response.status_code, 200)
         self.assertEqual(patch_response.json()["text"], "The API has been updated.")
 
+        replacement_image = SimpleUploadedFile(
+            "replacement-news.png", image_buffer.getvalue(), content_type="image/png"
+        )
         put_response = self.client.put(
             f"/api/news/{created_id}/",
             {
+                "language": "en",
                 "title": "API launch update",
                 "text": "The full update has been saved.",
                 "date": "2026-08-14",
-                "image": image,
+                "image": replacement_image,
+                "alt_text": "A white one-pixel image",
             },
-            format="multipart",
+            content_type=MULTIPART_CONTENT,
         )
         self.assertEqual(put_response.status_code, 200)
         self.assertEqual(put_response.json()["text"], "The full update has been saved.")
@@ -244,21 +296,65 @@ class NewsApiTests(TestCase):
 
 
 class NewsModelAndSerializerTests(TestCase):
-    def test_title_must_be_unique_and_created_at_is_set_automatically(self):
+    def test_deleting_an_article_deletes_its_uploaded_image(self):
+        image_buffer = BytesIO()
+        Image.new("RGB", (1, 1), color="white").save(image_buffer, format="PNG")
+        uploaded_image = SimpleUploadedFile(
+            "delete-me.png", image_buffer.getvalue(), content_type="image/png"
+        )
+
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            article = News.objects.create(
+                title="Delete image test",
+                text="This article's image should be deleted.",
+                date=date(2026, 8, 12),
+                image=uploaded_image,
+                alt_text="A white one-pixel image",
+            )
+            image_name = article.image.name
+
+            self.assertTrue(article.image.storage.exists(image_name))
+            article.delete()
+
+            self.assertFalse(article.image.storage.exists(image_name))
+
+    def test_slug_is_generated_when_a_news_article_is_created(self):
+        article = News.objects.create(
+            title="AI workflow launch",
+            text="The latest operational information.",
+            date=date(2026, 8, 12),
+            image="news/update.png",
+            alt_text="A workflow diagram",
+        )
+
+        self.assertEqual(article.slug, "ai-workflow-launch")
+
+    def test_title_must_be_unique_within_a_language_and_created_at_is_set_automatically(self):
         article = News.objects.create(
             title="Weekly operations update",
             text="The latest operational information.",
             date=date(2026, 8, 12),
             image="news/update.png",
+            alt_text="An operations dashboard",
         )
 
         self.assertIsNotNone(article.created_at)
+        german_article = News.objects.create(
+            language="de",
+            title="Weekly operations update",
+            text="Die neuesten Betriebsinformationen.",
+            date=date(2026, 8, 13),
+            image="news/update-de.png",
+            alt_text="Ein Betriebs-Dashboard",
+        )
+        self.assertEqual(german_article.language, "de")
         with self.assertRaises(IntegrityError):
             News.objects.create(
                 title="Weekly operations update",
                 text="Duplicate title.",
                 date=date(2026, 8, 13),
                 image="news/duplicate.png",
+                alt_text="A duplicate image",
             )
 
     def test_serializer_includes_news_fields_and_keeps_created_fields_read_only(self):
@@ -267,13 +363,14 @@ class NewsModelAndSerializerTests(TestCase):
             text="All services are operational.",
             date=date(2026, 8, 12),
             image="news/status.png",
+            alt_text="A service status dashboard",
         )
 
         serializer = NewsSerializer(article)
 
         self.assertEqual(
             set(serializer.data),
-            {"id", "title", "text", "date", "image", "created_at"},
+            {"id", "language", "title", "slug", "text", "date", "image", "alt_text", "created_at"},
         )
         self.assertTrue(serializer.fields["id"].read_only)
         self.assertTrue(serializer.fields["created_at"].read_only)

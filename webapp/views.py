@@ -338,15 +338,17 @@ def end_conversation(request, thread_id):
 
 
 def blog(request):
-    article_page = Paginator(News.objects.order_by("-date", "-id"), 10).get_page(request.GET.get("page"))
+    articles = News.objects.filter(language=get_language()).order_by("-date", "-id")
+    article_page = Paginator(articles, 10).get_page(request.GET.get("page"))
     return render(request, "website/blog.html", {"article_page": article_page})
 
 
-def news_detail(request, news_id):
-    article = get_object_or_404(News, pk=news_id)
+def news_detail(request, slug):
+    articles = News.objects.filter(language=get_language())
+    article = get_object_or_404(articles, slug=slug)
     suggested_articles = News.objects.none()
-    if News.objects.count() >= 2:
-        suggested_articles = News.objects.exclude(pk=article.pk).order_by("-date", "-id")[:2]
+    if articles.count() >= 2:
+        suggested_articles = articles.exclude(pk=article.pk).order_by("-date", "-id")[:2]
     return render(
         request,
         "website/news_detail.html",
