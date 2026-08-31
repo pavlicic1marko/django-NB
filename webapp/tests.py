@@ -6,6 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
 from django.db import DatabaseError, IntegrityError
 from django.test import TestCase
+from django.test.client import MULTIPART_CONTENT
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import translation
@@ -175,6 +176,7 @@ class NewsViewTests(TestCase):
                 text=f"News text {index}",
                 date=date(2026, 8, 12 - index),
                 image=f"news/update-{index}.png",
+                alt_text=f"Studio update {index} image",
             )
 
     def test_first_page_shows_ten_articles_and_pagination(self):
@@ -199,6 +201,7 @@ class NewsViewTests(TestCase):
             text="Deutsche Neuigkeiten.",
             date=date(2026, 8, 13),
             image="news/update-de.png",
+            alt_text="Bild zum deutschen Studio-Update",
         )
 
         with translation.override("de"):
@@ -244,6 +247,7 @@ class NewsApiTests(TestCase):
                 "text": "The new API is live.",
                 "date": "2026-08-13",
                 "image": image,
+                "alt_text": "A white one-pixel image",
             },
             format="multipart",
         )
@@ -267,15 +271,20 @@ class NewsApiTests(TestCase):
         self.assertEqual(patch_response.status_code, 200)
         self.assertEqual(patch_response.json()["text"], "The API has been updated.")
 
+        replacement_image = SimpleUploadedFile(
+            "replacement-news.png", image_buffer.getvalue(), content_type="image/png"
+        )
         put_response = self.client.put(
             f"/api/news/{created_id}/",
             {
+                "language": "en",
                 "title": "API launch update",
                 "text": "The full update has been saved.",
                 "date": "2026-08-14",
-                "image": image,
+                "image": replacement_image,
+                "alt_text": "A white one-pixel image",
             },
-            format="multipart",
+            content_type=MULTIPART_CONTENT,
         )
         self.assertEqual(put_response.status_code, 200)
         self.assertEqual(put_response.json()["text"], "The full update has been saved.")
@@ -300,6 +309,7 @@ class NewsModelAndSerializerTests(TestCase):
                 text="This article's image should be deleted.",
                 date=date(2026, 8, 12),
                 image=uploaded_image,
+                alt_text="A white one-pixel image",
             )
             image_name = article.image.name
 
@@ -314,6 +324,7 @@ class NewsModelAndSerializerTests(TestCase):
             text="The latest operational information.",
             date=date(2026, 8, 12),
             image="news/update.png",
+            alt_text="A workflow diagram",
         )
 
         self.assertEqual(article.slug, "ai-workflow-launch")
@@ -324,6 +335,7 @@ class NewsModelAndSerializerTests(TestCase):
             text="The latest operational information.",
             date=date(2026, 8, 12),
             image="news/update.png",
+            alt_text="An operations dashboard",
         )
 
         self.assertIsNotNone(article.created_at)
@@ -333,6 +345,7 @@ class NewsModelAndSerializerTests(TestCase):
             text="Die neuesten Betriebsinformationen.",
             date=date(2026, 8, 13),
             image="news/update-de.png",
+            alt_text="Ein Betriebs-Dashboard",
         )
         self.assertEqual(german_article.language, "de")
         with self.assertRaises(IntegrityError):
@@ -341,6 +354,7 @@ class NewsModelAndSerializerTests(TestCase):
                 text="Duplicate title.",
                 date=date(2026, 8, 13),
                 image="news/duplicate.png",
+                alt_text="A duplicate image",
             )
 
     def test_serializer_includes_news_fields_and_keeps_created_fields_read_only(self):
@@ -349,13 +363,14 @@ class NewsModelAndSerializerTests(TestCase):
             text="All services are operational.",
             date=date(2026, 8, 12),
             image="news/status.png",
+            alt_text="A service status dashboard",
         )
 
         serializer = NewsSerializer(article)
 
         self.assertEqual(
             set(serializer.data),
-            {"id", "language", "title", "slug", "text", "date", "image", "created_at"},
+            {"id", "language", "title", "slug", "text", "date", "image", "alt_text", "created_at"},
         )
         self.assertTrue(serializer.fields["id"].read_only)
         self.assertTrue(serializer.fields["created_at"].read_only)
