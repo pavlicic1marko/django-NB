@@ -64,6 +64,7 @@ class News(models.Model):
     title = models.CharField(max_length=200, unique=True)
     text = models.TextField()
     date = models.DateField()
+    # TODO: Add an alt_text field when image metadata is managed in the database.
     image = models.ImageField(upload_to="news/")
     created_at = models.DateTimeField(auto_now_add=True)
 
