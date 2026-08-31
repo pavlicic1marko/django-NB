@@ -61,6 +61,8 @@ class Message(models.Model):
 
 
 class News(models.Model):
+    verbose_name = "News article"
+    verbose_name_plural = "News"
     title = models.CharField(max_length=200, unique=True)
     text = models.TextField()
     date = models.DateField()
