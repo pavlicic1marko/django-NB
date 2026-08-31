@@ -80,7 +80,7 @@
             <div>
                 {% for article in article_page %}
                     <article class="blog-article">
-                        <img class="blog-article-image rounded-1" src="{{ article.image.url }}" alt="{{ article.title }}">
+                        <img class="blog-article-image rounded-1" src="{{ article.image.url }}" alt="{{ article.alt_text }}">
                         <div>
                             <time class="blog-date d-block mb-2" datetime="{{ article.date|date:'Y-m-d' }}">{{ article.date|date:"F j, Y" }}</time>
                             <h3 class="h5 mb-2"><a class="text-decoration-none" href="{% url 'news_detail' article.slug %}">{{ article.title }}</a></h3>
