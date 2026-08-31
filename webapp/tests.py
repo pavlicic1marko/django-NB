@@ -119,6 +119,19 @@ class ContactFailureLoggingTests(TestCase):
 
 
 class LocaleRoutingTests(TestCase):
+    def test_responses_are_excluded_from_search_indexing(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response["X-Robots-Tag"], "noindex, nofollow, noarchive")
+        self.assertContains(response, '<meta name="robots" content="noindex, nofollow, noarchive">', html=False)
+
+    def test_robots_file_disallows_every_path(self):
+        response = self.client.get("/robots.txt")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/plain")
+        self.assertContains(response, "User-agent: *\nDisallow: /\n", html=False)
+
     def test_public_pages_use_locale_prefixes_and_render_the_selected_language(self):
         response = self.client.get("/de/contact/")
 

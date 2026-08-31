@@ -18,11 +18,13 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
+from django.http import HttpResponse
 from django.urls import include, path
 
 from webapp import views
 
 urlpatterns = [
+    path("robots.txt", lambda request: HttpResponse("User-agent: *\nDisallow: /\n", content_type="text/plain")),
     path("admin/", admin.site.urls),
     path("api/", include("webapp.api_urls")),
     path("language/<str:language>/", views.switch_language, name="switch_language"),
