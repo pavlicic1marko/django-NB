@@ -119,6 +119,17 @@ class ContactFailureLoggingTests(TestCase):
 
 
 class LocaleRoutingTests(TestCase):
+    def test_meta_description_is_rendered_only_on_the_home_page(self):
+        home_response = self.client.get(reverse("home"))
+        about_response = self.client.get(reverse("about_us"))
+
+        self.assertContains(
+            home_response,
+            '<meta name="description" content="AI development, workflow automation, and software integrations built for practical business use.">',
+            html=False,
+        )
+        self.assertNotContains(about_response, '<meta name="description"', html=False)
+
     def test_responses_are_excluded_from_search_indexing(self):
         response = self.client.get(reverse("home"))
 
