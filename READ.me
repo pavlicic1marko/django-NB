@@ -1,15 +1,15 @@
 NB practice website
 
 
---before merge
+--before merge:
 test
 python manage.py makemigrations
 python manage.py migrate
 pip freeze > requirements.txt
+update copilot-instructions, READ.me 
+
 
 ---AWS LINUX
-
-
 gunicorn config.wsgi:application --bind 127.0.0.1:8080
 sudo dnf install nginx -y
 sudo nano /etc/nginx/conf.d/django.conf
