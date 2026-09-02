@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import ipaddress
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -71,8 +72,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+
+LOGIN_URL = 'login'
+
 
 TEMPLATES = [
     {
@@ -191,10 +196,16 @@ def _get_cookie_domain():
         return None
     # Get the base domain (remove www. prefix if present)
     base_host = min(ALLOWED_HOSTS, key=len)  # shortest host is usually the base
+    try:
+        ipaddress.ip_address(base_host.strip('[]'))
+        return None
+    except ValueError:
+        if base_host in {'localhost'}:
+            return None
     # Add leading dot for all subdomains to use this cookie
     return f".{base_host}" if not base_host.startswith(".") else base_host
 
-COOKIE_DOMAIN = _get_cookie_domain()
+COOKIE_DOMAIN = None if DEBUG else _get_cookie_domain()
 LANGUAGE_COOKIE_DOMAIN = COOKIE_DOMAIN
 LANGUAGE_COOKIE_PATH = '/'
 LANGUAGE_COOKIE_AGE = 31449600  # 1 year
