@@ -1,0 +1,23 @@
+{% extends "website/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Register" %} | {% translate "AI Solutions Studio" %}{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 540px;">
+    <h1 class="mb-4">{% translate "Create an account" %}</h1>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="mb-3">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">{% translate "Create account" %}</button>
+    </form>
+</main>
+{% endblock %}

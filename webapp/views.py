@@ -5,6 +5,8 @@ import logging
 
 import requests
 from django.contrib import messages
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.conf import settings
@@ -153,6 +155,22 @@ def products(request):
 
 def chat(request):
     return render(request, "website/chat.html")
+
+
+def register(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("home")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "website/register.html", {"form": form})
 
 
 class NewsViewSet(viewsets.ModelViewSet):
