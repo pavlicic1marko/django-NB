@@ -1,41 +1,16 @@
 NB practice website
-commands for deployment on PROD:
----install python 3.11 or 3.12
-sudo dnf update -y
-sudo dnf install python3.12 python3.12-pip -y
----pull repo
-git clone <REPO URL>
----change folder
-cd django-NB
----install venv
-python3.12 -m venv .venv
-source .venv/bin/activate
----install depedencies
-python -m pip install --upgrade pip
-pip install -r requirements.txt
----create databse
-python manage.py makemigrations
-python manage.py migrate
----create admin
-python manage.py createsuperuser
----start
-python manage.py runserver 0.0.0.0:8080
----ollama
-ollama list
-ollama run llama3.2:1b
 
 
---NEW BRANCH
+--before merge checklist:
+test visual
+python manage.py test
 python manage.py makemigrations
 python manage.py migrate
 pip freeze > requirements.txt
---MERGE
+update copilot-instructions, READ.me 
+
 
 ---AWS LINUX
-ssh -i "milan-aws-app-ollama.pem" ec2-user@<IP or URL>
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull llama3.2:1b
-
 gunicorn config.wsgi:application --bind 127.0.0.1:8080
 sudo dnf install nginx -y
 sudo nano /etc/nginx/conf.d/django.conf
@@ -43,28 +18,12 @@ sudo nano /etc/systemd/system/django.service
 curl 127.0.0.1:8080
 
 
-cd /home/ec2-user/django-NB
-git pull
-source .venv/bin/activate
-
---Static files
-python manage.py collectstatic --noinput
-sudo cp deployments/nginx.config /etc/nginx/conf.d/django-nb.conf   # or wherever it's linked
-sudo nginx -t && sudo systemctl reload nginx
-sudo systemctl restart django   # your gunicorn service
-sudo chmod o+x /home/ec2-user
-
---LOGS
-sudo tail -f /var/log/nginx/access.log
-
-sudo systemctl status ollama
-sudo systemctl start ollama
 
 
 
 
-#ENV FILE set 
-ALLOWED_HOSTS=
-OLLAMA_MODEL=llama3.2:1b
-DEBUG=
-SECRET_KEY=
+
+
+
+
+

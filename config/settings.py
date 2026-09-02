@@ -179,3 +179,22 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+# Language & Session Cookie Configuration
+# Allows language preference to be shared across all domains (e.g., devmyai.com and www.devmyai.com)
+def _get_cookie_domain():
+    """Extract base domain from ALLOWED_HOSTS for cookie domain."""
+    if not ALLOWED_HOSTS:
+        return None
+    # Get the base domain (remove www. prefix if present)
+    base_host = min(ALLOWED_HOSTS, key=len)  # shortest host is usually the base
+    # Add leading dot for all subdomains to use this cookie
+    return f".{base_host}" if not base_host.startswith(".") else base_host
+
+COOKIE_DOMAIN = _get_cookie_domain()
+LANGUAGE_COOKIE_DOMAIN = COOKIE_DOMAIN
+LANGUAGE_COOKIE_PATH = '/'
+LANGUAGE_COOKIE_AGE = 31449600  # 1 year
+
+SESSION_COOKIE_DOMAIN = COOKIE_DOMAIN
+SESSION_COOKIE_PATH = '/'

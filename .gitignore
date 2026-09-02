@@ -4,3 +4,5 @@ db.sqlite3
 **.pyc
 logs/
 news/*
+*.log
+staticfiles/
