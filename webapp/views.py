@@ -155,6 +155,10 @@ def chat(request):
     return render(request, "website/chat.html")
 
 
+def ai_lab(request):
+    return render(request, "website/ai_lab.html")
+
+
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all().order_by("-created_at")
     serializer_class = NewsSerializer
