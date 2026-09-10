@@ -1,3 +1,4 @@
+from django.contrib.auth import views as auth_views
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
@@ -8,6 +9,8 @@ urlpatterns = [
     path(_("about-us/"), views.about_us, name="about_us"),
     path(_("products/"), views.products, name="products"),
     path(_("chat/"), views.chat, name="chat"),
+    path(_("login/"), auth_views.LoginView.as_view(template_name="website/login.html"), name="login"),
+    path(_("logout/"), auth_views.LogoutView.as_view(), name="logout"),
     path(_("ai-lab/"), views.ai_lab, name="ai_lab"),
     path(_("contact/"), views.contact, name="contact"),
     path(_("schedule-meeting/"), views.contact, name="schedule_meeting"),
