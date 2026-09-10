@@ -282,6 +282,7 @@
                 <a href="{% url 'about_us' %}" class="nav-link {% if request.resolver_match.url_name == 'about_us' %}active{% endif %}" {% if request.resolver_match.url_name == 'about_us' %}aria-current="page"{% endif %}>{% translate "About Us" %}</a>
                 <a href="{% url 'products' %}" class="nav-link {% if request.resolver_match.url_name == 'products' %}active{% endif %}" {% if request.resolver_match.url_name == 'products' %}aria-current="page"{% endif %}>{% translate "AI Solutions" %}</a>
                 <a href="{% url 'chat' %}" class="nav-link {% if request.resolver_match.url_name == 'chat' %}active{% endif %}" {% if request.resolver_match.url_name == 'chat' %}aria-current="page"{% endif %}>{% translate "AI Chat" %}</a>
+                <a href="{% url 'ai_lab' %}" class="nav-link {% if request.resolver_match.url_name == 'ai_lab' %}active{% endif %}" {% if request.resolver_match.url_name == 'ai_lab' %}aria-current="page"{% endif %}>{% translate "AI Lab" %}</a>
                 <a href="{% url 'contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" {% if request.resolver_match.url_name == 'contact' %}aria-current="page"{% endif %}>{% translate "Contact" %}</a>
                 <a href="{% url 'blog' %}" class="nav-link {% if request.resolver_match.url_name == 'blog' %}active{% endif %}" {% if request.resolver_match.url_name == 'blog' %}aria-current="page"{% endif %}>{% translate "AI Insights" %}</a>
             </div>
