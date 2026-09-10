@@ -13,9 +13,9 @@ TIME_SLOT_CHOICES = (
 )
 
 AGENT_TYPE_CHOICES = (
-    ("general", "General"),
-    ("technical", "Technical"),
-    ("sales", "Sales"),
+    ("llama3.2:1b", "llama3.2:1b"),
+    ("smollm:135m", "smollm:135m"),
+    ("gemma3:270m", "gemma3:270m"),
 )
 
 
