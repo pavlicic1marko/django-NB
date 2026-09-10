@@ -23,52 +23,10 @@ from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, St
 
 logger = logging.getLogger('webapp')
 
-AGENT_INSTRUCTIONS = {
-    "general": (
-        "You are a helpful general-purpose assistant. Answer clearly and accurately. "
-        "If you are unsure, say so instead of inventing information. The website includes a home "
-        "page for an overview, an About Us page with company information, a Products page for "
-        "offerings, a Blog page for updates, and a Contact page for messages and meeting "
-        "scheduling. It also provides a Chat page where visitors can choose an assistant and ask "
-        "questions. Describe these pages at a basic level and do not invent details that are not "
-        "provided."
-    ),
-    "technical": (
-        "You are a technical support assistant for an IT studio. Help users with products, "
-        "integrations, software, and troubleshooting. Give practical step-by-step explanations "
-        "and ask for missing technical details when necessary. This application is built with "
-        "Django, using its views, models, templates, and REST APIs to provide a reliable web "
-        "experience. It is deployed on AWS and uses modern web-development practices and "
-        "technologies. Explain technical concepts clearly, and do not claim deployment details, "
-        "services, or capabilities that have not been confirmed."
-    ),
-    "sales": (
-        "You are a professional sales assistant for an IT studio. Answer questions about products, "
-        "pricing, services, and project fit. Be helpful and informative without making up prices, "
-        "guarantees, or features. The Products page provides an overview of the available "
-        "offerings. When a visitor is interested in learning more, direct them to the Contact "
-        "page, where they can send a message or schedule a meeting."
-    ),
-}
-
-GERMAN_AGENT_INSTRUCTIONS = {
-    "general": (
-        "Du bist ein hilfreicher allgemeiner Assistent. Antworte klar und korrekt auf Deutsch. "
-        "Wenn du dir unsicher bist, sage das, statt Informationen zu erfinden. Die Website bietet "
-        "eine Startseite, eine Uber-uns-Seite, eine Produktseite, einen Blog, eine Kontaktseite und "
-        "einen Chat. Beschreibe diese Seiten nur auf Grundlage der vorhandenen Informationen."
-    ),
-    "technical": (
-        "Du bist ein technischer Support-Assistent fur ein IT-Studio. Hilf bei Produkten, "
-        "Integrationen, Software und Fehlerbehebung mit praktischen Schritt-fur-Schritt-Erklarungen. "
-        "Diese Anwendung basiert auf Django und wird auf AWS bereitgestellt. Erfinde keine nicht "
-        "bestatigten Bereitstellungsdetails, Dienste oder Funktionen."
-    ),
-    "sales": (
-        "Du bist ein professioneller Vertriebsassistent fur ein IT-Studio. Beantworte Fragen zu "
-        "Produkten, Preisen, Dienstleistungen und Projektpassung auf Deutsch. Erfinde keine Preise, "
-        "Garantien oder Funktionen. Verweise Interessierte fur weitere Informationen auf die Kontaktseite."
-    ),
+AGENT_MODELS = {
+    "llama3.2:1b": "llama3.2:1b",
+    "smollm:135m": "smollm:135m",
+    "gemma3:270m": "gemma3:270m",
 }
 
 CONTACT_RATE_LIMITS = {
@@ -82,9 +40,8 @@ def _client_ip(request):
     return forwarded_for.split(",")[0].strip() if forwarded_for else request.META.get("REMOTE_ADDR", "unknown")
 
 
-def _agent_instruction(agent_type):
-    instructions = GERMAN_AGENT_INSTRUCTIONS if get_language() == "de" else AGENT_INSTRUCTIONS
-    return instructions[agent_type]
+def _agent_model(agent_type):
+    return AGENT_MODELS[agent_type]
 
 
 def switch_language(request, language):
@@ -188,12 +145,7 @@ def start_conversation(request):
         )
 
         q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
-        messages = [
-            {
-                "role": "system",
-                "content": _agent_instruction(thread.agent_type),
-            }
-        ]
+        messages = []
         for existing_q_and_a in q_and_as:
             messages.append({"role": "user", "content": existing_q_and_a.question})
             if existing_q_and_a.answer:
@@ -203,7 +155,7 @@ def start_conversation(request):
             response = requests.post(
                 "http://localhost:11434/api/chat",
                 json={
-                    "model": settings.OLLAMA_MODEL,
+                    "model": _agent_model(thread.agent_type),
                     "messages": messages,
                     "stream": False,
                 },
@@ -275,12 +227,7 @@ def add_question(request, thread_id):
         answer="",
     )
     q_and_as = QAndA.objects.filter(thread=thread).order_by("created_at", "id")
-    messages = [
-        {
-            "role": "system",
-            "content": _agent_instruction(thread.agent_type),
-        }
-    ]
+    messages = []
     for existing_q_and_a in q_and_as:
         messages.append({"role": "user", "content": existing_q_and_a.question})
         if existing_q_and_a.answer:
@@ -290,7 +237,7 @@ def add_question(request, thread_id):
         response = requests.post(
             "http://localhost:11434/api/chat",
             json={
-                "model": settings.OLLAMA_MODEL,
+                "model": _agent_model(thread.agent_type),
                 "messages": messages,
                 "stream": False,
             },
