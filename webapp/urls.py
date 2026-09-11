@@ -8,7 +8,6 @@ urlpatterns = [
     path("", views.home, name="home"),
     path(_("about-us/"), views.about_us, name="about_us"),
     path(_("products/"), views.products, name="products"),
-    path(_("chat/"), views.chat, name="chat"),
     path(_("login/"), auth_views.LoginView.as_view(template_name="website/login.html"), name="login"),
     path(_("logout/"), auth_views.LogoutView.as_view(), name="logout"),
     path(_("ai-lab/"), views.ai_lab, name="ai_lab"),

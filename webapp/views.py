@@ -108,10 +108,6 @@ def products(request):
     return render(request, "website/products.html")
 
 
-def chat(request):
-    return render(request, "website/chat.html")
-
-
 def ai_lab(request):
     return render(request, "website/ai_lab.html")
 
@@ -119,10 +115,13 @@ def ai_lab(request):
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all().order_by("-created_at")
     serializer_class = NewsSerializer
-    # TODO(security): Use ReadOnlyModelViewSet for public access and require an
-    # authenticated staff user for create, update, and delete operations.
-    permission_classes = [permissions.AllowAny]
     lookup_field = "id"
+
+    def get_permissions(self):
+        # Public read access, but write operations require an authenticated user.
+        if self.request.method in permissions.SAFE_METHODS:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
 
 @api_view(["POST"])
