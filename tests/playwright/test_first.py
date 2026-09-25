@@ -1,15 +1,19 @@
 import pytest
+from pages.home_page import HomePage
+from pages.about_page import AboutPage
 
 @pytest.mark.smoke
 def test_home_page(page):
-    page.goto("http://127.0.0.1:8000/")
+    home = HomePage(page)
+    home.load()
 
-    assert page.title() != ""
-    assert page.locator("h1", has_text="We build AI products and integrations that move your business faster.").is_visible()
+    assert home.get_title() != ""
+    assert home.is_heading_visible()
 
 @pytest.mark.smoke
 def test_about_page(page):
-    page.goto("http://127.0.0.1:8000/about-us/")
+    about = AboutPage(page)
+    about.load()
 
-    assert page.title() != ""
-    assert page.locator("h1", has_text="Who We Are").is_visible()
+    assert about.get_title() != ""
+    assert about.is_heading_visible()
