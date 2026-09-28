@@ -13,3 +13,19 @@ class ContactPage(BasePage):
     def enter_name(self, name):
         self.page.get_by_role("textbox", name="Name *").click()
         self.page.get_by_role("textbox", name="Name *").fill(name)
+
+    def enter_email(self, email):
+        self.page.locator("#email").fill(email)
+
+    def enter_subject(self, subject):
+        self.page.locator("#subject").fill(subject)
+
+    def enter_message(self, message):
+        self.page.locator("#message").fill(message)
+
+    def send_brief(self):
+        self.page.get_by_role("button", name="Send brief").click()
+
+    @property
+    def success_message(self):
+        return self.page.locator(".alert-success[role='alert']")
