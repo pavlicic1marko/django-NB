@@ -1,6 +1,8 @@
+from django.conf.locale import de
 import pytest
 from pages.home_page import HomePage
 from pages.about_page import AboutPage
+from pages.contact_page import ContactPage
 
 @pytest.mark.smoke
 @pytest.mark.regression
@@ -27,3 +29,12 @@ def test_home_page_heading_is_not_wrong_text(page):
 
     actual_text = page.locator("h1").first.text_content()
     assert actual_text != "This is definitely the wrong heading"
+
+@pytest.mark.test
+def test_contact_page_send_message(page):
+    contact = ContactPage(page)
+    contact.load()
+
+    contact.enter_name("Test User")
+
+
