@@ -30,6 +30,31 @@ def test_home_page_heading_is_not_wrong_text(page):
     actual_text = page.locator("h1").first.text_content()
     assert actual_text != "This is definitely the wrong heading"
 
+@pytest.mark.test
+def test_favicon_download_filename(page):
+    home = HomePage(page)
+    home.load()
+
+    favicon = page.locator('link[rel="icon"]')
+    favicon_url = favicon.get_attribute("href")
+    assert favicon_url is not None
+
+    with page.expect_download() as download_info:
+        page.evaluate(
+            """url => {
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "";
+                document.body.append(link);
+                link.click();
+                link.remove();
+            }""",
+            favicon_url,
+        )
+
+    download = download_info.value
+    assert download.suggested_filename == "favicon.svg"
+
 @pytest.mark.regression
 def test_contact_page_send_message(page):
     contact = ContactPage(page)

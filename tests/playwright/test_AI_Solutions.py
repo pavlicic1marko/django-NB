@@ -3,7 +3,7 @@ import pytest
 from pages.AI_Solutions_page import AISolutionsPage
 
 
-@pytest.mark.test
+@pytest.mark.regression
 def test_download_ai_copilot_development_brief(page):
 	ai_solutions = AISolutionsPage(page)
 	ai_solutions.load()
