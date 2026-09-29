@@ -3,7 +3,7 @@ import os
 import pytest
 
 
-@pytest.mark.test
+@pytest.mark.regression
 def test_get_news_from_api(playwright):
 	base_url = os.getenv("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 	request = playwright.request.new_context()
