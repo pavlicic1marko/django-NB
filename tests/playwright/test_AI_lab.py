@@ -44,7 +44,7 @@ def mock_ai_lab_api(route):
     )
 
 
-@pytest.mark.test
+@pytest.mark.regression
 def test_ai_lab_consultation_flow(page):
     page.route("**/api/ai-lab/threads**", mock_ai_lab_api)
     chat = AILabPage(page)
