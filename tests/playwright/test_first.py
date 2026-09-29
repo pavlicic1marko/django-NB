@@ -30,7 +30,7 @@ def test_home_page_heading_is_not_wrong_text(page):
     actual_text = page.locator("h1").first.text_content()
     assert actual_text != "This is definitely the wrong heading"
 
-@pytest.mark.test
+@pytest.mark.regression
 def test_contact_page_send_message(page):
     contact = ContactPage(page)
     contact.load()
