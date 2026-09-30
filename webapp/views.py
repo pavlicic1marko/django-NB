@@ -5,7 +5,6 @@ import logging
 
 import requests
 from django.contrib.auth import login as auth_login
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.paginator import Paginator
@@ -20,6 +19,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 
+from .forms import EmailUserCreationForm
 from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
 from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
 
@@ -112,13 +112,13 @@ def products(request):
 
 def register(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = EmailUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             auth_login(request, user)
             return redirect("home")
     else:
-        form = UserCreationForm()
+        form = EmailUserCreationForm()
 
     return render(request, "website/register.html", {"form": form})
 
