@@ -1,0 +1,28 @@
+{% extends "website/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Verify your email" %} | {% translate "AI Solutions Studio" %}{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 640px;">
+    <div class="card shadow-sm">
+        <div class="card-body p-4 p-md-5 text-center">
+            <h1 class="h3 mb-3">{% translate "Almost there — please verify your email" %}</h1>
+            <p class="mb-3">
+                {% translate "Your account has been created. Before you can log in, please open your email inbox and click the verification link we just sent you." %}
+            </p>
+            {% if email %}
+                <p class="mb-3">
+                    {% blocktranslate %}The verification email was sent to <strong>{{ email }}</strong>.{% endblocktranslate %}
+                </p>
+            {% endif %}
+            <p class="mb-3">
+                {% translate "Can't find the message? Please check your spam or junk folder." %}
+            </p>
+            <p class="mb-0 text-secondary">
+                {% blocktranslate %}Need help? Contact us at <a href="mailto:{{ support_email }}">{{ support_email }}</a>.{% endblocktranslate %}
+            </p>
+        </div>
+    </div>
+</main>
+{% endblock %}
