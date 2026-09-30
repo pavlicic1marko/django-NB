@@ -19,10 +19,10 @@ def test_home_page_heading_is_not_wrong_text(page):
     home.load()
 
     actual_text = page.locator("h1").first.text_content()
-    assert actual_text != "This is definitely the wrong heading"
+    assert actual_text == "We build AI products and integrations that move your business faster."
 
 
-@pytest.mark.test
+@pytest.mark.regression
 def test_favicon_download_filename(page):
     home = HomePage(page)
     home.load()
