@@ -2,13 +2,20 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
+from .forms import EmailOrUsernameAuthenticationForm
 from . import views
 
 urlpatterns = [
     path("", views.home, name="home"),
     path(_("about-us/"), views.about_us, name="about_us"),
     path(_("products/"), views.products, name="products"),
-    path(_("login/"), auth_views.LoginView.as_view(template_name="website/login.html"), name="login"),
+    path(_("login/"), auth_views.LoginView.as_view(
+        template_name="website/login.html",
+        authentication_form=EmailOrUsernameAuthenticationForm,
+    ), name="login"),
+    path(_("register/"), views.register, name="register"),
+    path(_("register/pending/"), views.registration_pending, name="registration_pending"),
+    path(_("verify-email/<str:uidb64>/<str:token>/"), views.verify_email, name="verify_email"),
     path(_("logout/"), auth_views.LogoutView.as_view(), name="logout"),
     path(_("ai-lab/"), views.ai_lab, name="ai_lab"),
     path(_("contact/"), views.contact, name="contact"),

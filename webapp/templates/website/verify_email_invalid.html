@@ -1,0 +1,23 @@
+{% extends "website/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Verification link invalid" %} | {% translate "AI Solutions Studio" %}{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 640px;">
+    <div class="card shadow-sm">
+        <div class="card-body p-4 p-md-5 text-center">
+            <h1 class="h3 mb-3">{% translate "This verification link is invalid or has expired" %}</h1>
+            <p class="mb-3">
+                {% translate "Your account may already be verified, or the link you used is no longer valid." %}
+            </p>
+            <p class="mb-3">
+                <a href="{% url 'login' %}">{% translate "Try logging in" %}</a>
+            </p>
+            <p class="mb-0 text-secondary">
+                {% blocktranslate %}Need help? Contact us at <a href="mailto:{{ support_email }}">{{ support_email }}</a>.{% endblocktranslate %}
+            </p>
+        </div>
+    </div>
+</main>
+{% endblock %}

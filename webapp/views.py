@@ -4,22 +4,28 @@ from collections import defaultdict
 import logging
 
 import requests
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+from django.contrib.auth import login as auth_login
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.translation import get_language, gettext as _
-from django.urls import translate_url
+from django.urls import reverse, translate_url
 from django.db import transaction
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 
+from .forms import EmailUserCreationForm
 from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
 from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
+from .tokens import email_verification_token
 
 logger = logging.getLogger('webapp')
 
@@ -108,6 +114,66 @@ def products(request):
     return render(request, "website/products.html")
 
 
+def _send_verification_email(request, user):
+    # TODO: Wire up a real email backend/server on the mail-server branch and send
+    # this link to the user's inbox instead of only logging it.
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = email_verification_token.make_token(user)
+    verify_path = reverse("verify_email", kwargs={"uidb64": uid, "token": token})
+    verify_url = request.build_absolute_uri(verify_path)
+
+    logger.info("Verification link for %s: %s", user.email, verify_url)
+
+
+def register(request):
+    if request.method == "POST":
+        form = EmailUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # The account is inactive by default, so don't log the user in yet.
+            _send_verification_email(request, user)
+            request.session["pending_verification_email"] = user.email
+            return redirect("registration_pending")
+    else:
+        form = EmailUserCreationForm()
+
+    return render(request, "website/register.html", {"form": form})
+
+
+def registration_pending(request):
+    email = request.session.pop("pending_verification_email", None)
+    return render(
+        request,
+        "website/registration_pending.html",
+        {"support_email": settings.SUPPORT_EMAIL, "email": email},
+    )
+
+
+def verify_email(request, uidb64, token):
+    user_model = get_user_model()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = user_model._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, user_model.DoesNotExist):
+        user = None
+
+    if user is not None and email_verification_token.check_token(user, token):
+        if not user.is_active:
+            user.is_active = True
+            user.save(update_fields=["is_active"])
+        auth_login(request, user)
+        messages.success(request, _("Your email has been verified. Welcome!"), extra_tags="registration-success")
+        return redirect("home")
+
+    return render(
+        request,
+        "website/verify_email_invalid.html",
+        {"support_email": settings.SUPPORT_EMAIL},
+        status=400,
+    )
+
+
+@login_required
 def ai_lab(request):
     return render(request, "website/ai_lab.html")
 

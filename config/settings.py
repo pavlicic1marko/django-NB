@@ -78,6 +78,9 @@ LOGOUT_REDIRECT_URL = 'home'
 
 LOGIN_URL = 'login'
 
+# Support/contact address shown to users, e.g. when their account needs help.
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "info@devmyai.com")
+
 
 TEMPLATES = [
     {
