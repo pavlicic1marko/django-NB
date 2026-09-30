@@ -1,6 +1,7 @@
 import pytest
 
 from pages.home_page import HomePage
+from pages.login_page import LoginPage
 
 
 @pytest.mark.smoke
@@ -44,3 +45,16 @@ def test_home_page_language_switch_to_de(page):
     assert home.get_language_code() == "DE"
     assert "de_flag" in home.get_language_flag_src()
     assert home.get_heading_text() == home.HEADING_TEXT_DE
+
+
+@pytest.mark.regression
+def test_home_page_profile_menu_login_navigates_to_login_page(page):
+    home = HomePage(page)
+    home.load()
+
+    home.open_profile_menu()
+    home.click_login()
+
+    login = LoginPage(page)
+    assert page.url.endswith("/login/")
+    assert login.is_login_button_visible()

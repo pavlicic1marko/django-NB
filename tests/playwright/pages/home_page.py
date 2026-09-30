@@ -15,9 +15,17 @@ class HomePage(BasePage):
         self.language_code = page.locator(".language-summary .code")
         self.language_flag = page.locator(".language-summary .flag")
         self.language_menu_de_link = page.locator(".language-menu a", has_text="Deutsch")
+        self.profile_button = page.locator(".profile-button")
+        self.login_link = page.locator(".profile-menu a", has_text="Log in")
 
     def load(self):
         self.goto(self.URL)
+
+    def open_profile_menu(self):
+        self.profile_button.click()
+
+    def click_login(self):
+        self.login_link.click()
 
     def switch_language_to_de(self):
         self.language_summary.click()
