@@ -1,7 +1,7 @@
 {% extends "website/base.html" %}
 {% load i18n %}
 
-{% block title %}{% translate "AI Chat | AI Solutions Studio" %}{% endblock %}
+{% block title %}{% translate "AI Lab | AI Solutions Studio" %}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -271,6 +271,20 @@
             max-width: 90%;
         }
     }
+
+    .tab-content > .tab-pane {
+        display: none;
+    }
+
+    .tab-content > .tab-pane.active {
+        display: block;
+    }
+
+    .ai-lab-placeholder {
+        border: 1px dashed #dee2e6;
+        border-radius: 1rem;
+        background: #f8f9fa;
+    }
 </style>
 {% endblock %}
 
@@ -282,6 +296,32 @@
             <p class="text-secondary mb-4">
                 {% translate "Connect with a specialized assistant for AI strategy, integrations, or implementation planning. Choose the assistant that matches your goal, then type your question to get started." %}
             </p>
+
+            <ul class="nav nav-tabs mb-4" id="aiLabTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="local-llm-tab" type="button" role="tab" data-tab-target="local-llm-pane" aria-controls="local-llm-pane" aria-selected="true">
+                        {% translate "Local LLM" %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="cloud-llm-tab" type="button" role="tab" data-tab-target="cloud-llm-pane" aria-controls="cloud-llm-pane" aria-selected="false">
+                        {% translate "Cloud LLM" %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rag-tab" type="button" role="tab" data-tab-target="rag-pane" aria-controls="rag-pane" aria-selected="false">
+                        {% translate "RAG" %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="image-analysis-tab" type="button" role="tab" data-tab-target="image-analysis-pane" aria-controls="image-analysis-pane" aria-selected="false">
+                        {% translate "Image Analysis" %}
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="aiLabTabsContent">
+            <div class="tab-pane fade show active" id="local-llm-pane" role="tabpanel" aria-labelledby="local-llm-tab" tabindex="0">
 
             <fieldset class="mb-4">
                 <legend class="h6">{% translate "Choose an AI agent" %}</legend>
@@ -353,12 +393,58 @@
                 </button>
             </div>
             </div>
+            </div>
+
+            <div class="tab-pane fade" id="cloud-llm-pane" role="tabpanel" aria-labelledby="cloud-llm-tab" tabindex="0">
+                <div class="ai-lab-placeholder text-center py-5">
+                    <h2 class="h5 mb-2">{% translate "Cloud LLM" %}</h2>
+                    <p class="text-secondary mb-0">{% translate "Coming soon." %}</p>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="rag-pane" role="tabpanel" aria-labelledby="rag-tab" tabindex="0">
+                <div class="ai-lab-placeholder text-center py-5">
+                    <h2 class="h5 mb-2">{% translate "RAG" %}</h2>
+                    <p class="text-secondary mb-0">{% translate "Coming soon." %}</p>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="image-analysis-pane" role="tabpanel" aria-labelledby="image-analysis-tab" tabindex="0">
+                <div class="ai-lab-placeholder text-center py-5">
+                    <h2 class="h5 mb-2">{% translate "Image Analysis" %}</h2>
+                    <p class="text-secondary mb-0">{% translate "Coming soon." %}</p>
+                </div>
+            </div>
+            </div>
         </div>
     </main>
 </div>
 {% endblock %}
 
 {% block extra_script %}
+<script>
+    (function () {
+        var tabButtons = document.querySelectorAll("#aiLabTabs [data-tab-target]");
+
+        tabButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                var targetId = button.getAttribute("data-tab-target");
+
+                tabButtons.forEach(function (btn) {
+                    var isActive = btn === button;
+                    btn.classList.toggle("active", isActive);
+                    btn.setAttribute("aria-selected", isActive ? "true" : "false");
+                });
+
+                document.querySelectorAll("#aiLabTabsContent .tab-pane").forEach(function (pane) {
+                    var isActive = pane.id === targetId;
+                    pane.classList.toggle("active", isActive);
+                    pane.classList.toggle("show", isActive);
+                });
+            });
+        });
+    })();
+</script>
 <script>
     (function () {
         var STORAGE_KEY = "chatState";
