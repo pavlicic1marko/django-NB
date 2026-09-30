@@ -24,6 +24,8 @@ class EmailUserCreationForm(UserCreationForm):
 
     def save(self, commit=True):
         self.instance.username = self.cleaned_data["email"]
+        # New accounts are inactive until an admin (or an activation flow) enables them.
+        self.instance.is_active = False
         return super().save(commit=commit)
 
 

@@ -4,7 +4,6 @@ from collections import defaultdict
 import logging
 
 import requests
-from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.cache import cache
@@ -115,9 +114,13 @@ def register(request):
     if request.method == "POST":
         form = EmailUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            auth_login(request, user)
-            messages.success(request, _("Your account has been created."), extra_tags="registration-success")
+            form.save()
+            # The account is inactive by default, so don't log the user in yet.
+            messages.success(
+                request,
+                _("Your account has been created and is pending activation. You'll be able to log in once it's approved."),
+                extra_tags="registration-success",
+            )
             return redirect("home")
     else:
         form = EmailUserCreationForm()
