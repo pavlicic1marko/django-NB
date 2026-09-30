@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils.translation import gettext_lazy as _
 
 from .models import AGENT_TYPE_CHOICES, News, QAndA, Thread
 
@@ -37,3 +38,13 @@ class QuestionSerializer(serializers.Serializer):
     # TODO(security): Add a maximum length before forwarding this public input
     # to Ollama and storing it in the database.
     question = serializers.CharField(allow_blank=False, trim_whitespace=True)
+
+
+class ImageAnalysisSerializer(serializers.Serializer):
+    image = serializers.ImageField()
+    question = serializers.CharField(allow_blank=False, trim_whitespace=True)
+
+    def validate_image(self, image):
+        if image.size > 11 * 1024:
+            raise serializers.ValidationError(_("Image must be 11 KB or smaller."))
+        return image

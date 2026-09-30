@@ -7,6 +7,7 @@ router = DefaultRouter()
 router.register(r"news", views.NewsViewSet, basename="news")
 
 urlpatterns = [
+    path("ai-lab/image-analysis/", views.analyze_image, name="analyze_image"),
     path("ai-lab/threads/", views.start_conversation, name="start_conversation"),
     path("ai-lab/threads/<int:thread_id>/", views.get_conversation, name="get_conversation"),
     path("ai-lab/threads/<int:thread_id>/questions/", views.add_question, name="add_question"),
