@@ -281,6 +281,14 @@
         </div>
     </nav>
 
+    {% for message in messages %}
+        {% if "registration-success" in message.tags %}
+            <div class="container pt-3">
+                <div class="alert alert-success mb-0" role="status">{{ message }}</div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
     {% block content %}{% endblock %}
 
     {% block extra_script %}{% endblock %}

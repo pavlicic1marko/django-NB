@@ -116,6 +116,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             auth_login(request, user)
+            messages.success(request, _("Your account has been created."), extra_tags="registration-success")
             return redirect("home")
     else:
         form = EmailUserCreationForm()
