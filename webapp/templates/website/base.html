@@ -208,13 +208,6 @@
             color: #0d6efd;
         }
 
-        .site-nav .profile-menu .disabled-item {
-            color: #9aa5b1;
-            cursor: not-allowed;
-            display: block;
-            padding: 0.55rem 0.7rem;
-        }
-
         .site-nav .navbar-nav {
             flex-basis: 100%;
             margin-top: 1rem;
@@ -270,7 +263,7 @@
                                 <button type="submit">{% translate "Log out" %}</button>
                             </form>
                         {% else %}
-                            <span class="disabled-item" aria-disabled="true">{% translate "Register" %}</span>
+                            <a href="{% url 'register' %}">{% translate "Register" %}</a>
                             <a href="{% url 'login' %}">{% translate "Log in" %}</a>
                         {% endif %}
                     </div>

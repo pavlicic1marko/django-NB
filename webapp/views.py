@@ -4,6 +4,8 @@ from collections import defaultdict
 import logging
 
 import requests
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.paginator import Paginator
@@ -106,6 +108,19 @@ def about_us(request):
 
 def products(request):
     return render(request, "website/products.html")
+
+
+def register(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect("home")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "website/register.html", {"form": form})
 
 
 def ai_lab(request):
