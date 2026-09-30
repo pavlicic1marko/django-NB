@@ -5,6 +5,7 @@ import logging
 
 import requests
 from django.contrib.auth import login as auth_login
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.paginator import Paginator
@@ -124,6 +125,7 @@ def register(request):
     return render(request, "website/register.html", {"form": form})
 
 
+@login_required
 def ai_lab(request):
     return render(request, "website/ai_lab.html")
 
