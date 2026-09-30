@@ -32,3 +32,15 @@ def test_favicon_download_filename(page):
 
     download = home.download_favicon()
     assert download.suggested_filename == "favicon.svg"
+
+
+@pytest.mark.regression
+def test_home_page_language_switch_to_de(page):
+    home = HomePage(page)
+    home.load()
+
+    home.switch_language_to_de()
+
+    assert home.get_language_code() == "DE"
+    assert "de_flag" in home.get_language_flag_src()
+    assert home.get_heading_text() == home.HEADING_TEXT_DE
