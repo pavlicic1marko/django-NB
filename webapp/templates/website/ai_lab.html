@@ -285,6 +285,57 @@
         border-radius: 1rem;
         background: #f8f9fa;
     }
+
+    #aiLabTabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        border-bottom: 0;
+        background: #f0f4f8;
+        padding: 0.4rem;
+        border-radius: 0.85rem;
+    }
+
+    #aiLabTabs .nav-item {
+        flex: 1 1 auto;
+    }
+
+    #aiLabTabs .nav-link {
+        width: 100%;
+        border: 2px solid transparent;
+        border-radius: 0.6rem;
+        background: #ffffff;
+        color: #334e68;
+        font-weight: 600;
+        padding: 0.65rem 1rem;
+        transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        box-shadow: 0 1px 2px rgba(16, 42, 67, 0.08);
+    }
+
+    #aiLabTabs .nav-link:hover {
+        border-color: #147dbe;
+        color: #102a43;
+        transform: translateY(-1px);
+    }
+
+    #aiLabTabs .nav-link:focus-visible {
+        outline: 3px solid #7fb3d5;
+        outline-offset: 2px;
+    }
+
+    #aiLabTabs .nav-link.active {
+        background: #147dbe;
+        border-color: #0f6499;
+        color: #ffffff;
+        box-shadow: 0 0.4rem 1rem rgba(20, 125, 190, 0.35);
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 575.98px) {
+        #aiLabTabs {
+            flex-direction: column;
+        }
+    }
 </style>
 {% endblock %}
 
