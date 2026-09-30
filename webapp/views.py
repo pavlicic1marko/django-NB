@@ -1,6 +1,7 @@
 from datetime import date as dt_date
 from datetime import timezone as dt_timezone
 from collections import defaultdict
+import base64
 import logging
 
 import requests
@@ -24,7 +25,7 @@ from rest_framework.response import Response
 
 from .forms import EmailUserCreationForm
 from .models import Message, Metting, News, QAndA, Thread, TIME_SLOT_CHOICES
-from .serializers import NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
+from .serializers import ImageAnalysisSerializer, NewsSerializer, QAndASerializer, QuestionSerializer, StartConversationSerializer, ThreadSerializer
 from .tokens import email_verification_token
 
 logger = logging.getLogger('webapp')
@@ -48,6 +49,49 @@ def _client_ip(request):
 
 def _agent_model(agent_type):
     return AGENT_MODELS[agent_type]
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def analyze_image(request):
+    serializer = ImageAnalysisSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    image = serializer.validated_data["image"]
+    image.seek(0)
+    image_data = base64.b64encode(image.read()).decode("ascii")
+    question = serializer.validated_data["question"]
+
+    try:
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json={
+                "model": "gemma3:4b",
+                "prompt": question,
+                "images": [image_data],
+                "stream": False,
+            },
+            timeout=120,
+        )
+        response.raise_for_status()
+        answer = response.json()["response"]
+        if not isinstance(answer, str):
+            raise ValueError("Ollama returned an invalid answer.")
+    except requests.exceptions.RequestException:
+        logger.exception("Image analysis request to Ollama failed.")
+        return Response(
+            {"detail": _("There was an error. Please try again later.")},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+    except (KeyError, TypeError, ValueError):
+        logger.exception("Ollama returned an invalid image analysis response.")
+        return Response(
+            {"detail": _("Ollama returned an invalid response.")},
+            status=status.HTTP_502_BAD_GATEWAY,
+        )
+
+    return Response({"answer": answer})
 
 
 def switch_language(request, language):

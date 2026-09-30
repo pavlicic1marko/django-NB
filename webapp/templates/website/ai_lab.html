@@ -1,7 +1,7 @@
 {% extends "website/base.html" %}
 {% load i18n %}
 
-{% block title %}{% translate "AI Chat | AI Solutions Studio" %}{% endblock %}
+{% block title %}{% translate "AI Lab | AI Solutions Studio" %}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -271,6 +271,83 @@
             max-width: 90%;
         }
     }
+
+    .tab-content > .tab-pane {
+        display: none;
+    }
+
+    .tab-content > .tab-pane.active {
+        display: block;
+    }
+
+    .ai-lab-placeholder {
+        border: 1px dashed #dee2e6;
+        border-radius: 1rem;
+        background: #f8f9fa;
+    }
+
+    .image-analysis-form {
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.85rem;
+        background: #f8f9fa;
+    }
+
+    .image-analysis-answer {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    #aiLabTabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        border-bottom: 0;
+        background: #f0f4f8;
+        padding: 0.4rem;
+        border-radius: 0.85rem;
+    }
+
+    #aiLabTabs .nav-item {
+        flex: 1 1 auto;
+    }
+
+    #aiLabTabs .nav-link {
+        width: 100%;
+        border: 2px solid transparent;
+        border-radius: 0.6rem;
+        background: #ffffff;
+        color: #334e68;
+        font-weight: 600;
+        padding: 0.65rem 1rem;
+        transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        box-shadow: 0 1px 2px rgba(16, 42, 67, 0.08);
+    }
+
+    #aiLabTabs .nav-link:hover {
+        border-color: #147dbe;
+        color: #102a43;
+        transform: translateY(-1px);
+    }
+
+    #aiLabTabs .nav-link:focus-visible {
+        outline: 3px solid #7fb3d5;
+        outline-offset: 2px;
+    }
+
+    #aiLabTabs .nav-link.active {
+        background: #147dbe;
+        border-color: #0f6499;
+        color: #ffffff;
+        box-shadow: 0 0.4rem 1rem rgba(20, 125, 190, 0.35);
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 575.98px) {
+        #aiLabTabs {
+            flex-direction: column;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -282,6 +359,32 @@
             <p class="text-secondary mb-4">
                 {% translate "Connect with a specialized assistant for AI strategy, integrations, or implementation planning. Choose the assistant that matches your goal, then type your question to get started." %}
             </p>
+
+            <ul class="nav nav-tabs mb-4" id="aiLabTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="local-llm-tab" type="button" role="tab" data-tab-target="local-llm-pane" aria-controls="local-llm-pane" aria-selected="true">
+                        {% translate "Local LLM" %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="cloud-llm-tab" type="button" role="tab" data-tab-target="cloud-llm-pane" aria-controls="cloud-llm-pane" aria-selected="false">
+                        {% translate "Cloud LLM" %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rag-tab" type="button" role="tab" data-tab-target="rag-pane" aria-controls="rag-pane" aria-selected="false">
+                        {% translate "RAG" %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="image-analysis-tab" type="button" role="tab" data-tab-target="image-analysis-pane" aria-controls="image-analysis-pane" aria-selected="false">
+                        {% translate "Image Analysis" %}
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="aiLabTabsContent">
+            <div class="tab-pane fade show active" id="local-llm-pane" role="tabpanel" aria-labelledby="local-llm-tab" tabindex="0">
 
             <fieldset class="mb-4">
                 <legend class="h6">{% translate "Choose an AI agent" %}</legend>
@@ -353,12 +456,151 @@
                 </button>
             </div>
             </div>
+            </div>
+
+            <div class="tab-pane fade" id="cloud-llm-pane" role="tabpanel" aria-labelledby="cloud-llm-tab" tabindex="0">
+                <div class="ai-lab-placeholder text-center py-5">
+                    <h2 class="h5 mb-2">{% translate "Cloud LLM" %}</h2>
+                    <p class="text-secondary mb-0">{% translate "Coming soon." %}</p>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="rag-pane" role="tabpanel" aria-labelledby="rag-tab" tabindex="0">
+                <div class="ai-lab-placeholder text-center py-5">
+                    <h2 class="h5 mb-2">{% translate "RAG" %}</h2>
+                    <p class="text-secondary mb-0">{% translate "Coming soon." %}</p>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="image-analysis-pane" role="tabpanel" aria-labelledby="image-analysis-tab" tabindex="0">
+                <div class="image-analysis-form">
+                    <h2 class="h5 mb-3">{% translate "Ask about an image" %}</h2>
+                    <form id="imageAnalysisForm" novalidate>
+                        <div class="mb-3">
+                            <label for="analysisImage" class="form-label">{% translate "Image (maximum 11 KB)" %}</label>
+                            <input type="file" class="form-control" id="analysisImage" name="image" accept="image/*" required>
+                            <div class="form-text">{% translate "Upload an image no larger than 11 KB." %}</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="imageQuestion" class="form-label">{% translate "Your question" %}</label>
+                            <textarea class="form-control" id="imageQuestion" name="question" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="imageAnalysisAskBtn" disabled>
+                            <span class="image-analysis-button-label">{% translate "Ask" %}</span>
+                            <span class="chat-loading" hidden>
+                                <span class="chat-loading-spinner" aria-hidden="true"></span>
+                                {% translate "Analyzing..." %}
+                            </span>
+                        </button>
+                    </form>
+                    <div id="imageAnalysisFeedback" class="text-danger small mt-3" role="alert" hidden></div>
+                    <section id="imageAnalysisResult" class="mt-4" aria-live="polite" hidden>
+                        <h3 class="h6">{% translate "Answer" %}</h3>
+                        <p id="imageAnalysisAnswer" class="image-analysis-answer mb-0"></p>
+                    </section>
+                </div>
+            </div>
+            </div>
         </div>
     </main>
 </div>
 {% endblock %}
 
 {% block extra_script %}
+<script>
+    (function () {
+        var tabButtons = document.querySelectorAll("#aiLabTabs [data-tab-target]");
+
+        tabButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                var targetId = button.getAttribute("data-tab-target");
+
+                tabButtons.forEach(function (btn) {
+                    var isActive = btn === button;
+                    btn.classList.toggle("active", isActive);
+                    btn.setAttribute("aria-selected", isActive ? "true" : "false");
+                });
+
+                document.querySelectorAll("#aiLabTabsContent .tab-pane").forEach(function (pane) {
+                    var isActive = pane.id === targetId;
+                    pane.classList.toggle("active", isActive);
+                    pane.classList.toggle("show", isActive);
+                });
+            });
+        });
+    })();
+</script>
+<script>
+    (function () {
+        var form = document.getElementById("imageAnalysisForm");
+        var imageInput = document.getElementById("analysisImage");
+        var questionInput = document.getElementById("imageQuestion");
+        var askButton = document.getElementById("imageAnalysisAskBtn");
+        var buttonLabel = askButton.querySelector(".image-analysis-button-label");
+        var loadingLabel = askButton.querySelector(".chat-loading");
+        var feedback = document.getElementById("imageAnalysisFeedback");
+        var result = document.getElementById("imageAnalysisResult");
+        var answer = document.getElementById("imageAnalysisAnswer");
+        var maxImageSize = 11 * 1024;
+
+        function updateButtonState() {
+            var image = imageInput.files[0];
+            askButton.disabled = !image || image.size > maxImageSize || !questionInput.value.trim();
+        }
+
+        function showError(message) {
+            feedback.textContent = message;
+            feedback.hidden = false;
+        }
+
+        imageInput.addEventListener("change", function () {
+            feedback.hidden = true;
+            result.hidden = true;
+            updateButtonState();
+            if (imageInput.files[0] && imageInput.files[0].size > maxImageSize) {
+                showError("{% filter escapejs %}{% translate 'Image must be 11 KB or smaller.' %}{% endfilter %}");
+            }
+        });
+        questionInput.addEventListener("input", updateButtonState);
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            if (askButton.disabled) {
+                return;
+            }
+
+            feedback.hidden = true;
+            result.hidden = true;
+            askButton.disabled = true;
+            buttonLabel.hidden = true;
+            loadingLabel.hidden = false;
+            askButton.setAttribute("aria-busy", "true");
+
+            fetch("/api/ai-lab/image-analysis/", {
+                method: "POST",
+                body: new FormData(form)
+            }).then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok) {
+                        var detail = data.detail || data.image || data.question || "Image analysis failed. Please try again.";
+                        throw new Error(Array.isArray(detail) ? detail.join(" ") : detail);
+                    }
+                    return data;
+                });
+            }).then(function (data) {
+                answer.textContent = data.answer;
+                result.hidden = false;
+            }).catch(function (error) {
+                showError(error.message);
+            }).finally(function () {
+                buttonLabel.hidden = false;
+                loadingLabel.hidden = true;
+                askButton.removeAttribute("aria-busy");
+                updateButtonState();
+            });
+        });
+    })();
+</script>
 <script>
     (function () {
         var STORAGE_KEY = "chatState";
