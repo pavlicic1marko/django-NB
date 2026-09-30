@@ -18,7 +18,7 @@ def test_home_page_heading_is_not_wrong_text(page):
     home = HomePage(page)
     home.load()
 
-    actual_text = page.locator("h1").first.text_content()
+    actual_text = home.get_heading_text()
     assert actual_text == "We build AI products and integrations that move your business faster."
 
 
@@ -27,22 +27,8 @@ def test_favicon_download_filename(page):
     home = HomePage(page)
     home.load()
 
-    favicon = page.locator('link[rel="icon"]')
-    favicon_url = favicon.get_attribute("href")
+    favicon_url = home.get_favicon_url()
     assert favicon_url is not None
 
-    with page.expect_download() as download_info:
-        page.evaluate(
-            """url => {
-                const link = document.createElement("a");
-                link.href = url;
-                link.download = "";
-                document.body.append(link);
-                link.click();
-                link.remove();
-            }""",
-            favicon_url,
-        )
-
-    download = download_info.value
+    download = home.download_favicon()
     assert download.suggested_filename == "favicon.svg"
