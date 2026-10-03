@@ -62,6 +62,19 @@ def test_home_page_profile_menu_login_navigates_to_login_page(page):
 
 
 @pytest.mark.regression
+def test_login_page_register_button_navigates_to_register_page(page):
+    login = LoginPage(page)
+    login.load()
+
+    assert page.get_by_text("Don't have an account?").is_visible()
+    login.click_register()
+
+    register = RegisterPage(page)
+    assert page.url.endswith("/register/")
+    assert register.is_create_account_button_visible()
+
+
+@pytest.mark.regression
 def test_home_page_profile_menu_register_navigates_to_register_page(page):
     home = HomePage(page)
     home.load()
