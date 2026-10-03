@@ -2,6 +2,7 @@ import pytest
 
 from pages.home_page import HomePage
 from pages.login_page import LoginPage
+from pages.register_page import RegisterPage
 
 
 @pytest.mark.smoke
@@ -58,3 +59,16 @@ def test_home_page_profile_menu_login_navigates_to_login_page(page):
     login = LoginPage(page)
     assert page.url.endswith("/login/")
     assert login.is_login_button_visible()
+
+
+@pytest.mark.regression
+def test_home_page_profile_menu_register_navigates_to_register_page(page):
+    home = HomePage(page)
+    home.load()
+
+    home.open_profile_menu()
+    home.click_register()
+
+    register = RegisterPage(page)
+    assert page.url.endswith("/register/")
+    assert register.is_create_account_button_visible()
