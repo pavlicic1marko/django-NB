@@ -591,6 +591,130 @@ msgid ""
 "as soon as possible."
 msgstr "Vielen Dank! Ihre Nachricht wurde erfolgreich gesendet. Wir antworten Ihnen so schnell wie möglich unter %(email)s."
 
+#: .\webapp\templates\website\ai_lab.html
+msgid "AI Lab | AI Solutions Studio"
+msgstr "KI-Labor | AI Solutions Studio"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "AI Lab"
+msgstr "KI-Labor"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Connect with a specialized assistant for AI strategy, integrations, or implementation planning. Choose the assistant that matches your goal, then type your question to get started."
+msgstr "Verbinden Sie sich mit einem spezialisierten Assistenten für KI-Strategie, Integrationen oder Implementierungsplanung. Wählen Sie den Assistenten, der zu Ihrem Ziel passt, und geben Sie Ihre Frage ein, um zu beginnen."
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Local LLM"
+msgstr "Lokales LLM"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Cloud LLM"
+msgstr "Cloud-LLM"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Image Analysis"
+msgstr "Bildanalyse"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Choose an AI agent"
+msgstr "KI-Agent auswählen"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Size: 92 MB"
+msgstr "Größe: 92 MB"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Size: 1.3 GB"
+msgstr "Größe: 1,3 GB"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Size: 292 MB"
+msgstr "Größe: 292 MB"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Ask about your AI goals"
+msgstr "Fragen Sie nach Ihren KI-Zielen"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Describe your AI project or integration challenge..."
+msgstr "Beschreiben Sie Ihr KI-Projekt oder Ihre Integrationsherausforderung..."
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Please enter a question before starting the AI chat."
+msgstr "Bitte geben Sie eine Frage ein, bevor Sie den KI-Chat starten."
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Start AI consultation"
+msgstr "KI-Beratung starten"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Processing..."
+msgstr "Wird verarbeitet..."
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "End chat"
+msgstr "Chat beenden"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "END CHAT"
+msgstr "CHAT BEENDEN"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Ask a follow-up about architecture, models, or rollout..."
+msgstr "Stellen Sie eine Rückfrage zu Architektur, Modellen oder Rollout..."
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Coming soon."
+msgstr "Demnächst verfügbar."
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Ask about an image"
+msgstr "Stellen Sie eine Frage zu einem Bild"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Image (maximum 11 KB)"
+msgstr "Bild (maximal 11 KB)"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Choose file"
+msgstr "Datei auswählen"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "No file chosen"
+msgstr "Keine Datei ausgewählt"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Upload an image no larger than 11 KB."
+msgstr "Laden Sie ein Bild mit höchstens 11 KB hoch."
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Your question"
+msgstr "Ihre Frage"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Ask"
+msgstr "Fragen"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Analyzing..."
+msgstr "Wird analysiert..."
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Answer"
+msgstr "Antwort"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "Image must be 11 KB or smaller."
+msgstr "Das Bild darf höchstens 11 KB groß sein."
+
+#: .\webapp\templates\website\register.html
+msgid "Create an account"
+msgstr "Konto erstellen"
+
+#: .\webapp\templates\website\register.html
+msgid "Create account"
+msgstr "Konto erstellen"
+
 #~ msgid "Page %s of %s"
 #~ msgstr "Seite %s von %s"
 
