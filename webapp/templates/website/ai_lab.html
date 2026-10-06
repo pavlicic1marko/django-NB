@@ -854,13 +854,14 @@
                 return;
             }
 
+            var previousAgent = state.agent || getSelectedAgent();
             endChatBtn.disabled = true;
             requestJson(CHAT_API_URL + state.threadId + "/end/", {
                 method: "POST"
             }).then(function () {
                 clearState();
                 showStartComposer();
-                setSelectedAgent("general");
+                setSelectedAgent(previousAgent);
                 chatHistory.innerHTML = "";
                 initialQuestion.value = "";
                 initialQuestionFeedback.style.display = "none";
