@@ -293,6 +293,11 @@
         background: #f8f9fa;
     }
 
+    #analysisImage:focus-visible + .image-file-picker-button {
+        outline: 3px solid #7fb3d5;
+        outline-offset: 2px;
+    }
+
     .image-analysis-answer {
         white-space: pre-wrap;
         overflow-wrap: anywhere;
@@ -478,8 +483,10 @@
                     <form id="imageAnalysisForm" novalidate>
                         <div class="mb-3">
                             <label for="analysisImage" class="form-label">{% translate "Image (maximum 11 KB)" %}</label>
-                            <input type="file" class="form-control" id="analysisImage" name="image" accept="image/*" required>
-                            <div class="form-text">{% translate "Upload an image no larger than 11 KB." %}</div>
+                            <input type="file" class="visually-hidden" id="analysisImage" name="image" accept="image/*" aria-describedby="analysisImageHelp analysisImageFileName" required>
+                            <label for="analysisImage" class="btn btn-outline-secondary image-file-picker-button">{% translate "Choose file" %}</label>
+                            <span id="analysisImageFileName" class="ms-2" aria-live="polite">{% translate "No file chosen" %}</span>
+                            <div id="analysisImageHelp" class="form-text">{% translate "Upload an image no larger than 11 KB." %}</div>
                         </div>
                         <div class="mb-3">
                             <label for="imageQuestion" class="form-label">{% translate "Your question" %}</label>
@@ -534,6 +541,7 @@
     (function () {
         var form = document.getElementById("imageAnalysisForm");
         var imageInput = document.getElementById("analysisImage");
+        var imageFileName = document.getElementById("analysisImageFileName");
         var questionInput = document.getElementById("imageQuestion");
         var askButton = document.getElementById("imageAnalysisAskBtn");
         var buttonLabel = askButton.querySelector(".image-analysis-button-label");
@@ -554,6 +562,9 @@
         }
 
         imageInput.addEventListener("change", function () {
+            imageFileName.textContent = imageInput.files[0]
+                ? imageInput.files[0].name
+                : "{% filter escapejs %}{% translate 'No file chosen' %}{% endfilter %}";
             feedback.hidden = true;
             result.hidden = true;
             updateButtonState();

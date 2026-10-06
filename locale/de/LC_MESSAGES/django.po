@@ -676,6 +676,14 @@ msgid "Image (maximum 11 KB)"
 msgstr "Bild (maximal 11 KB)"
 
 #: .\webapp\templates\website\ai_lab.html
+msgid "Choose file"
+msgstr "Datei auswählen"
+
+#: .\webapp\templates\website\ai_lab.html
+msgid "No file chosen"
+msgstr "Keine Datei ausgewählt"
+
+#: .\webapp\templates\website\ai_lab.html
 msgid "Upload an image no larger than 11 KB."
 msgstr "Laden Sie ein Bild mit höchstens 11 KB hoch."
 
